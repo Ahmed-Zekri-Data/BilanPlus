@@ -3,6 +3,7 @@
   var bodyParser = require("body-parser");
   var path = require("path");
   var TVArouter = require ("./Routes/TVAroute")
+  var DFrouter = require("./Routes/DeclarationFiscaleRoute")
   /*var indexRouter = require("./Routes/index");
   var{add}=require('./Controller/chatController')*/
   //connection to database
@@ -21,6 +22,7 @@
 
   app.use(bodyParser.json());
   app.use("/TVA",TVArouter);
+  app.use("/DF",DFrouter)
   /*app.use("/index", indexRouter);*/
 
   const server = http.createServer(app, console.log("server run"));
