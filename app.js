@@ -3,8 +3,12 @@
   var bodyParser = require("body-parser");
   var path = require("path");
   var TVArouter = require ("./Routes/TVAroute")
+
+  var DFrouter = require("./Routes/DeclarationFiscaleRoute")
+
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
+
   /*var indexRouter = require("./Routes/index");
   var{add}=require('./Controller/chatController')*/
   //connection to database
@@ -23,6 +27,7 @@
 
   app.use(bodyParser.json());
   app.use("/TVA",TVArouter);
+  app.use("/DF",DFrouter)
   /*app.use("/index", indexRouter);*/
 
   
@@ -49,6 +54,6 @@
     });
   });*/
 
-  server.listen(4000);
+  server.listen(3000);
 
   module.exports = app;
