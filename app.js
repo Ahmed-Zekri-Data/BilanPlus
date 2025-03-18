@@ -3,7 +3,9 @@
   var bodyParser = require("body-parser");
   var path = require("path");
   var TVArouter = require ("./Routes/TVAroute")
-  var Userrouter = require ("./Routes/Utilisateur")
+  var Userrouter = require ("./Routes/Utilisateurroute")
+  var Rolerouter = require ("./Routes/Roleroute")
+
 
   /*var indexRouter = require("./Routes/index");
   var{add}=require('./Controller/chatController')*/
@@ -24,6 +26,8 @@
   app.use(bodyParser.json());
   app.use("/TVA",TVArouter);
   app.use("/user",Userrouter);
+  app.use("/role",Rolerouter);
+
   /*app.use("/index", indexRouter);*/
 
   const server = http.createServer(app, console.log("server run"));
