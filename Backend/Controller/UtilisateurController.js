@@ -26,7 +26,7 @@ async function getallUsers (req, res) {
 
   async function getUserbyid (req, res) {
     try {
-      const getoneUser = await TVA.findById(req.params.id);
+      const getoneUser = await Utilisateur.findById(req.params.id);
       res.json(getoneUser);
     } catch (err) {
       res.status(400).send(err);
