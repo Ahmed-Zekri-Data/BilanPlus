@@ -4,14 +4,10 @@
   var path = require("path");
   var TVArouter = require ("./Routes/TVAroute")
 
-  var Userrouter = require ("./Routes/Utilisateur")
-
-
   var DFrouter = require("./Routes/DeclarationFiscaleRoute")
 
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
-
 
   /*var indexRouter = require("./Routes/index");
   var{add}=require('./Controller/chatController')*/
@@ -31,11 +27,7 @@
 
   app.use(bodyParser.json());
   app.use("/TVA",TVArouter);
-
-  app.use("/user",Userrouter);
-=======
   app.use("/DF",DFrouter)
-
   /*app.use("/index", indexRouter);*/
 
   
