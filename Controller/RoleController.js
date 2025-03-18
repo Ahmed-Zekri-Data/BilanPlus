@@ -14,7 +14,7 @@ async function addRole(req, res) {
       res.status(400).send(err);
     }
   }
-
+  
 async function getallRoles (req, res) {
     try {
       const getRole = await Utilisateur.find();
