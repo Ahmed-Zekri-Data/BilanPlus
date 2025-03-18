@@ -52,6 +52,6 @@ async function getallUsers (req, res) {
     }
   }
 
-module.exports = { adduser ,getallusers,getuserbyid,updateuser,deleteuser};
+module.exports = { addUser ,getallUsers,getUserbyid,updateUser,deleteUser};
 
   
