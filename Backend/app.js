@@ -5,6 +5,8 @@
   var TVArouter = require ("./Routes/TVAroute")
 
   var Userrouter = require ("./Routes/Utilisateur")
+  var Rolerouter = require ("./Routes/Roleroute")
+
 
 
   var DFrouter = require("./Routes/DeclarationFiscaleRoute")
@@ -33,7 +35,8 @@
   app.use("/TVA",TVArouter);
 
   app.use("/user",Userrouter);
-=======
+  app.use("/role",Rolerouter);
+
   app.use("/DF",DFrouter)
 
   /*app.use("/index", indexRouter);*/
