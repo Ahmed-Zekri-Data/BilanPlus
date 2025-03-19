@@ -7,10 +7,16 @@
   var Userrouter = require ("./Routes/Utilisateur")
   var Rolerouter = require ("./Routes/Roleroute")
 
+
+  var PRODrouter = require ("./Routes/Produitroute")
+  var MSrouter = require("./Routes/MSroute")
+
+
   const fournisseurRoutes = require("./Routes/fournisseurRoutes");
   const commandeRoutes = require("./Routes/commandesRoutes");
   
   
+
 
   var DFrouter = require("./Routes/DeclarationFiscaleRoute")
 
@@ -41,6 +47,10 @@
   app.use("/role",Rolerouter);
 
   app.use("/DF",DFrouter)
+
+  app.use("/PRODUIT",PRODrouter);
+  app.use("/MS",MSrouter);
+
 
   /*app.use("/index", indexRouter);*/
 
