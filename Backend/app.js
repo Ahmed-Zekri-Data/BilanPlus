@@ -7,8 +7,15 @@
   var Userrouter = require ("./Routes/Utilisateur")
   var Rolerouter = require ("./Routes/Roleroute")
 
+
   var PRODrouter = require ("./Routes/Produitroute")
   var MSrouter = require("./Routes/MSroute")
+
+
+  const fournisseurRoutes = require("./Routes/fournisseurRoutes");
+  const commandeRoutes = require("./Routes/commandesRoutes");
+  
+  
 
 
   var DFrouter = require("./Routes/DeclarationFiscaleRoute")
@@ -50,6 +57,10 @@
   
   app.use("/comptes", CompteRouter);
   app.use("/ecritures", EcritureRouter);
+
+
+  app.use("/fournisseurs", fournisseurRoutes);
+  app.use("/commandes", commandeRoutes);
 
   const server = http.createServer(app, console.log("server run"));
   /*const io = require("socket.io")(server);
