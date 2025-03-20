@@ -11,6 +11,8 @@
 
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
+  const cors = require('cors');
+
 
 
   /*var indexRouter = require("./Routes/index");
@@ -25,7 +27,9 @@
   /*************************************** */
 
   var app = express();
-
+  app.use(cors({
+    origin: 'http://localhost:4200' // Autorise uniquement les requêtes depuis ton frontend Angular
+  }));
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "twig");
 
@@ -33,7 +37,6 @@
   app.use("/TVA",TVArouter);
 
   app.use("/user",Userrouter);
-=======
   app.use("/DF",DFrouter)
 
   /*app.use("/index", indexRouter);*/

@@ -19,7 +19,7 @@ export class DeclarationFiscaleTVAService {
   }
 
   // Get a single declaration by ID
-  getDeclarationById(id: number): Observable<DeclarationFiscale> {
+  getDeclarationById(id: string): Observable<DeclarationFiscale> {
     return this.http.get<DeclarationFiscale>(`${this.DFApiUrl}/getDFbyid/${id}`);
   }
 
@@ -42,7 +42,7 @@ getAllTVA(): Observable<TVA[]> {
   return this.http.get<TVA[]>(`${this.tvaApiUrl}/getallTVA`);
 }
 // Get a single TVA by ID
-getTVAById(id: number): Observable<TVA> {
+getTVAById(id: string): Observable<TVA> {
   return this.http.get<TVA>(`${this.tvaApiUrl}/getTVAbyid/${id}`);
 }
 // Create a new TVA 
@@ -50,11 +50,11 @@ createTVA(tva: TVA): Observable<TVA> {
   return this.http.post<TVA>(`${this.tvaApiUrl}/addTVA`, tva);
 }
 // Update a TVA
-updateTVA(id: number, tva: TVA): Observable<TVA> {
+updateTVA(id: string, tva: TVA): Observable<TVA> {
   return this.http.put<TVA>(`${this.tvaApiUrl}/updateTVA/${id}`, tva);
 }
 // Delete a TVA
-deleteTVA(id: number): Observable<void> {
+deleteTVA(id: string): Observable<void> {
   return this.http.delete<void>(`${this.tvaApiUrl}/deleteTVA/${id}`);
 }
 }
