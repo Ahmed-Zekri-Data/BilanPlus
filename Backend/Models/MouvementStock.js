@@ -1,9 +1,10 @@
 // models/MouvementStock.js
-const MouvementStockSchema = new mongoose.Schema({
-    produit: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit' },
+var mongo = require("mongoose");
+const MouvementStockSchema = new mongo.Schema({
+    produit: { type: mongo.Schema.Types.ObjectId, ref: 'Produit' },
     type: { type: String, required: true },
     quantite: { type: Number, required: true },
     date: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('MouvementStock', MouvementStockSchema);
+module.exports = mongo.model('MouvementStock', MouvementStockSchema);
