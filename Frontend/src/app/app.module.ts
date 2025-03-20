@@ -1,22 +1,28 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common'; // Ajouté pour les pipes
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
+import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
+import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CompteListComponent,
-    CompteFormComponent // Ajouté ici
+    CompteFormComponent,
+    EcritureListComponent,
+    EcritureFormComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule, // Ajouté pour date, titlecase, etc.
     AppRoutingModule,
-    FormsModule,
+    FormsModule, // Ajouté pour ngModel
     ReactiveFormsModule,
     HttpClientModule
   ],

@@ -7,26 +7,22 @@ import { EcritureComptable } from './Models/EcritureComptable';
   providedIn: 'root'
 })
 export class EcritureComptableService {
-  private apiUrl = 'http://localhost:3000/ecritures'; // URL de ton backend
+  private apiUrl = 'http://localhost:3000/ecritures';
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer toutes les écritures
   getEcritures(): Observable<EcritureComptable[]> {
     return this.http.get<EcritureComptable[]>(this.apiUrl);
   }
 
-  // Ajouter une écriture
   createEcriture(ecriture: EcritureComptable): Observable<EcritureComptable> {
     return this.http.post<EcritureComptable>(this.apiUrl, ecriture);
   }
 
-  // Mettre à jour une écriture
   updateEcriture(id: string, ecriture: Partial<EcritureComptable>): Observable<EcritureComptable> {
     return this.http.put<EcritureComptable>(`${this.apiUrl}/${id}`, ecriture);
   }
 
-  // Supprimer une écriture
   deleteEcriture(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
