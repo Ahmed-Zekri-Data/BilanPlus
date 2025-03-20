@@ -82,8 +82,10 @@ export class EcritureFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('EcritureFormComponent initialisé, ecriture:', this.ecriture);
     this.compteService.getComptes().subscribe({
       next: (comptes) => {
+        console.log('Comptes chargés pour le formulaire:', comptes);
         this.comptes = comptes;
         if (this.ecriture._id && this.ecriture.lignes.length >= 2) {
           this.debitLigne = { ...this.ecriture.lignes.find(l => l.nature === 'débit')! };
@@ -122,6 +124,7 @@ export class EcritureFormComponent implements OnInit {
   }
 
   cancel() {
+    console.log('Annuler cliqué dans EcritureFormComponent');
     this.cancelled.emit();
   }
 }

@@ -6,7 +6,13 @@ import { EcritureComptable, LigneEcriture } from '../../Models/EcritureComptable
   selector: 'app-ecriture-list',
   template: `
     <h2>Liste des écritures comptables</h2>
-    <button (click)="showForm = true; selectedEcriture = null" *ngIf="!showForm">Ajouter une écriture</button>
+    <button (click)="onAddClick()" *ngIf="!showForm">Ajouter une écriture</button>
+    <app-ecriture-form 
+      *ngIf="showForm" 
+      [ecriture]="selectedEcriture || defaultEcriture"
+      (saved)="onEcritureSaved($event)"
+      (cancelled)="onCancel()">
+    </app-ecriture-form>
     <ul>
       <li *ngFor="let ecriture of ecritures">
         {{ ecriture.date | date:'medium' }} - {{ ecriture.libelle }}
@@ -47,6 +53,7 @@ export class EcritureListComponent implements OnInit {
   ecritures: EcritureComptable[] = [];
   showForm: boolean = false;
   selectedEcriture: EcritureComptable | null = null;
+  defaultEcriture: EcritureComptable = { libelle: '', lignes: [], date: new Date() }; // Ajouté
 
   constructor(private ecritureService: EcritureComptableService) {}
 
@@ -76,10 +83,26 @@ export class EcritureListComponent implements OnInit {
   editEcriture(ecriture: EcritureComptable) {
     this.selectedEcriture = { ...ecriture };
     this.showForm = true;
+    console.log('Modifier cliqué, showForm:', this.showForm);
   }
+
+  onAddClick() {
+    console.log('Bouton Ajouter cliqué');
+    this.showForm = true;
+    this.selectedEcriture = null;
+    console.log('showForm après clic:', this.showForm);
+  }
+
   onEcritureSaved(ecriture: EcritureComptable) {
+    console.log('Écriture sauvegardée:', ecriture);
     this.showForm = false;
     this.selectedEcriture = null;
     this.loadEcritures();
+  }
+
+  onCancel() {
+    console.log('Annulation du formulaire');
+    this.showForm = false;
+    this.selectedEcriture = null;
   }
 }
