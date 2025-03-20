@@ -71,7 +71,6 @@ io.on("connection", (socket) => {
 server.listen(3000);
 
 module.exports = app;
-=======
   var express = require("express");
   var http = require("http");
   var bodyParser = require("body-parser");
@@ -96,6 +95,8 @@ module.exports = app;
 
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
+  const cors = require('cors');
+
 
 
   /*var indexRouter = require("./Routes/index");
@@ -107,10 +108,11 @@ module.exports = app;
     .connect(config.url)
     .then(() => console.log("database connected"))
     .catch(() => console.log("database not connected "));
-  /*************************************** */
 
   var app = express();
-
+  app.use(cors({
+    origin: 'http://localhost:4200' // Autorise uniquement les requêtes depuis ton frontend Angular
+  }));
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "twig");
 

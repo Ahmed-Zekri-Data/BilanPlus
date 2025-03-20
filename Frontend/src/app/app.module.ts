@@ -12,20 +12,22 @@ import { EcritureListComponent } from './components/ecriture-list/ecriture-list.
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
 =======
 import{HttpClientModule} from '@angular/common/http';
+import { ListTVAComponent } from './components/list-tva/list-tva.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 
 
 
 @NgModule({
   declarations: [
     AppComponent,
-
+    ListTVAComponent,
+    TvaDetailComponent,
+    TvaFormComponent,
     CompteListComponent,
     CompteFormComponent,
     EcritureListComponent,
     EcritureFormComponent
-
-
-
   ],
   imports: [
     BrowserModule,
