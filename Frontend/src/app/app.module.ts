@@ -15,6 +15,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar'; // Ajout
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
@@ -30,7 +31,7 @@ import { GestionComptableComponent } from './components/gestion-comptable/gestio
     CompteFormComponent,
     EcritureListComponent,
     EcritureFormComponent,
-    GestionComptableComponent // Ajout ici
+    GestionComptableComponent
   ],
   imports: [
     BrowserModule,
@@ -48,7 +49,8 @@ import { GestionComptableComponent } from './components/gestion-comptable/gestio
     MatListModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSnackBarModule // Ajout
   ],
   providers: [],
   bootstrap: [AppComponent]
