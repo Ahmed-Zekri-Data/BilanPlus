@@ -1,0 +1,30 @@
+<h2>Liste des Commandes</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fournisseur</th>
+      <th>Produit</th>
+      <th>Quantité</th>
+      <th>Prix</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let commande of commandes">
+      <td>{{ commande._id || 'Non défini' }}</td>
+      <td>{{ fournisseurs[commande.fournisseurID]?.nom || 'Chargement...' }}</td>
+      <td>{{ produits[commande.produit]?.nom || 'Chargement...' }}</td>
+      <td>{{ commande.quantite || 'Non défini' }}</td>
+      <td>{{ commande.prix || 'Non défini' }}</td>
+      <td>{{ commande.statut || 'Non défini' }}</td>
+      <td>
+        <button *ngIf="commande._id" 
+                (click)="deleteCommande(commande._id)">Supprimer</button>
+        <span *ngIf="!commande._id">ID manquant</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a [routerLink]="['/nouvelle-commande']">Ajouter une commande</a>

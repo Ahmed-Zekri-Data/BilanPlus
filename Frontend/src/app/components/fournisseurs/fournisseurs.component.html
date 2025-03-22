@@ -1,0 +1,28 @@
+<h2>Liste des Fournisseurs</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Email</th>
+      <th>Adresse</th>
+      <th>Catégorie</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let fournisseur of fournisseurs">
+      <td>{{ fournisseur._id || 'Non défini' }}</td>
+      <td>{{ fournisseur.nom || 'Non défini' }}</td>
+      <td>{{ fournisseur.email || 'Non défini' }}</td>
+      <td>{{ fournisseur.adresse || 'Non défini' }}</td>
+      <td>{{ fournisseur.categorie || 'Non défini' }}</td>
+      <td>
+        <button *ngIf="fournisseur._id" 
+                (click)="deleteFournisseur(fournisseur._id)">Supprimer</button>
+        <span *ngIf="!fournisseur._id">ID manquant</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a [routerLink]="['/nouveau-fournisseur']">Ajouter un fournisseur</a>
