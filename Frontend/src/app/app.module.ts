@@ -11,12 +11,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list'; // Ajout ici
+import { MatListModule } from '@angular/material/list';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
+import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +29,8 @@ import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.
     CompteListComponent,
     CompteFormComponent,
     EcritureListComponent,
-    EcritureFormComponent
+    EcritureFormComponent,
+    GestionComptableComponent // Ajout ici
   ],
   imports: [
     BrowserModule,
@@ -40,7 +45,10 @@ import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.
     MatCardModule,
     MatSidenavModule,
     MatIconModule,
-    MatListModule // Ajout ici
+    MatListModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]
