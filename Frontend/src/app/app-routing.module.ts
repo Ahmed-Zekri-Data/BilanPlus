@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
+import { DFFormComponent } from './components/df-form/df-form.component';
+import { ListDFComponent } from './components/list-df/list-df.component';
 
 
 const routes: Routes = [
@@ -10,6 +12,9 @@ const routes: Routes = [
   {path: 'getTVA/:id', component:TvaDetailComponent},
   {path : 'updatetva/:id', component:TvaFormComponent},
   {path : 'addtva', component:TvaFormComponent},
+  {path : 'DF',component:ListDFComponent},
+  {path : 'addDF',component:DFFormComponent},
+  {path : 'UpdateDF/:id', component:DFFormComponent},
 
 ];
 

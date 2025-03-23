@@ -68,7 +68,6 @@ io.on("connection", (socket) => {
   });
 });*/
 
-server.listen(3000);
 
 module.exports = app;
   var express = require("express");
@@ -95,7 +94,6 @@ module.exports = app;
 
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
-  const cors = require('cors');
 
 
 
@@ -110,9 +108,7 @@ module.exports = app;
     .catch(() => console.log("database not connected "));
 
   var app = express();
-  app.use(cors({
-    origin: 'http://localhost:4200' // Autorise uniquement les requêtes depuis ton frontend Angular
-  }));
+ 
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "twig");
 
@@ -138,7 +134,6 @@ module.exports = app;
   app.use("/fournisseurs", fournisseurRoutes);
   app.use("/commandes", commandeRoutes);
 
-  const server = http.createServer(app, console.log("server run"));
   /*const io = require("socket.io")(server);
   io.on("connection", (socket) => {
     console.log("user connecte");
