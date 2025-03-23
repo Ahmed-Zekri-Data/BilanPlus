@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const CommandeAchat = require('../models/CommandeAchat');
+const CommandeAchat = require('../Models/CommandeAchat');
 
 // GET toutes les commandes
 router.get('/', async (req, res) => {

@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import { CommandeAchat } from '../../Models/CommandeAchat';
-import { Produit } from '../../Models/Produit';
-import { Fournisseur } from '../../Models/Fournisseur';
-
+import { CommandeAchat } from 'src/app/Models/CommandeAchat';
+import { Produit } from 'src/app/Models/Produit';
+import { Fournisseur } from 'src/app/Models/Fournisseur';
 @Component({
   selector: 'app-commandes',
   templateUrl: './commandes.component.html',
@@ -58,7 +57,7 @@ export class CommandesComponent implements OnInit {
     if (confirm('Voulez-vous vraiment supprimer cette commande ?')) {
       this.apiService.deleteCommande(_id).subscribe({
         next: () => {
-          this.commandes = this.commandes.filter(c => c._id === _id);
+          this.commandes = this.commandes.filter(c => c._id !== _id); // Corrigé ici
           console.log('Commande supprimée avec succès');
         },
         error: (err) => {

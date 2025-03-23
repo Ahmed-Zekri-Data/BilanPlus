@@ -16,6 +16,7 @@ import { EcritureListComponent } from './components/ecriture-list/ecriture-list.
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
+import { ProduitsComponent } from './components/produits/produits.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { CommandesComponent } from './components/commandes/commandes.component';
     EcritureListComponent,
     EcritureFormComponent,
     FournisseursComponent,
-    CommandesComponent
+    CommandesComponent,
+    ProduitsComponent
   ],
   imports: [
     BrowserModule,
