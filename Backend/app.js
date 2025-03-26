@@ -2,7 +2,8 @@ var express = require("express");
 var http = require("http");
 var bodyParser = require("body-parser");
 var path = require("path");
-const cors = require("cors"); // Déclaré une seule fois ici
+var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
+
 var mongo = require("mongoose");
 var config = require("./Config/db.json");
 
@@ -21,13 +22,13 @@ const commandeRoutes = require("./Routes/commandesRoutes");
 // Connexion à la base de données
 mongo
   .connect(config.url)
-  .then(() => console.log("database connected"))
-  .catch(() => console.log("database not connected "));
+  .then(() => console.log("✅ Database connected successfully"))
+  .catch((err) => console.error("❌ Database connection failed:", err));
 
 // Initialisation de l'application Express
 var app = express();
 
-// Middleware CORS pour autoriser les requêtes depuis localhost:4200 (frontend Angular)
+// Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
   origin: 'http://localhost:4200'
 }));
@@ -50,7 +51,9 @@ app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 
 // Création et démarrage du serveur
-const server = http.createServer(app, console.log("server run"));
-server.listen(3000);
+const server = http.createServer(app);
+server.listen(3000, () => {
+  console.log("🚀 Server is running on port 3000");
+});
 
 module.exports = app;

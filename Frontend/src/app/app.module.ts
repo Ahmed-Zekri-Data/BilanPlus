@@ -19,6 +19,7 @@ import { CommandesComponent } from './components/commandes/commandes.component';
 import { ProduitsComponent } from './components/produits/produits.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
+
 @NgModule({
   declarations: [
     AppComponent,
