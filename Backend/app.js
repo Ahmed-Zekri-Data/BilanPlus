@@ -2,6 +2,7 @@ var express = require("express");
 var http = require("http");
 var bodyParser = require("body-parser");
 var path = require("path");
+
 const cors = require("cors"); // Ajoute cette ligne pour importer cors
 var TVArouter = require("./Routes/TVAroute");
 var Userrouter = require("./Routes/Utilisateur");
@@ -22,6 +23,12 @@ var fournisseurRoutes = require("./Routes/FournisseurRoute"); // Ajouté depuis 
 var commandeRoutes = require("./Routes/CommandeRoute"); // Ajouté depuis la deuxième partie
 
 
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
+
+const produitRoutes = require("./Routes/Produitroute"); // Assurez-vous du bon chemin
+
+
 /*var indexRouter = require("./Routes/index");
 var {add} = require('./Controller/chatController')*/
 
@@ -29,6 +36,7 @@ var {add} = require('./Controller/chatController')*/
 // Connexion à la base de données
 var mongo = require("mongoose");
 var config = require("./Config/db.json");
+
 mongo
   .connect(config.url)
   .then(() => console.log("database connected"))
@@ -57,6 +65,12 @@ app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/role", Rolerouter);
 app.use("/DF", DFrouter);
+app.use("/produits", produitRoutes);
+
+
+/*app.use("/index", indexRouter);*/
+app.use(express.json()); // Important pour lire le JSON dans le body des requêtes
+
 
 app.use("/PRODUIT", PRODrouter); // Ajouté depuis la deuxième partie
 app.use("/MS", MSrouter); // Ajouté depuis la deuxième partie
@@ -67,6 +81,11 @@ app.use("/commandes", commandeRoutes); // Ajouté depuis la deuxième partie
 
 /*app.use("/index", indexRouter);*/
 
+app.use("/clients", clientRoutes);
+app.use("/factures", factureRoutes);
+
+const server = http.createServer(app);
+console.log("server run");
 // Création du serveur HTTP
 const server = http.createServer(app);
 
@@ -88,6 +107,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnect");
   });
+});*/  
+server.listen(3000);
 });*/
 
 // Démarrage du serveur
