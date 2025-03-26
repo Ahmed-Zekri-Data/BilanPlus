@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ProduitComponent } from './components/produit.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
@@ -8,14 +9,16 @@ import { ListDFComponent } from './components/list-df/list-df.component';
 
 
 const routes: Routes = [
- {path:'TVA', component:ListTVAComponent},
+  { path: '', redirectTo: '/produit', pathMatch: 'full' },
+  { path: '**', redirectTo: '/produit' },
+  { path: 'produit', component: ProduitComponent },
+  {path:'TVA', component:ListTVAComponent},
   {path: 'getTVA/:id', component:TvaDetailComponent},
   {path : 'updatetva/:id', component:TvaFormComponent},
   {path : 'addtva', component:TvaFormComponent},
   {path : 'DF',component:ListDFComponent},
   {path : 'addDF',component:DFFormComponent},
   {path : 'UpdateDF/:id', component:DFFormComponent},
-
 ];
 
 @NgModule({
