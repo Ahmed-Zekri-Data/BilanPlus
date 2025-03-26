@@ -1,0 +1,94 @@
+<br>
+<h1>{{ isEditMode ? 'Modification d\'utilisateur' : 'Ajout d\'utilisateur' }}</h1>
+
+<form [formGroup]="utilisateurForm" (ngSubmit)="submitUtilisateur()" class="mt-4">
+
+    <div class="form-group mb-3">
+    <label for="nom">Nom</label>
+    <input 
+      type="text" 
+      id="nom"
+      class="form-control" 
+      formControlName="nom" 
+      placeholder="Entrer le nom"
+      [class.is-invalid]="utilisateurForm.controls['nom'].invalid && utilisateurForm.controls['nom'].touched">
+    <div class="alert alert-danger mt-2" 
+         *ngIf="utilisateurForm.controls['nom'].invalid && utilisateurForm.controls['nom'].touched">
+      <p *ngIf="utilisateurForm.controls['nom'].hasError('required')">Le nom est obligatoire</p>
+      <p *ngIf="utilisateurForm.controls['nom'].hasError('minlength')">Le nom doit comporter au moins 3 caractères</p>
+    </div>
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="email">Email</label>
+    <input 
+      type="email" 
+      id="email"
+      class="form-control" 
+      formControlName="email" 
+      placeholder="Entrer l'email"
+      [class.is-invalid]="utilisateurForm.controls['email'].invalid && utilisateurForm.controls['email'].touched">
+    <div class="alert alert-danger mt-2" 
+         *ngIf="utilisateurForm.controls['email'].invalid && utilisateurForm.controls['email'].touched">
+      <p *ngIf="utilisateurForm.controls['email'].hasError('required')">L'email est obligatoire</p>
+      <p *ngIf="utilisateurForm.controls['email'].hasError('email')">Veuillez entrer un email valide</p>
+    </div>
+  </div>
+
+=  <div class="form-group mb-3">
+    <label for="motDePasse">Mot de passe</label>
+    <input 
+      type="password" 
+      id="motDePasse"
+      class="form-control" 
+      formControlName="motDePasse" 
+      placeholder="Entrer le mot de passe"
+      [class.is-invalid]="utilisateurForm.controls['motDePasse'].invalid && utilisateurForm.controls['motDePasse'].touched">
+    <small class="form-text text-muted" *ngIf="isEditMode">
+      Laissez vide pour conserver le mot de passe actuel
+    </small>
+    <div class="alert alert-danger mt-2" 
+         *ngIf="utilisateurForm.controls['motDePasse'].invalid && utilisateurForm.controls['motDePasse'].touched">
+      <p *ngIf="utilisateurForm.controls['motDePasse'].hasError('required') && !isEditMode">
+        Le mot de passe est obligatoire
+      </p>
+      <p *ngIf="utilisateurForm.controls['motDePasse'].hasError('minlength')">
+        Le mot de passe doit comporter au moins 6 caractères
+      </p>
+    </div>
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="role">Rôle</label>
+    <select 
+      id="role"
+      class="form-control" 
+      formControlName="role"
+      [class.is-invalid]="utilisateurForm.controls['role'].invalid && utilisateurForm.controls['role'].touched">
+      <option value="">Sélectionner un rôle</option>
+      <option value="admin">Administrateur</option>
+      <option value="user">Utilisateur</option>
+
+    </select>
+    <div class="alert alert-danger mt-2" 
+         *ngIf="utilisateurForm.controls['role'].invalid && utilisateurForm.controls['role'].touched">
+      <p *ngIf="utilisateurForm.controls['role'].hasError('required')">Le rôle est obligatoire</p>
+    </div>
+  </div>
+
+
+  <div class="mt-4">
+    <button 
+      type="submit" 
+      class="btn btn-primary me-2" 
+      [disabled]="utilisateurForm.invalid">
+      {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+    </button>
+    <a routerLink="/utilisateurs" class="btn btn-secondary">Annuler</a>
+  </div>
+</form>
+
+<!-- Message de feedback -->
+<div class="alert alert-info mt-3" *ngIf="message">
+  {{ message }}
+</div>

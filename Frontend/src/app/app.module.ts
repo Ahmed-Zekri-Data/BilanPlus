@@ -10,8 +10,9 @@ import { CompteListComponent } from './components/compte-list/compte-list.compon
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
-=======
-import{HttpClientModule} from '@angular/common/http';
+import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+
 
 
 
@@ -22,8 +23,9 @@ import{HttpClientModule} from '@angular/common/http';
     CompteListComponent,
     CompteFormComponent,
     EcritureListComponent,
-    EcritureFormComponent
-
+    EcritureFormComponent,
+    AddUtilisateurComponent,
+    UtilisateurDetailsComponent,
 
 
   ],
