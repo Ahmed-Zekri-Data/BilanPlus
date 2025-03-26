@@ -68,10 +68,8 @@ io.on("connection", (socket) => {
   });
 });*/
 
-server.listen(3000);
 
 module.exports = app;
-=======
   var express = require("express");
   var http = require("http");
   var bodyParser = require("body-parser");
@@ -98,6 +96,7 @@ module.exports = app;
   var EcritureRouter = require("./Routes/EcritureRoute");
 
 
+
   /*var indexRouter = require("./Routes/index");
   var{add}=require('./Controller/chatController')*/
   //connection to database
@@ -107,10 +106,9 @@ module.exports = app;
     .connect(config.url)
     .then(() => console.log("database connected"))
     .catch(() => console.log("database not connected "));
-  /*************************************** */
 
   var app = express();
-
+ 
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "twig");
 
@@ -136,7 +134,6 @@ module.exports = app;
   app.use("/fournisseurs", fournisseurRoutes);
   app.use("/commandes", commandeRoutes);
 
-  const server = http.createServer(app, console.log("server run"));
   /*const io = require("socket.io")(server);
   io.on("connection", (socket) => {
     console.log("user connecte");
