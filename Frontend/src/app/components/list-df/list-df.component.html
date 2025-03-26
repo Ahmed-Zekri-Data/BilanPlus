@@ -1,37 +1,34 @@
 <div>
-    <h2>Declaration Fiscale List</h2>
-  
-    <button mat-raised-button color="primary" (click)="addNewDeclaration()">Add New Declaration</button>
-  
-    <table *ngIf="declarations.length > 0; else noDeclarations" class="declaration-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Periode</th>
-          <th>Montant Total</th>
-          <th>Statut</th>
-          <th>Compte Comptable</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let declaration of declarations">
-          <td>{{ declaration._id }}</td>
-          <td>{{ declaration.periode }}</td>
-          <td>{{ declaration.montantTotal }}</td>
-          <td>{{ declaration.statut }}</td>
-          <td>{{ declaration.compteComptable }}</td>
-          <td>
-            <button mat-raised-button color="primary" (click)="editDeclaration(declaration._id!)">Edit</button>
-            <button mat-raised-button color="warn" (click)="deleteDeclaration(declaration._id!)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <ng-template #noDeclarations>
-      <p>No declarations available.</p>
-    </ng-template>
-  
-    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-  </div>
+  <h2>Liste des Déclarations Fiscales</h2>
+  <button mat-raised-button color="primary" (click)="addNewDeclaration()">Ajouter une Nouvelle Déclaration</button>
+  <table *ngIf="declarations.length > 0; else noDeclarations" class="declaration-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Période</th>
+        <th>Montant Total</th>
+        <th>Statut</th>
+        <th>Compte Comptable</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let declaration of declarations">
+        <td>{{ declaration._id }}</td>
+        <td>{{ declaration.periode }}</td>
+        <td>{{ declaration.montantTotal }}</td>
+        <td>{{ declaration.statut }}</td>
+        <td>{{ declaration.compteComptable }}</td>
+        <td>
+          <button mat-raised-button color="primary" (click)="editDeclaration(declaration._id!)">Modifier</button>
+          <button mat-raised-button color="accent" (click)="viewDetails(declaration._id!)">Détails</button>
+          <button mat-raised-button color="warn" (click)="deleteDeclaration(declaration._id!)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <ng-template #noDeclarations>
+    <p>Aucune déclaration disponible.</p>
+  </ng-template>
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+</div>
