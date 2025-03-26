@@ -14,6 +14,7 @@ import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
+import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
 
 
@@ -28,7 +29,8 @@ import { DFFormComponent } from './components/df-form/df-form.component';
     EcritureListComponent,
     EcritureFormComponent,
     ListDFComponent,
-    DFFormComponent
+    DFFormComponent,
+    DFDetailComponent
   ],
   imports: [
     BrowserModule,

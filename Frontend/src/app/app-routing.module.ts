@@ -5,6 +5,7 @@ import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
+import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
 
 const routes: Routes = [
@@ -15,6 +16,7 @@ const routes: Routes = [
   {path : 'DF',component:ListDFComponent},
   {path : 'addDF',component:DFFormComponent},
   {path : 'UpdateDF/:id', component:DFFormComponent},
+  {path : 'getDF/:id', component:DFDetailComponent}
 
 ];
 
