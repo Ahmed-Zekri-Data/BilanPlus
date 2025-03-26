@@ -61,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "exam_1ALINFO1_2024:build:production"
+              "buildTarget": "exam_1ALINFO1_2024:build:production"
             },
             "development": {
-              "browserTarget": "exam_1ALINFO1_2024:build:development"
+              "buildTarget": "exam_1ALINFO1_2024:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,7 +72,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "exam_1ALINFO1_2024:build"
+            "buildTarget": "exam_1ALINFO1_2024:build"
           }
         },
         "test": {
