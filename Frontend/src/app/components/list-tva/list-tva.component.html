@@ -1,0 +1,27 @@
+<h2>List of TVA Entries</h2>
+
+<table class="tva-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Taux (%)</th>
+      <th>Montant</th>
+      <th>Declaration ID</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let tva of tvaList">
+      <td>{{ tva._id }}</td>
+      <td>{{ tva.taux }}</td>
+      <td>{{ tva.montant }}</td>
+      <td>{{ tva.declaration }}</td>
+      <td>
+        <button mat-button color="primary" (click)="viewDetails(tva._id!)">View Details</button>
+        <button mat-button color="warn" (click)="deleteTVA(tva._id!)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<button mat-raised-button color="primary" [routerLink]="['/addtva']">Add New TVA</button>
