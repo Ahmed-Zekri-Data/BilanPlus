@@ -17,7 +17,8 @@ import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
 import { ProduitsComponent } from './components/produits/produits.component';
-
+import { ListDFComponent } from './components/list-df/list-df.component';
+import { DFFormComponent } from './components/df-form/df-form.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,6 +30,8 @@ import { ProduitsComponent } from './components/produits/produits.component';
     EcritureListComponent,
     EcritureFormComponent,
     FournisseursComponent,
+    ListDFComponent,
+    DFFormComponent,
     CommandesComponent,
     ProduitsComponent
   ],

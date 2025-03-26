@@ -28,11 +28,11 @@ export class DeclarationFiscaleTVAService {
     return this.http.post<DeclarationFiscale>(`${this.DFApiUrl}/addDeclaration`, declaration);
   }
 // Update a declaration
-  updateDeclaration(id: number, declaration: DeclarationFiscale): Observable<DeclarationFiscale> {
+  updateDeclaration(id: string, declaration: DeclarationFiscale): Observable<DeclarationFiscale> {
     return this.http.put<DeclarationFiscale>(`${this.DFApiUrl}/updateDF/${id}`, declaration);
   }
 // Delete a declaration
-deleteDeclaration(id: number): Observable<void> {
+deleteDeclaration(id: string): Observable<void> {
   return this.http.delete<void>(`${this.DFApiUrl}/deleteDF/${id}`);
 }
 // --- TVA Methods ---
