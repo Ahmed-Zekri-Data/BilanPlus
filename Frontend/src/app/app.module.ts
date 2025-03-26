@@ -1,21 +1,11 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-<<<<<<< HEAD
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ProduitComponent } from './components/produit.component';
-
-@NgModule({
-  declarations: [AppComponent, ProduitComponent],
-  imports: [BrowserModule, HttpClientModule, FormsModule, AppRoutingModule],
-=======
 import { CommonModule } from '@angular/common'; // Ajouté pour les pipes
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
@@ -25,7 +15,6 @@ import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
-
 
 
 @NgModule({
@@ -39,7 +28,8 @@ import { DFFormComponent } from './components/df-form/df-form.component';
     EcritureListComponent,
     EcritureFormComponent,
     ListDFComponent,
-    DFFormComponent
+    DFFormComponent,
+    ProduitComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +40,6 @@ import { DFFormComponent } from './components/df-form/df-form.component';
     HttpClientModule
   ],
   providers: [],
->>>>>>> origin
   bootstrap: [AppComponent]
 })
 export class AppModule { }
