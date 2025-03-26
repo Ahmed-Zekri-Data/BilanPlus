@@ -48,7 +48,7 @@ app.use("/DF", DFrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 
-const server = http.createServer(app, console.log("server run"));
+//const server = http.createServer(app, console.log("server run"));
 /*const io = require("socket.io")(server);
 io.on("connection", (socket) => {
   console.log("user connecte");
@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
 server.listen(3000);
 
 module.exports = app;
-=======
+
   var express = require("express");
   var http = require("http");
   var bodyParser = require("body-parser");
