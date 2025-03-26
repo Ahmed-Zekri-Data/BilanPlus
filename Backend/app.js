@@ -14,7 +14,7 @@ const DFrouter = require("./Routes/DeclarationFiscaleRoute");
 const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
-const commandeRoutes = require("./Routes/CommandeRoute");
+const commandeRoutes = require("./Routes/commandesRoutes");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
 
