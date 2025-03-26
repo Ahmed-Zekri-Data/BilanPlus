@@ -16,7 +16,6 @@ const commandeRoutes = require("./Routes/commandesRoutes");
 var DFrouter = require("./Routes/DeclarationFiscaleRoute");
 var CompteRouter = require("./Routes/CompteRoute");
 var EcritureRouter = require("./Routes/EcritureRoute");
-var PRODrouter = require("./Routes/ProduitRoute"); // Ajouté depuis la deuxième partie
 var MSrouter = require("./Routes/MSroute"); // Ajouté depuis la deuxième partie
 var fournisseurRoutes = require("./Routes/FournisseurRoute"); // Ajouté depuis la deuxième partie
 var commandeRoutes = require("./Routes/CommandeRoute"); // Ajouté depuis la deuxième partie
@@ -35,7 +34,6 @@ mongo
 
   .catch(() => console.log("database not connected "));
 
-  .catch(() => console.log("database not connected"));
 
 
 var app = express();
@@ -68,7 +66,6 @@ app.use("/commandes", commandeRoutes); // Ajouté depuis la deuxième partie
 /*app.use("/index", indexRouter);*/
 
 // Création du serveur HTTP
-const server = http.createServer(app);
 
 // Configuration de Socket.IO (commentée)
 /*const io = require("socket.io")(server);
