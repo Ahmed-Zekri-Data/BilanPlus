@@ -1,4 +1,4 @@
-import { Component ,OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
@@ -27,31 +27,34 @@ export class ListDFComponent implements OnInit {
         this.declarations = declarations;
       },
       error: (error) => {
-        this.errorMessage = 'Failed to load declarations: ' + error.message;
+        this.errorMessage = 'Échec du chargement des déclarations : ' + error.message;
       }
     });
   }
 
   editDeclaration(id: string): void {
-    this.router.navigate(['/UpdateDF', id]); 
+    this.router.navigate(['/edit-declaration', id]); // Updated from '/UpdateDF'
+  }
+
+  viewDetails(id: string): void {
+    this.router.navigate(['/getDF', id]); // Added for detail redirection
   }
 
   deleteDeclaration(id: string): void {
-
-    if (confirm('Are you sure you want to delete this declaration?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette déclaration ?')) {
       this.declarationFiscaleTVAService.deleteDeclaration(id).subscribe({
         next: () => {
-          this.declarations = this.declarations.filter(d => d._id !== id.toString());
-          console.log('Declaration deleted successfully');
+          this.declarations = this.declarations.filter(d => d._id !== id);
+          console.log('Déclaration supprimée avec succès');
         },
         error: (error) => {
-          this.errorMessage = 'Failed to delete declaration: ' + error.message;
+          this.errorMessage = 'Échec de la suppression de la déclaration : ' + error.message;
         }
       });
     }
   }
 
   addNewDeclaration(): void {
-    this.router.navigate(['/addDF']); // Adjust route as needed
+    this.router.navigate(['/add-declaration']); // Updated from '/addDF'
   }
 }

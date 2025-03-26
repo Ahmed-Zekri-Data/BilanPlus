@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common'; // Ajouté pour les pipes
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { ProduitComponent } from './components/produit.component';
+import { CommonModule } from '@angular/common'; // Ajouté pour les pipes
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
@@ -23,6 +24,8 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { RouterModule } from '@angular/router';
+import { DFDetailComponent } from './components/df-detail/df-detail.component';
+
 
 
 
@@ -49,7 +52,14 @@ import { RouterModule } from '@angular/router';
     DFFormComponent,
     RoleDetailsComponent,
     AddRoleComponent,
-    RoleComponent
+    RoleComponent,
+
+    DFFormComponent,
+
+    DFFormComponent,
+    DFDetailComponent,
+
+    ProduitComponent
 
   ],
   imports: [
