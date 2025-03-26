@@ -15,6 +15,7 @@
 
   var CompteRouter = require("./Routes/CompteRoute");
   var EcritureRouter = require("./Routes/EcritureRoute");
+  const cors = require('cors');
 
 
   /*var indexRouter = require("./Routes/index");
@@ -29,7 +30,7 @@
   /*************************************** */
 
   var app = express();
-
+  app.use(cors({ origin: 'http://localhost:4200' }))
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "twig");
 
@@ -70,6 +71,10 @@
       console.log("user disconnect");
     });
   });*/
+
+
+ 
+
 
   server.listen(3000);
 

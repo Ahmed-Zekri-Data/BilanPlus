@@ -1,0 +1,64 @@
+<div class="container">
+  <!-- Search bar at the top-right -->
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un produit..." name="searchTerm" style="padding: 5px; margin-right: 10px;">
+    <button (click)="filterProduits()" style="padding: 5px 10px;">Rechercher</button>
+  </div>
+
+  <div class="form-container">
+    <h3>{{ editMode ? 'Modifier un produit' : 'Ajouter un produit' }}</h3>
+    <form (ngSubmit)="editMode ? updateProduit() : addProduit()">
+      <div>
+        <label>Nom: </label>
+        <input type="text" [(ngModel)]="newProduit.nom" name="nom" required>
+      </div>
+      <div>
+        <label>Catégorie: </label>
+        <input type="text" [(ngModel)]="newProduit.categorie" name="categorie" required>
+      </div>
+      <div>
+        <label>Prix: </label>
+        <input type="number" [(ngModel)]="newProduit.prix" name="prix" required min="0">
+      </div>
+      <div>
+        <label>Stock: </label>
+        <input type="number" [(ngModel)]="newProduit.stock" name="stock" required min="0">
+      </div>
+      <button type="submit">{{ editMode ? 'Mettre à jour' : 'Ajouter' }}</button>
+      <button *ngIf="editMode" type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+    <!-- Affichage des erreurs -->
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+  </div>
+
+  <!-- Moved "Liste des Produits" just above the table -->
+  <h2>Liste des Produits</h2>
+
+  <!-- Table always displayed -->
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Catégorie</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let produit of filteredProduits">
+        <td>{{ produit.nom }}</td>
+        <td>{{ produit.categorie }}</td>
+        <td>{{ produit.prix }}</td>
+        <td>{{ produit.stock }}</td>
+        <td>
+          <button (click)="editProduit(produit)">Modifier</button>
+          <button *ngIf="produit._id" (click)="deleteProduit(produit._id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Message when no products match the search -->
+  <p *ngIf="filteredProduits.length === 0" class="no-products-message">Aucun produit trouvé</p>
+</div>
