@@ -3,18 +3,18 @@ var produit  = require("../Models/Produit")
 
 async function addProduit(req, res) {
     try {
-      const newProd = new produit({
-            nom : req.body.nom,
-            categorie : req.body.categorie,
-            prix : req.body.prix,
+        const newProd = new produit({
+            nom: req.body.nom,
+            categorie: req.body.categorie,
+            prix: req.body.prix,
             stock: req.body.stock
-      });
-      await newProd.save();
-      res.status(200).send("Produit added");
+        });
+        const savedProduit = await newProd.save();
+        res.status(200).json(savedProduit); // Return the saved product as JSON
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).send(err);
     }
-  }
+}
 
    async function getall (req, res) {
       try {
@@ -33,14 +33,17 @@ async function addProduit(req, res) {
        res.status(400).send(err);
      }
    } 
-   async function deleteproduit (req, res) {
-       try {
-         const produitdeleted = await produit.findByIdAndDelete(req.params.id);
-         res.status(200).send("produit deleted");
-       } catch (err) {
-         res.status(400).send(err);
-       }
-     }  
+   async function deleteproduit(req, res) {
+    try {
+        const produitdeleted = await produit.findByIdAndDelete(req.params.id);
+        if (!produitdeleted) {
+            return res.status(404).send("Produit non trouvé");
+        }
+        res.status(204).send(); // Réponse vide avec statut 204 (No Content)
+    } catch (err) {
+        res.status(400).send(err);
+    }
+}
      
 
       async function updateproduit(req, res) {
