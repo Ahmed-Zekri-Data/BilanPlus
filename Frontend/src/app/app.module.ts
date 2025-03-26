@@ -10,12 +10,18 @@ import { CompteListComponent } from './components/compte-list/compte-list.compon
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
+
+import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
+import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+
 
 
 @NgModule({
@@ -28,11 +34,23 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     CompteFormComponent,
     EcritureListComponent,
     EcritureFormComponent,
+
+    UtilisateurComponent,
+    AddUtilisateurComponent,
+    UtilisateurDetailsComponent,
+
+
+
+
     ListDFComponent,
+
+    DFFormComponent
+
     DFFormComponent,
     DFDetailComponent
 
     ProduitComponent
+
   ],
   imports: [
     BrowserModule,

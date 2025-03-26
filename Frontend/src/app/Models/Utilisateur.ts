@@ -5,6 +5,6 @@ export interface Utilisateur {
   nom: string;
   email: string;
   motDePasse?: string;  // Facultatif pour éviter d'exposer le mot de passe
-  role: Role | string;  // Peut être un objet ou simplement l'ID
+  role:  string;  // Peut être un objet ou simplement l'ID
 }
     

@@ -1,6 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
+
+import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
+import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+
+
 import { ProduitComponent } from './components/produit.component';
+
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
@@ -20,7 +28,13 @@ const routes: Routes = [
   {path : 'DF',component:ListDFComponent},
   {path : 'addDF',component:DFFormComponent},
   {path : 'UpdateDF/:id', component:DFFormComponent},
+
+  { path: 'utilisateurs', component: UtilisateurComponent },
+  { path: 'Addutilisateur', component: AddUtilisateurComponent },
+  {path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent}
+
   {path : 'getDF/:id', component:DFDetailComponent}
+
 
 
 ];
