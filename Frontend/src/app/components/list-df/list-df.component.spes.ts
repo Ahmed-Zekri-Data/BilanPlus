@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DFFormComponent } from './df-form.component';
+import { ListDFComponent } from './list-df.component';
 
-describe('DFFormComponent', () => {
-  let component: DFFormComponent;
-  let fixture: ComponentFixture<DFFormComponent>;
+describe('ListDFComponent', () => {
+  let component: ListDFComponent;
+  let fixture: ComponentFixture<ListDFComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [DFFormComponent]
+      declarations: [ListDFComponent]
     });
-    fixture = TestBed.createComponent(DFFormComponent);
+    fixture = TestBed.createComponent(ListDFComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -18,5 +18,4 @@ describe('DFFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 });

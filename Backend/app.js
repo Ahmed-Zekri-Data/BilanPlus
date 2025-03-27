@@ -1,57 +1,61 @@
-const express = require("express");
-const http = require("http");
-const bodyParser = require("body-parser");
-const path = require("path");
-const cors = require("cors");
-const mongoose = require("mongoose");
+var express = require("express");
+var http = require("http");
+var bodyParser = require("body-parser");
+var path = require("path");
+var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
 
-const TVArouter = require("./Routes/TVAroute");
-const Userrouter = require("./Routes/Utilisateur");
-const Rolerouter = require("./Routes/Roleroute");
-const PRODrouter = require("./Routes/Produitroute");
-const MSrouter = require("./Routes/MSroute");
-const DFrouter = require("./Routes/DeclarationFiscaleRoute");
-const CompteRouter = require("./Routes/CompteRoute");
-const EcritureRouter = require("./Routes/EcritureRoute");
+var mongo = require("mongoose");
+var config = require("./Config/db.json");
+
+// Importation des routes
+var TVArouter = require("./Routes/TVAroute");
+var Userrouter = require("./Routes/Utilisateur");
+var Rolerouter = require("./Routes/Roleroute");
+var PRODrouter = require("./Routes/Produitroute");
+var MSrouter = require("./Routes/MSroute");
+var DFrouter = require("./Routes/DeclarationFiscaleRoute");
+var CompteRouter = require("./Routes/CompteRoute");
+var EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
-const commandeRoutes = require("./Routes/CommandeRoute");
-const clientRoutes = require("./Routes/clientRoutes");
-const factureRoutes = require("./Routes/factureRoutes");
+const commandeRoutes = require("./Routes/commandesRoutes");
 
-const config = require("./Config/db.json");
+// Connexion à la base de données
+mongo
+  .connect(config.url)
+  .then(() => console.log("✅ Database connected successfully"))
+  .catch((err) => console.error("❌ Database connection failed:", err));
 
-mongoose
-  .connect(config.url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Database connected"))
-  .catch((err) => console.error("Database not connected:", err));
+// Initialisation de l'application Express
+var app = express();
 
-const app = express();
+// Middleware CORS pour autoriser les requêtes du frontend Angular
+app.use(cors({
+  origin: 'http://localhost:4200'
+}));
 
-app.use(cors({ origin: "http://localhost:4200" }));
-app.use(bodyParser.json());
-app.use(express.json());
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
+app.use(bodyParser.json());
+
+// Configuration des routes
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/role", Rolerouter);
-app.use("/DF", DFrouter);
-app.use("/produits", PRODrouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
+app.use("/DF", DFrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
-app.use("/clients", clientRoutes);
-app.use("/factures", factureRoutes);
 
+// Création et démarrage du serveur
 const server = http.createServer(app);
-
 server.listen(3000, () => {
-  console.log("Server running on port 3000");
+  console.log("🚀 Server is running on port 3000");
 });
 
 module.exports = app;
+
