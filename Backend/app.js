@@ -48,8 +48,6 @@ app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
 app.use("/DF", DFrouter);
 app.use("/produits", PRODrouter);
-app.use("/PRODUIT", PRODrouter);
-app.use("/MS", MSrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/fournisseurs", fournisseurRoutes);
