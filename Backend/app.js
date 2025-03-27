@@ -14,9 +14,9 @@ const DFrouter = require("./Routes/DeclarationFiscaleRoute");
 const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
-const commandeRoutes = require("./Routes/CommandeRoute");
-const clientRoutes = require("./Routes/clientRoutes");
-const factureRoutes = require("./Routes/factureRoutes");
+const commandeRoutes = require("./Routes/commandesRoutes");
+// const clientRoutes = require("./Routes/clientRoutes");
+//const factureRoutes = require("./Routes/factureRoutes");
 
 const config = require("./Config/db.json");
 
@@ -45,8 +45,8 @@ app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
-app.use("/clients", clientRoutes);
-app.use("/factures", factureRoutes);
+// app.use("/clients", clientRoutes);
+// app.use("/factures", factureRoutes);
 
 const server = http.createServer(app);
 
