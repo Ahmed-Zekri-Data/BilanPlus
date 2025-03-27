@@ -32,7 +32,13 @@ import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
+import { RoleDetailsComponent } from './components/role-details/role-details.component';
+import { AddRoleComponent } from './components/add-role/add-role.component';
+import { RoleComponent } from './components/role/role.component';
+import { RouterModule } from '@angular/router';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+
+
 
 
 
@@ -48,6 +54,15 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     EcritureFormComponent,
     FournisseursComponent,
     ListDFComponent,
+    
+    RoleDetailsComponent,
+    AddRoleComponent,
+    RoleComponent,
+
+
+   
+
+
     DFFormComponent,
     CommandesComponent,
     ProduitsComponent,
@@ -55,6 +70,7 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     AddUtilisateurComponent,
     UtilisateurDetailsComponent, 
     DFDetailComponent,
+
     ProduitComponent
   ],
   imports: [
@@ -63,7 +79,10 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     AppRoutingModule,
     FormsModule, // Ajouté pour ngModel
     ReactiveFormsModule,
-    HttpClientModule // Importé ici une seule fois
+
+    HttpClientModule,
+    RouterModule
+
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,3 +1,4 @@
+
 var express = require("express");
 var http = require("http");
 var bodyParser = require("body-parser");
@@ -46,13 +47,17 @@ app.use("/role", Rolerouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
 app.use("/DF", DFrouter);
+app.use("/produits", PRODrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
+// app.use("/clients", clientRoutes);
+// app.use("/factures", factureRoutes);
 
-// Création et démarrage du serveur
+
 const server = http.createServer(app);
+
 server.listen(3000, () => {
   console.log("🚀 Server is running on port 3000");
 });
