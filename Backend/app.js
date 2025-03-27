@@ -33,6 +33,7 @@ app.use(cors({
   origin: 'http://localhost:4200'
 }));
 
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
@@ -57,3 +58,4 @@ server.listen(3000, () => {
 });
 
 module.exports = app;
+
