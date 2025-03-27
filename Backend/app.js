@@ -21,7 +21,7 @@ const commandeRoutes = require("./Routes/commandesRoutes");
 const config = require("./Config/db.json");
 
 mongoose
-  .connect(config.url, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(config.url) // Sans options obsolètes
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
 

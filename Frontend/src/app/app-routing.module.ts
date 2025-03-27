@@ -24,8 +24,8 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
 
 const routes: Routes = [
-  { path: '', redirectTo: '/produit', pathMatch: 'full' },
-  { path: '**', redirectTo: '/produit' },
+  //{ path: '', redirectTo: '/produit', pathMatch: 'full' },
+  
   { path: 'produit', component: ProduitComponent },
   {path:'TVA', component:ListTVAComponent},
   {path: 'getTVA/:id', component:TvaDetailComponent},
@@ -44,8 +44,8 @@ const routes: Routes = [
   { path: 'role/edit/:id', component: AddRoleComponent }, 
   { path: 'role/details/:id', component: RoleDetailsComponent },
 
-  {path : 'getDF/:id', component:DFDetailComponent}
-
+  {path : 'getDF/:id', component:DFDetailComponent},
+ // { path: '**', redirectTo: '/produit' },
 
 
 ];
