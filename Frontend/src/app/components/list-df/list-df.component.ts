@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
@@ -27,12 +28,14 @@ export class ListDFComponent implements OnInit {
         this.declarations = declarations;
       },
       error: (error) => {
-        this.errorMessage = 'Échec du chargement des déclarations : ' + error.message;
+        this.errorMessage = 'Failed to load declarations: ' + error.message;
+
       }
     });
   }
 
   editDeclaration(id: string): void {
+
     this.router.navigate(['/edit-declaration', id]); // Updated from '/UpdateDF'
   }
 
@@ -55,6 +58,7 @@ export class ListDFComponent implements OnInit {
   }
 
   addNewDeclaration(): void {
+
     this.router.navigate(['/add-declaration']); // Updated from '/addDF'
   }
 }
