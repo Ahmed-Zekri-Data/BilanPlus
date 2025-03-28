@@ -26,6 +26,11 @@ mongo
   .then(() => console.log("✅ Database connected successfully"))
   .catch((err) => console.error("❌ Database connection failed:", err));
 
+mongoose
+  .connect(config.url) // Sans options obsolètes
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database not connected:", err));
+
 // Initialisation de l'application Express
 var app = express();
 
