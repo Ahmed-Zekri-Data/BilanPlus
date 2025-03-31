@@ -1,3 +1,4 @@
+// src/app/services/api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,50 +10,62 @@ import { Produit } from 'src/app/Models/Produit';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:3000/api/produits'; // Ajusté pour /produits
+  private baseUrl = 'http://localhost:3000/api'; // Base URL générique pour toutes les entités
 
   constructor(private http: HttpClient) {}
 
-  // Fournisseurs (inchangés)
+  // Fournisseurs
   getFournisseurs(): Observable<Fournisseur[]> {
-    return this.http.get<Fournisseur[]>(`http://localhost:3000/api/fournisseurs`);
+    return this.http.get<Fournisseur[]>(`${this.baseUrl}/fournisseurs`);
   }
+
   getFournisseur(id: string): Observable<Fournisseur> {
-    return this.http.get<Fournisseur>(`http://localhost:3000/api/fournisseurs/${id}`);
+    return this.http.get<Fournisseur>(`${this.baseUrl}/fournisseurs/${id}`);
   }
-  deleteFournisseur(_id: string): Observable<void> {
-    return this.http.delete<void>(`http://localhost:3000/api/fournisseurs/${_id}`);
-  }
+
   addFournisseur(fournisseur: Fournisseur): Observable<Fournisseur> {
-    return this.http.post<Fournisseur>(`http://localhost:3000/api/fournisseurs`, fournisseur);
+    return this.http.post<Fournisseur>(`${this.baseUrl}/fournisseurs`, fournisseur);
   }
 
-  // Commandes (inchangées)
+  deleteFournisseur(_id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/fournisseurs/${_id}`);
+  }
+
+  // Commandes
   getCommandes(): Observable<CommandeAchat[]> {
-    return this.http.get<CommandeAchat[]>(`http://localhost:3000/api/commandes`);
-  }
-  deleteCommande(_id: string): Observable<void> {
-    return this.http.delete<void>(`http://localhost:3000/api/commandes/${_id}`);
+    return this.http.get<CommandeAchat[]>(`${this.baseUrl}/commandes`);
   }
 
-  // Produits (ajustés aux routes backend)
+  createCommande(commande: CommandeAchat): Observable<CommandeAchat> {
+    return this.http.post<CommandeAchat>(`${this.baseUrl}/commandes`, commande);
+  }
+
+  updateStatut(_id: string, statut: string): Observable<CommandeAchat> {
+    return this.http.put<CommandeAchat>(`${this.baseUrl}/commandes/updateStatut/${_id}`, { statut });
+  }
+
+  deleteCommande(_id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/commandes/${_id}`);
+  }
+
+  // Produits (aligné avec la version de main)
   getProduits(): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/getall`);
+    return this.http.get<Produit[]>(`${this.baseUrl}/produits/getall`);
   }
 
   getProduit(id: string): Observable<Produit> {
-    return this.http.get<Produit>(`${this.apiUrl}/getbyid/${id}`);
+    return this.http.get<Produit>(`${this.baseUrl}/produits/getbyid/${id}`);
   }
 
   addProduit(produit: Produit): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/addProduit`, produit);
+    return this.http.post<any>(`${this.baseUrl}/produits/addProduit`, produit);
   }
 
   deleteProduit(_id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/deleteproduit/${_id}`);
+    return this.http.delete<any>(`${this.baseUrl}/produits/deleteproduit/${_id}`);
   }
 
   updateProduit(_id: string, produit: Produit): Observable<Produit> {
-    return this.http.put<Produit>(`${this.apiUrl}/updateproduit/${_id}`, produit);
+    return this.http.put<Produit>(`${this.baseUrl}/produits/updateproduit/${_id}`, produit);
   }
 }

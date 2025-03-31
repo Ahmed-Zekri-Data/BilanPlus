@@ -1,39 +1,38 @@
-.table {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  .thead-dark {
-    background-color: #343a40;
-    color: white;
-  }
-  .btn-sm {
-    padding: 0.25rem 0.5rem;
-  }
-  .text-center {
-    text-align: center;
-  }.table {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* src/app/commandes/commandes.component.css */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
 }
-.thead-dark {
-  background-color: #343a40;
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background-color: #f2f2f2;
+}
+button.btn-success {
+  background-color: #28a745;
   color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }
-.btn-sm {
-  padding: 0.25rem 0.5rem;
+button.btn-success:hover {
+  background-color: #218838;
 }
-.text-center {
-  text-align: center;
+button.btn-danger {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }
-.form-group {
-  margin-bottom: 1rem;
+button.btn-danger:hover {
+  background-color: #cc0000;
 }
-.text-danger {
-  font-size: 0.875rem;
-}
-.card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+button.btn-primary {
+  padding: 5px 10px;
+  cursor: pointer;
 }
