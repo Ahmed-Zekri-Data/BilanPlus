@@ -1,58 +1,55 @@
+// src/app/services/api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Fournisseur } from 'src/app/Models/Fournisseur';
 import { CommandeAchat } from 'src/app/Models/CommandeAchat';
-import { Produit } from 'src/app/Models/Produit';
+import { Produit } from 'src/app/Models/Produit'; // Gardé pour compatibilité avec loadRelatedData
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:3000/api/produits'; // Ajusté pour /produits
+  private apiUrl = 'http://localhost:3000'; // Base URL de ton backend
 
   constructor(private http: HttpClient) {}
 
-  // Fournisseurs (inchangés)
+  // Fournisseurs
   getFournisseurs(): Observable<Fournisseur[]> {
-    return this.http.get<Fournisseur[]>(`http://localhost:3000/api/fournisseurs`);
+    return this.http.get<Fournisseur[]>(`${this.apiUrl}/fournisseurs`);
   }
+
   getFournisseur(id: string): Observable<Fournisseur> {
-    return this.http.get<Fournisseur>(`http://localhost:3000/api/fournisseurs/${id}`);
+    return this.http.get<Fournisseur>(`${this.apiUrl}/fournisseurs/${id}`);
   }
-  deleteFournisseur(_id: string): Observable<void> {
-    return this.http.delete<void>(`http://localhost:3000/api/fournisseurs/${_id}`);
-  }
+
   addFournisseur(fournisseur: Fournisseur): Observable<Fournisseur> {
-    return this.http.post<Fournisseur>(`http://localhost:3000/api/fournisseurs`, fournisseur);
+    return this.http.post<Fournisseur>(`${this.apiUrl}/fournisseurs`, fournisseur);
   }
 
-  // Commandes (inchangées)
+  deleteFournisseur(_id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/fournisseurs/${_id}`);
+  }
+
+  // Commandes
   getCommandes(): Observable<CommandeAchat[]> {
-    return this.http.get<CommandeAchat[]>(`http://localhost:3000/api/commandes`);
+    return this.http.get<CommandeAchat[]>(`${this.apiUrl}/commandes`);
   }
+
+  createCommande(commande: CommandeAchat): Observable<CommandeAchat> {
+    return this.http.post<CommandeAchat>(`${this.apiUrl}/commandes`, commande);
+  }
+
+  updateStatut(_id: string, statut: string): Observable<CommandeAchat> {
+    return this.http.put<CommandeAchat>(`${this.apiUrl}/commandes/updateStatut/${_id}`, { statut });
+  }
+
   deleteCommande(_id: string): Observable<void> {
-    return this.http.delete<void>(`http://localhost:3000/api/commandes/${_id}`);
+    return this.http.delete<void>(`${this.apiUrl}/commandes/${_id}`);
   }
 
-  // Produits (ajustés aux routes backend)
-  getProduits(): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/getall`);
-  }
-
+  // Méthodes pour produits (gardées car utilisées dans loadRelatedData, mais supposées définies ailleurs)
   getProduit(id: string): Observable<Produit> {
-    return this.http.get<Produit>(`${this.apiUrl}/getbyid/${id}`);
-  }
-
-  addProduit(produit: Produit): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/addProduit`, produit);
-  }
-
-  deleteProduit(_id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/deleteproduit/${_id}`);
-  }
-
-  updateProduit(_id: string, produit: Produit): Observable<Produit> {
-    return this.http.put<Produit>(`${this.apiUrl}/updateproduit/${_id}`, produit);
+    return this.http.get<Produit>(`${this.apiUrl}/PRODUIT/${id}`); // À confirmer avec le module produits
   }
 }
