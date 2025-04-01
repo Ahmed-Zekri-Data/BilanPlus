@@ -1,54 +1,92 @@
-// controllers/commandeController.js
-const Commande = require('../Models/CommandeAchat');
+// Controller/commandeController.js
+const Commande = require('../Models/commandeAchat');
+const Produit = require('../Models/Produit');
 
-exports.createCommande = async (req, res) => {
-  const { produit, quantite, prix, fournisseurID } = req.body;
-
+const createCommande = async (req, res) => {
+  const { produit, quantite, prix, statut, fournisseurID } = req.body;
   try {
-    const commande = new Commande({ produit, quantite, prix, fournisseurID });
-    await commande.save();
-    res.status(201).json({ success: true, data: commande });
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    const produitDoc = await Produit.findById(produit);
+    if (!produitDoc) return res.status(404).json({ message: "Produit non trouvé" });
+    if (produitDoc.stock < quantite) {
+      return res.status(400).json({ message: `Stock insuffisant : ${produitDoc.stock} disponibles, ${quantite} demandés` });
+    }
+    const commande = new Commande({
+      produit,
+      quantite,
+      prix,
+      statut: statut || 'en attente',
+      fournisseurID
+    });
+    const newCommande = await commande.save();
+    res.status(201).json(newCommande);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-exports.getAllCommandes = async (req, res) => {
+const getAllCommandes = async (req, res) => {
   try {
-    const commandes = await Commande.find().populate('fournisseurID');
-    res.status(200).json({ success: true, data: commandes });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    const commandes = await Commande.find()
+      .populate('produit')
+      .populate('fournisseurID');
+    res.status(200).json(commandes);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-exports.getCommandeById = async (req, res) => {
+const updateCommande = async (req, res) => {
+  const { id } = req.params;
+  const { produit, quantite, prix, statut, fournisseurID } = req.body;
   try {
-    const commande = await Commande.findById(req.params.id).populate('fournisseurID');
-    if (!commande) return res.status(404).json({ success: false, error: 'Commande non trouvée' });
-    res.status(200).json({ success: true, data: commande });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    const updatedCommande = await Commande.findByIdAndUpdate(
+      id,
+      { produit, quantite, prix, statut, fournisseurID },
+      { new: true }
+    );
+    if (!updatedCommande) return res.status(404).json({ message: "Commande non trouvée" });
+    res.status(200).json(updatedCommande);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-exports.updateCommande = async (req, res) => {
+const updateStatut = async (req, res) => {
+  const { id } = req.params;
+  const { statut } = req.body;
   try {
-    const commande = await Commande.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!commande) return res.status(404).json({ success: false, error: 'Commande non trouvée' });
-    res.status(200).json({ success: true, data: commande });
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    const commande = await Commande.findById(id).populate('produit');
+    if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
+    if (statut === "Approuvé" && commande.produit.stock < commande.quantite) {
+      return res.status(400).json({ message: `Stock insuffisant : ${commande.produit.stock} disponibles` });
+    }
+    if (statut === "Approuvé") {
+      commande.produit.stock -= commande.quantite;
+      await commande.produit.save();
+    }
+    commande.statut = statut;
+    const updatedCommande = await commande.save();
+    res.status(200).json(updatedCommande);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-exports.deleteCommande = async (req, res) => {
+const deleteCommande = async (req, res) => {
+  const { id } = req.params;
   try {
-    const commande = await Commande.findByIdAndDelete(req.params.id);
-    if (!commande) return res.status(404).json({ success: false, error: 'Commande non trouvée' });
-    res.status(200).json({ success: true, data: { message: 'Commande supprimée' } });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    const deletedCommande = await Commande.findByIdAndDelete(id);
+    if (!deletedCommande) return res.status(404).json({ message: "Commande non trouvée" });
+    res.status(204).send();
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
-//commit
+
+module.exports = {
+  createCommande,
+  getAllCommandes,
+  updateCommande,
+  deleteCommande,
+  updateStatut
+};

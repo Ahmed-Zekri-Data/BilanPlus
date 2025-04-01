@@ -1,7 +1,8 @@
+// src/app/components/fournisseurs/fournisseurs.component.ts
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../../services/api.service';
-import { Fournisseur } from 'src/app/Models/Fournisseur';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ApiService } from '../../services/api.service'; // Chemin corrigé
+import { Fournisseur } from '../../Models/Fournisseur'; // Chemin corrigé
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-fournisseurs',
@@ -10,84 +11,39 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class FournisseursComponent implements OnInit {
   fournisseurs: Fournisseur[] = [];
-  fournisseurForm: FormGroup;
-  showForm = false;
 
-  constructor(private apiService: ApiService, private fb: FormBuilder) {
-    this.fournisseurForm = this.fb.group({
-      nom: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      adresse: ['', Validators.required],
-      categorie: ['', Validators.required]
-    });
-  }
+  constructor(
+    private apiService: ApiService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadFournisseurs();
   }
-  toggleForm(): void {
-    this.showForm = !this.showForm;
-  }
-  
+
   loadFournisseurs(): void {
     this.apiService.getFournisseurs().subscribe({
       next: (data: Fournisseur[]) => {
         this.fournisseurs = data;
         console.log('Fournisseurs chargés :', this.fournisseurs);
       },
-      error: (err) => {
-        console.error('Erreur lors du chargement des fournisseurs:', err);
-      }
+      error: (err: any) => console.error('Erreur lors du chargement des fournisseurs:', err)
     });
   }
 
-  deleteFournisseur(_id: string): void {
-    if (confirm('Voulez-vous vraiment supprimer ce fournisseur ?')) {
-      this.apiService.deleteFournisseur(_id).subscribe({
-        next: () => {
-          this.fournisseurs = this.fournisseurs.filter(f => f._id !== _id);
-          console.log('Fournisseur supprimé avec succès');
-        },
-        error: (err) => {
-          console.error('Erreur lors de la suppression:', err);
-        }
-      });
-    }
+  addFournisseur(): void {
+    this.router.navigate(['/add-fournisseur']);
   }
 
-  addFournisseur(): void {
-    if (this.fournisseurForm.valid) {
-      const newFournisseur: Fournisseur = this.fournisseurForm.value;
-      console.log('Envoi du nouveau fournisseur:', newFournisseur);
-      
-      this.apiService.addFournisseur(newFournisseur).subscribe({
-        next: (fournisseur: Fournisseur) => {
-          console.log('Réponse du serveur:', fournisseur);
-          
-          // Vérifier que l'ID est bien présent
-          if (fournisseur && fournisseur._id) {
-            this.fournisseurs.push(fournisseur);
-            this.fournisseurForm.reset();
-            this.showForm = false;
-            console.log('Fournisseur ajouté avec succès :', fournisseur);
-            // Optionnel: message de succès pour l'utilisateur
-            alert('Fournisseur ajouté avec succès!');
-          } else {
-            console.error('Erreur: Le serveur n\'a pas retourné un ID pour le fournisseur');
-            alert('Erreur lors de l\'ajout du fournisseur: ID manquant');
-          }
+  deleteFournisseur(id: string): void {
+    if (confirm('Voulez-vous vraiment supprimer ce fournisseur ?')) {
+      this.apiService.deleteFournisseur(id).subscribe({
+        next: () => {
+          this.fournisseurs = this.fournisseurs.filter(fournisseur => fournisseur._id !== id);
+          console.log('Fournisseur supprimé avec succès');
         },
-        error: (err) => {
-          console.error('Erreur lors de l\'ajout du fournisseur :', err);
-          alert('Erreur lors de l\'ajout du fournisseur: ' + (err.message || 'Erreur inconnue'));
-        }
+        error: (err: any) => console.error('Erreur lors de la suppression:', err)
       });
-    } else {
-      // Marquer tous les champs comme touchés pour afficher les erreurs
-      Object.keys(this.fournisseurForm.controls).forEach(key => {
-        this.fournisseurForm.get(key)?.markAsTouched();
-      });
-      console.warn('Formulaire invalide. Veuillez corriger les erreurs.');
     }
   }
 }

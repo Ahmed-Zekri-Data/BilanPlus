@@ -1,0 +1,28 @@
+<!-- src/app/add-fournisseur/add-fournisseur.component.html -->
+<div class="container mt-4">
+    <h2>Ajouter un Fournisseur</h2>
+    <div class="card">
+      <div class="card-body">
+        <form #form="ngForm" (ngSubmit)="ajouterFournisseur()">
+          <div class="form-group">
+            <label for="nom">Nom</label>
+            <input id="nom" class="form-control" name="nom" [(ngModel)]="nouveauFournisseur.nom" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" class="form-control" type="email" name="email" [(ngModel)]="nouveauFournisseur.email" required>
+          </div>
+          <div class="form-group">
+            <label for="adresse">Adresse</label>
+            <input id="adresse" class="form-control" name="adresse" [(ngModel)]="nouveauFournisseur.adresse" required>
+          </div>
+          <div class="form-group">
+            <label for="categorie">Catégorie</label>
+            <input id="categorie" class="form-control" name="categorie" [(ngModel)]="nouveauFournisseur.categorie" required>
+          </div>
+          <button type="submit" class="btn btn-success mt-2" [disabled]="form.invalid">Ajouter</button>
+          <button type="button" class="btn btn-secondary mt-2 ml-2" (click)="annuler()">Annuler</button>
+        </form>
+      </div>
+    </div>
+  </div>
