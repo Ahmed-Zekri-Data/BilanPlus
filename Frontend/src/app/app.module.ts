@@ -1,6 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+<<<<<<< HEAD
 import { CommonModule } from '@angular/common';
+=======
+import { CommonModule } from '@angular/common'; // Conservé de leur version
+>>>>>>> b6d6b22e0023e10f3122aaffd592f7f57297fe1c
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -15,6 +19,7 @@ import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+<<<<<<< HEAD
 import { CommandesComponent } from './components/commandes/commandes.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { AddCommandeComponent } from './add-commande/add-commande.component';
@@ -26,6 +31,12 @@ import { UtilisateurDetailsComponent } from './components/utilisateur-details/ut
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
+=======
+import { CommandesComponent } from './components/commandes/commandes.component'; // Ajouté (ton travail)
+import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component'; // Ajouté (ton travail)
+import { AddCommandeComponent } from './add-commande/add-commande.component'; // Ajouté (ton travail)
+import { AddFournisseurComponent } from './add-fournisseur/add-fournisseur.component'; // Ajouté (ton travail)
+>>>>>>> b6d6b22e0023e10f3122aaffd592f7f57297fe1c
 
 @NgModule({
   declarations: [
@@ -40,6 +51,7 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
+<<<<<<< HEAD
     CommandesComponent,
     FournisseursComponent,
     AddCommandeComponent,
@@ -55,6 +67,16 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
   imports: [
     BrowserModule,
     CommonModule,
+=======
+    CommandesComponent, // Ajouté (ton travail)
+    FournisseursComponent, // Ajouté (ton travail)
+    AddCommandeComponent, // Ajouté (ton travail)
+    AddFournisseurComponent // Ajouté (ton travail)
+  ],
+  imports: [
+    BrowserModule,
+    CommonModule, // Conservé de leur version
+>>>>>>> b6d6b22e0023e10f3122aaffd592f7f57297fe1c
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
