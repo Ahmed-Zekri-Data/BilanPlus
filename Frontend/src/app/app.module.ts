@@ -15,7 +15,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar'; // Ajout
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
@@ -50,7 +50,7 @@ import { GestionComptableComponent } from './components/gestion-comptable/gestio
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatSnackBarModule // Ajout
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
