@@ -1,9 +1,8 @@
 <div class="list-container">
-    <h2>Liste des Clients</h2>
   
     <!-- Connexion avec le formulaire -->
     <app-client-form (clientAdded)="addClient($event)"></app-client-form>
-  
+    <h2>Liste des Clients</h2>
     <ul *ngIf="clients.length > 0; else noClients">
       <li *ngFor="let client of clients; let i = index">
         <span>{{ client.nom }} - {{ client.email }} - {{ client.telephone }}</span>
@@ -14,5 +13,6 @@
     <ng-template #noClients>
       <p>Aucun client ajouté.</p>
     </ng-template>
+    
   </div>
   
