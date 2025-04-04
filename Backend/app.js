@@ -1,10 +1,10 @@
 var express = require("express");
-const cors = require('cors'); // Keep CORS for frontend communication
+var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
 var http = require("http");
 var bodyParser = require("body-parser");
 var path = require("path");
 
-// Import all routes
+// Importation des routes
 var TVArouter = require("./Routes/TVAroute");
 var Userrouter = require("./Routes/Utilisateur");
 var Rolerouter = require("./Routes/Roleroute");
@@ -16,24 +16,20 @@ var MSrouter = require("./Routes/MSroute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 
-/*var indexRouter = require("./Routes/index");
-var { add } = require('./Controller/chatController');*/
-
-// Connection to database
-var mongo = require("mongoose");
+// Connexion à la base de données
+var mongoose = require("mongoose");
 var config = require("./Config/db.json");
-mongo
+mongoose
   .connect(config.url)
-  .then(() => console.log("database connected"))
-  .catch(() => console.log("database not connected "));
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database not connected:", err));
 
-/*************************************** */
-
+// Initialisation de l'application Express
 var app = express();
 
-// Add CORS middleware to allow requests from Angular frontend
+// Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
-  origin: 'http://localhost:4200' // Autorise uniquement les requêtes depuis ton frontend Angular
+  origin: 'http://localhost:4200'
 }));
 
 app.set("views", path.join(__dirname, "views"));
@@ -41,7 +37,7 @@ app.set("view engine", "twig");
 
 app.use(bodyParser.json());
 
-// Define all routes
+// Configuration des routes
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/role", Rolerouter);
@@ -50,12 +46,13 @@ app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
+app.use("/produits", PRODrouter); // Added from main
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
+// app.use("/clients", clientRoutes);
+// app.use("/factures", factureRoutes);
 
-/*app.use("/index", indexRouter);*/
-
-const server = http.createServer(app, console.log("server run"));
+const server = http.createServer(app);
 
 /*const io = require("socket.io")(server);
 io.on("connection", (socket) => {
@@ -76,7 +73,8 @@ io.on("connection", (socket) => {
   });
 });*/
 
-// Start server on port 3000 (you can change to 4000 if preferred)
-server.listen(3000);
+server.listen(3000, () => {
+  console.log("🚀 Server is running on port 3000");
+});
 
 module.exports = app;
