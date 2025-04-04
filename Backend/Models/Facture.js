@@ -1,5 +1,4 @@
 // models/Facture.js
-const mongoose = require('mongoose');
 const FactureSchema = new mongoose.Schema({
     montant: { type: Number, required: true },
     statut: { type: String, required: true },

@@ -1,7 +1,7 @@
-export interface Fournisseur {
-  _id?: string;
-  nom: string;
-  email: string;
-  adresse: string;
-  categorie: string;
-}
+ export interface Fournisseur {
+    _id?: string;
+    nom: string;
+    email: string;
+    adresse: string;
+  }
+  
