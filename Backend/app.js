@@ -5,7 +5,7 @@ var bodyParser = require("body-parser");
 var path = require("path");
 var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
 
-var mongo = require("mongoose");
+var mongoose = require("mongoose");
 var config = require("./Config/db.json");
 
 // Importation des routes
@@ -21,15 +21,11 @@ const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 
 // Connexion à la base de données
-mongo
-  .connect(config.url)
-  .then(() => console.log("✅ Database connected successfully"))
-  .catch((err) => console.error("❌ Database connection failed:", err));
 
-mongoose
+ mongoose
   .connect(config.url) // Sans options obsolètes
   .then(() => console.log("Database connected"))
-  .catch((err) => console.error("Database not connected:", err));
+   .catch((err) => console.error("Database not connected:", err));
 
 // Initialisation de l'application Express
 var app = express();
