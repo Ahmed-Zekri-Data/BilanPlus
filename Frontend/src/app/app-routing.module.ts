@@ -15,6 +15,8 @@ import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { ClientFormComponent } from './components/client-form/client-form.component';
+import { ClientListComponent } from './components/client-list/client-list.component';
 
 
 const routes: Routes = [
@@ -31,9 +33,12 @@ const routes: Routes = [
 
   { path: 'utilisateurs', component: UtilisateurComponent },
   { path: 'Addutilisateur', component: AddUtilisateurComponent },
-  {path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent}
+  {path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent},
 
-  {path : 'getDF/:id', component:DFDetailComponent}
+  {path : 'getDF/:id', component:DFDetailComponent},
+  {path : 'clientform', component:ClientFormComponent},
+  {path : 'clientlist', component:ClientListComponent}
+
 
 
 
