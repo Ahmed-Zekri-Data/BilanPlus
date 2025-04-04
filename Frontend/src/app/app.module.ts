@@ -61,6 +61,8 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     UtilisateurComponent,
     AddUtilisateurComponent,
     UtilisateurDetailsComponent,
+    ListDFComponent,
+    DFFormComponent,
     RoleDetailsComponent,
     AddRoleComponent,
     RoleComponent,

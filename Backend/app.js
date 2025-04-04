@@ -1,31 +1,30 @@
-var express = require("express");
-var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
-var http = require("http");
-var bodyParser = require("body-parser");
-var path = require("path");
-
-// Importation des routes
-var TVArouter = require("./Routes/TVAroute");
-var Userrouter = require("./Routes/Utilisateur");
-var Rolerouter = require("./Routes/Roleroute");
-var DFrouter = require("./Routes/DeclarationFiscaleRoute");
-var CompteRouter = require("./Routes/CompteRoute");
-var EcritureRouter = require("./Routes/EcritureRoute");
-var PRODrouter = require("./Routes/Produitroute");
-var MSrouter = require("./Routes/MSroute");
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const path = require("path");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const TVArouter = require("./Routes/TVAroute");
+const Userrouter = require("./Routes/Utilisateur");
+const Rolerouter = require("./Routes/Roleroute");
+const PRODrouter = require("./Routes/Produitroute");
+const MSrouter = require("./Routes/MSroute");
+const DFrouter = require("./Routes/DeclarationFiscaleRoute");
+const CompteRouter = require("./Routes/CompteRoute");
+const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
+const config = require("./Config/db.json");
 
-// Connexion à la base de données
-var mongoose = require("mongoose");
-var config = require("./Config/db.json");
+
 mongoose
-  .connect(config.url)
+  .connect(config.url) // Sans options obsolètes
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
+const app = express();
 
-// Initialisation de l'application Express
-var app = express();
 
 // Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({

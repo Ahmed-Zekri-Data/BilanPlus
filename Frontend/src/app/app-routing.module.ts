@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+
 // Imports from feature/Module-5-New-CRUD
 import { HomeComponent } from './home/home.component';
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
@@ -25,6 +26,7 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
 const routes: Routes = [
+
   { path: '', component: HomeComponent }, // Default route from feature branch
   {
     path: 'gestion-comptable',
