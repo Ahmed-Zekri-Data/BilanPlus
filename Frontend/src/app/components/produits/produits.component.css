@@ -1,0 +1,53 @@
+.container {
+    padding: 20px;
+  }
+  
+  .add-form {
+    margin-bottom: 20px;
+  }
+  
+  .add-form input {
+    padding: 5px;
+    margin-right: 10px;
+    width: 150px;
+  }
+  
+  .add-form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .add-form button:hover {
+    background-color: #45a049;
+  }
+  
+  .produits-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .produits-table th, .produits-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .produits-table th {
+    background-color: #f2f2f2;
+  }
+  
+  button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #cc0000;
+  }

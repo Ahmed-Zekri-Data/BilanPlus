@@ -14,17 +14,23 @@ const getComptes = async (req, res) => {
 // CREATE - Ajouter un compte
 const createCompte = async (req, res) => {
   try {
-    const { numeroCompte, nom, type } = req.body;
+    const { numeroCompte, nom, type, solde } = req.body;
     if (!numeroCompte || !nom || !type) {
       return res.status(400).json({ message: "Numéro, Nom et Type sont requis" });
     }
-    const compte = new CompteComptable({ numeroCompte, nom, type });
+    const compte = new CompteComptable({ numeroCompte, nom, type, solde: solde || 0 });
     await compte.save();
     res.status(201).json(compte);
   } catch (err) {
+    if (err.name === 'MongoServerError' && err.code === 11000) {
+      // Vérifier si l'erreur concerne un duplicata sur numeroCompte
+      if (err.errmsg && err.errmsg.includes('index: numeroCompte_1')) {
+        return res.status(400).json({ message: `Le numéro de compte "${req.body.numeroCompte}" existe déjà.` });
+      }
+    }
     res.status(400).json({ message: "Impossible d'ajouter le compte", error: err.message });
   }
-};
+};  
 
 // UPDATE - Mettre à jour un compte
 const updateCompte = async (req, res) => {
