@@ -1,1 +1,26 @@
-@import 'node_modules/bootstrap/dist/css/bootstrap.min.css';
+/* S'assurer que le fond s'applique à toute la page */
+html, body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* Utiliser 100vh pour couvrir toute la hauteur */
+  background-color: #F5F5F5 !important; /* Fond gris clair */
+  overflow-x: hidden; /* Éviter le défilement horizontal */
+}
+
+h1, h2, h3 {
+  font-weight: 500;
+}
+
+/* S'assurer que le conteneur principal n'écrase pas le fond */
+.container {
+  background-color: transparent !important;
+}
+
+/* S'assurer que le router-outlet n'écrase pas le fond */
+router-outlet + * {
+  display: block;
+  min-height: calc(100vh - 64px); /* Ajuster pour la hauteur de la toolbar */
+  background-color: #F5F5F5 !important;
+}
+

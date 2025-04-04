@@ -1,0 +1,31 @@
+@use '@angular/material' as mat;
+
+// Définir les palettes de couleurs
+$bilan-primary: mat.define-palette(mat.$blue-palette, 900, 700, 800); // Bleu foncé (#1E3A8A)
+$bilan-accent: mat.define-palette(mat.$amber-palette, A700, A400, A200); // Doré (#D4AF37)
+$bilan-warn: mat.define-palette(mat.$red-palette);
+
+// Créer le thème
+$bilan-theme: mat.define-light-theme((
+  color: (
+    primary: $bilan-primary,
+    accent: $bilan-accent,
+    warn: $bilan-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0
+));
+
+// Appliquer le thème à tous les composants Angular Material
+@include mat.all-component-themes($bilan-theme);
+
+// Style pour le dégradé bleu
+.bilan-gradient {
+  background: linear-gradient(90deg, #1E3A8A 0%, #3B82F6 100%) !important;
+}
+
+// S'assurer que le bouton accent utilise bien la couleur dorée
+.mat-mdc-raised-button.mat-accent {
+  background-color: #D4AF37 !important;
+  color: white !important;
+}
