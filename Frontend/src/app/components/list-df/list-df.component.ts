@@ -36,9 +36,6 @@ export class ListDFComponent implements OnInit {
     this.router.navigate(['/edit-declaration', id]); // Updated from '/UpdateDF'
   }
 
-  viewDetails(id: string): void {
-    this.router.navigate(['/getDF', id]); // Added for detail redirection
-  }
 
   deleteDeclaration(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette déclaration ?')) {
@@ -57,4 +54,9 @@ export class ListDFComponent implements OnInit {
   addNewDeclaration(): void {
     this.router.navigate(['/add-declaration']); // Updated from '/addDF'
   }
+  
+  viewDetails(id: string): void {
+    this.router.navigate(['/getDF', id]); // Added for detail redirection
+  }
+
 }

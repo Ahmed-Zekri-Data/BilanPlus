@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-
 const TVArouter = require("./Routes/TVAroute");
 const Userrouter = require("./Routes/Utilisateur");
 const Rolerouter = require("./Routes/Roleroute");
@@ -17,14 +16,13 @@ const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
-
 const config = require("./Config/db.json");
 
+
 mongoose
-  .connect(config.url, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(config.url) // Sans options obsolètes
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
-
 const app = express();
 
 app.use(cors({ origin: "http://localhost:4200" }));
