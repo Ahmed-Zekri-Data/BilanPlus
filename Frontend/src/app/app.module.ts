@@ -15,6 +15,7 @@ import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
+import { MSComponent } from './components/ms/ms.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { DFFormComponent } from './components/df-form/df-form.component';
     EcritureFormComponent,
     ListDFComponent,
     DFFormComponent,
-    ProduitComponent
+    ProduitComponent,
+    MSComponent
   ],
   imports: [
     BrowserModule,

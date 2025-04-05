@@ -1,24 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ProduitComponent } from './components/produit.component';
+import { MSComponent } from './components/ms/ms.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { DFFormComponent } from './components/df-form/df-form.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
-
+import { CompteListComponent } from './components/compte-list/compte-list.component';
+import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
+import { ProduitComponent } from './components/produit.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/produit', pathMatch: 'full' },
-  { path: '**', redirectTo: '/produit' },
-  { path: 'produit', component: ProduitComponent },
-  {path:'TVA', component:ListTVAComponent},
-  {path: 'getTVA/:id', component:TvaDetailComponent},
-  {path : 'updatetva/:id', component:TvaFormComponent},
-  {path : 'addtva', component:TvaFormComponent},
-  {path : 'DF',component:ListDFComponent},
-  {path : 'addDF',component:DFFormComponent},
-  {path : 'UpdateDF/:id', component:DFFormComponent},
+  { path: '', redirectTo: '/produits', pathMatch: 'full' },
+  { path: 'produits', component: ProduitComponent },
+  { path: 'stock-movements', component: MSComponent },
+  { path: 'tva', component: ListTVAComponent },
+  { path: 'df', component: ListDFComponent },
+  { path: 'comptes', component: CompteListComponent },
+  { path: 'ecritures', component: EcritureListComponent },
 ];
 
 @NgModule({

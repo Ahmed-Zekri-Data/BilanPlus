@@ -15,9 +15,9 @@ var CompteRouter = require("./Routes/CompteRoute");
 var EcritureRouter = require("./Routes/EcritureRoute");
 
 // Connexion à la base de données
-var mongo = require("mongoose");
+var mongoose = require("mongoose");
 var config = require("./Config/db.json");
-mongo
+mongoose
   .connect(config.url)
   .then(() => console.log("database connected"))
   .catch(() => console.log("database not connected"));
