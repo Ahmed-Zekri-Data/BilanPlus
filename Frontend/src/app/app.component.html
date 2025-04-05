@@ -1,7 +1,13 @@
-<!-- Navigation from main branch -->
+<!-- Combined navigation from both branches -->
 <nav>
   <a [routerLink]="['/commandes']">Commandes</a> |
-  <a [routerLink]="['/fournisseurs']">Fournisseurs</a>
+  <a [routerLink]="['/fournisseurs']">Fournisseurs</a> |
+  <a [routerLink]="['/produits']">Gérer les Produits</a> |
+  <a [routerLink]="['/stock-movements']">Mouvements de Stock</a> |
+  <a [routerLink]="['/TVA']">Liste TVA</a> |
+  <a [routerLink]="['/DF']">Liste DF</a> |
+  <a [routerLink]="['/gestion-comptable/comptes']">Comptes</a> |
+  <a [routerLink]="['/gestion-comptable/ecritures']">Écritures</a>
 </nav>
 
 <!-- Container with router outlet -->
@@ -10,7 +16,7 @@
   <router-outlet></router-outlet>
 </div>
 
-<!-- Component tags from main branch -->
+<!-- Component tags from main branch - these could be moved to their respective routes -->
 <app-add-utilisateur></app-add-utilisateur>
 <app-utilisateur-details></app-utilisateur-details>
 <app-list-tva></app-list-tva>

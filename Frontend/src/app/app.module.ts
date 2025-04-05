@@ -33,6 +33,7 @@ import { CommandesComponent } from './components/commandes/commandes.component';
 import { ProduitsComponent } from './components/produits/produits.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
+import { MSComponent } from './components/ms/ms.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
@@ -48,6 +49,7 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     ListTVAComponent,
     TvaDetailComponent,
     TvaFormComponent,
+    ProduitComponent,
     CompteListComponent,
     CompteFormComponent,
     EcritureListComponent,
@@ -58,16 +60,14 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     ProduitsComponent,
     ListDFComponent,
     DFFormComponent,
+    MSComponent,
     UtilisateurComponent,
     AddUtilisateurComponent,
     UtilisateurDetailsComponent,
-    ListDFComponent,
-    DFFormComponent,
     RoleDetailsComponent,
     AddRoleComponent,
     RoleComponent,
-    DFDetailComponent,
-    ProduitComponent
+    DFDetailComponent
   ],
   imports: [
     BrowserModule,

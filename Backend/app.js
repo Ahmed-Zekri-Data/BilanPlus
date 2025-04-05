@@ -18,13 +18,13 @@ const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
 const config = require("./Config/db.json");
 
-
+// Connexion à la base de données
 mongoose
-  .connect(config.url) // Sans options obsolètes
+  .connect(config.url)
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
-const app = express();
 
+const app = express();
 
 // Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
@@ -45,7 +45,7 @@ app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
-app.use("/produits", PRODrouter); // Added from main
+app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 // app.use("/clients", clientRoutes);
