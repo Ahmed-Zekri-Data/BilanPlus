@@ -20,8 +20,17 @@ export class UtilisateurComponent {
   }
 
   deleteUser(id: string) {
-    this.UserService.deleteUser(id).subscribe(() => {
-      this.User = this.User.filter(user => user._id !== id);
+    this.UserService.deleteUser(id).subscribe({
+      next: () => {
+        console.log('Utilisateur supprimé avec succès, ID:', id); // Log pour confirmer
+        this.User = this.User.filter(user => user._id !== id); // Mise à jour de la liste
+        console.log('Liste mise à jour:', this.User); // Log pour vérifier la liste
+      },
+      error: (err) => {
+        console.error('Erreur lors de la suppression:', err); // Log en cas d'erreur
+        // Optionnel : Si le backend a quand même supprimé, mettre à jour localement
+        this.User = this.User.filter(user => user._id !== id);
+      }
     });
   }
 
