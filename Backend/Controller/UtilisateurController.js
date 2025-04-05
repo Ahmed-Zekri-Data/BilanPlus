@@ -7,6 +7,7 @@ async function addUser(req, res) {
             nom : req.body.nom,
             email : req.body.email,
             motDePasse : req.body.motDePasse,
+            role: req.body.role
       });
       await newuser.save();
       res.status(200).send("useradd");

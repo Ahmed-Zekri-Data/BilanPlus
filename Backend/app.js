@@ -1,55 +1,79 @@
-var express = require("express");
-var http = require("http");
-var bodyParser = require("body-parser");
-var path = require("path");
-const cors = require("cors"); // Ajoute cette ligne pour importer cors
-var TVArouter = require("./Routes/TVAroute");
-var Userrouter = require("./Routes/Utilisateur");
-var Rolerouter = require("./Routes/Roleroute");
-var PRODrouter = require("./Routes/Produitroute");
-var MSrouter = require("./Routes/MSroute");
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const path = require("path");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const TVArouter = require("./Routes/TVAroute");
+const Userrouter = require("./Routes/Utilisateur");
+const Rolerouter = require("./Routes/Roleroute");
+const PRODrouter = require("./Routes/Produitroute");
+const MSrouter = require("./Routes/MSroute");
+const DFrouter = require("./Routes/DeclarationFiscaleRoute");
+const CompteRouter = require("./Routes/CompteRoute");
+const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-var DFrouter = require("./Routes/DeclarationFiscaleRoute");
-var CompteRouter = require("./Routes/CompteRoute");
-var EcritureRouter = require("./Routes/EcritureRoute");
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
+const config = require("./Config/db.json");
 
 // Connexion à la base de données
-var mongoose = require("mongoose");
-var config = require("./Config/db.json");
 mongoose
   .connect(config.url)
-  .then(() => console.log("database connected"))
-  .catch(() => console.log("database not connected"));
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database not connected:", err));
 
-var app = express();
+const app = express();
 
-// Ajoute CORS pour autoriser les requêtes depuis Angular
+// Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
-  origin: "http://localhost:4200" // Autorise uniquement les requêtes depuis http://localhost:4200
+  origin: 'http://localhost:4200'
 }));
 
-// Configuration des vues (Twig)
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
-// Middleware pour parser le JSON
 app.use(bodyParser.json());
 
-// Routes
+// Configuration des routes
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/role", Rolerouter);
 app.use("/DF", DFrouter);
-app.use("/PRODUIT", PRODrouter); // Route pour les produits
-app.use("/MS", MSrouter);
-app.use("/fournisseurs", fournisseurRoutes);
-app.use("/commandes", commandeRoutes);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
+app.use("/PRODUIT", PRODrouter);
+app.use("/MS", MSrouter);
+app.use("/produits", PRODrouter);
+app.use("/fournisseurs", fournisseurRoutes);
+app.use("/commandes", commandeRoutes);
+// app.use("/clients", clientRoutes);
+// app.use("/factures", factureRoutes);
 
-// Création et démarrage du serveur
 const server = http.createServer(app);
-server.listen(3000, () => console.log("Serveur démarré sur le port 3000"));
+
+/*const io = require("socket.io")(server);
+io.on("connection", (socket) => {
+  console.log("user connecte");
+
+  socket.on("typing", (data) => {
+    console.log("notre message serveur:" + data);
+    socket.broadcast.emit("typing", data);
+  });
+  socket.on("aaaaa", (data) => {
+    console.log("notre message serveur:" + data);
+    add(data);
+    io.emit("aaaaa", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnect");
+  });
+});*/
+
+server.listen(3000, () => {
+  console.log("🚀 Server is running on port 3000");
+});
 
 module.exports = app;
