@@ -1,0 +1,33 @@
+<div *ngIf="tva; else loading">
+    <h2>TVA Details</h2>
+    <div class="tva-details">
+      <p><strong>ID:</strong> {{ tva!._id}}</p>
+      <p><strong>Taux (%):</strong> {{ tva!.taux }}</p>
+      <p><strong>Montant:</strong> {{ tva!.montant }}</p>
+      <p><strong>Declaration ID:</strong> {{ tva!.declaration }}</p>
+    </div>
+  
+    <h3>Associated Declaration Fiscale</h3>
+    <div *ngIf="declaration; else noDeclaration">
+      <p><strong>Période:</strong> {{ declaration!.periode }}</p>
+      <p><strong>Montant Total:</strong> {{ declaration!.montantTotal }}</p>
+      <p><strong>Statut:</strong> {{ declaration!.statut }}</p>
+      <p><strong>Compte Comptable:</strong> {{ declaration!.compteComptable || 'N/A' }}</p>
+    </div>
+    <ng-template #noDeclaration>
+      <p>No associated Declaration Fiscale found.</p>
+    </ng-template>
+  
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="editTva()">Edit TVA</button>
+      <button mat-raised-button color="warn" (click)="deleteTva()">Delete TVA</button>
+      <button mat-raised-button (click)="router.navigate(['/TVA'])">Back to List</button>
+    </div>
+  </div>
+  
+  <ng-template #loading>
+    <p *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
+    <ng-template #spinner>
+      <p>Loading TVA details...</p>
+    </ng-template>
+  </ng-template>

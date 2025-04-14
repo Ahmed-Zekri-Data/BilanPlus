@@ -1,43 +1,43 @@
-var express = require("express");
-const cors = require('cors'); // Keep CORS for frontend communication
-var http = require("http");
-var bodyParser = require("body-parser");
-var path = require("path");
-var JournalRouter = require("./Routes/JournalRoute");
-// Import all routes
-var TVArouter = require("./Routes/TVAroute");
-var Userrouter = require("./Routes/Utilisateur");
-var Rolerouter = require("./Routes/Roleroute");
-var DFrouter = require("./Routes/DeclarationFiscaleRoute");
-var CompteRouter = require("./Routes/CompteRoute");
-var EcritureRouter = require("./Routes/EcritureRoute");
-var PRODrouter = require("./Routes/Produitroute");
-var MSrouter = require("./Routes/MSroute");
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const path = require("path");
+const cors = require("cors");
+const mongoose = require("mongoose");
+
+// Import routes
+const TVArouter = require("./Routes/TVAroute");
+const Userrouter = require("./Routes/Utilisateur");
+const Rolerouter = require("./Routes/Roleroute");
+const DFrouter = require("./Routes/DeclarationFiscaleRoute");
+const CompteRouter = require("./Routes/CompteRoute");
+const EcritureRouter = require("./Routes/EcritureRoute");
+const PRODrouter = require("./Routes/Produitroute");
+const MSrouter = require("./Routes/MSroute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-var GrandLivreRouter = require("./Routes/GrandLivreRoute");
-var BalanceRouter = require("./Routes/BalanceRoute");
-var BilanRouter = require("./Routes/BilanRoute");
-var ResultatRouter = require("./Routes/ResultatRoute");
-var DashboardRouter = require("./Routes/DashboardRoute");
-/*var indexRouter = require("./Routes/index");
-var { add } = require('./Controller/chatController');*/
+const JournalRouter = require("./Routes/JournalRoute");
+const GrandLivreRouter = require("./Routes/GrandLivreRoute");
+const BalanceRouter = require("./Routes/BalanceRoute");
+const BilanRouter = require("./Routes/BilanRoute");
+const ResultatRouter = require("./Routes/ResultatRoute");
+const DashboardRouter = require("./Routes/DashboardRoute");
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
 
-// Connection to database
-var mongo = require("mongoose");
-var config = require("./Config/db.json");
-mongo
+const config = require("./Config/db.json");
+
+// Connexion à la base de données
+mongoose
   .connect(config.url)
-  .then(() => console.log("database connected"))
-  .catch(() => console.log("database not connected "));
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database not connected:", err));
 
-/*************************************** */
+const app = express();
 
-var app = express();
-
-// Add CORS middleware to allow requests from Angular frontend
+// Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
-  origin: 'http://localhost:4200' // Autorise uniquement les requêtes depuis ton frontend Angular
+  origin: 'http://localhost:4200'
 }));
 
 app.set("views", path.join(__dirname, "views"));
@@ -45,7 +45,7 @@ app.set("view engine", "twig");
 
 app.use(bodyParser.json());
 
-// Define all routes
+// Configuration des routes
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/role", Rolerouter);
@@ -54,6 +54,7 @@ app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
+app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/journal", JournalRouter);
@@ -62,10 +63,10 @@ app.use("/balance", BalanceRouter);
 app.use("/bilan", BilanRouter);
 app.use("/resultat", ResultatRouter);
 app.use("/dashboard", DashboardRouter);
+// app.use("/clients", clientRoutes);
+// app.use("/factures", factureRoutes);
 
-/*app.use("/index", indexRouter);*/
-
-const server = http.createServer(app, console.log("server run"));
+const server = http.createServer(app);
 
 /*const io = require("socket.io")(server);
 io.on("connection", (socket) => {
@@ -86,7 +87,9 @@ io.on("connection", (socket) => {
   });
 });*/
 
-// Start server on port 3000 (you can change to 4000 if preferred)
-server.listen(4000);
+// Start server
+server.listen(3000, () => {
+  console.log("🚀 Server is running on port 3000");
+});
 
 module.exports = app;

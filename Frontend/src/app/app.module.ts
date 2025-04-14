@@ -21,7 +21,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
+
+// Components
 import { HomeComponent } from './home/home.component';
+import { ListTVAComponent } from './components/list-tva/list-tva.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
+import { ProduitComponent } from './components/produit.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
@@ -33,12 +39,28 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-
+import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
+import { CommandesComponent } from './components/commandes/commandes.component';
+import { ProduitsComponent } from './components/produits/produits.component';
+import { ListDFComponent } from './components/list-df/list-df.component';
+import { DFFormComponent } from './components/df-form/df-form.component';
+import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { MSComponent } from './components/ms/ms.component';
+import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
+import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+import { RoleComponent } from './components/role/role.component';
+import { AddRoleComponent } from './components/add-role/add-role.component';
+import { RoleDetailsComponent } from './components/role-details/role-details.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
+    ListTVAComponent,
+    TvaDetailComponent,
+    TvaFormComponent,
+    ProduitComponent,
     CompteListComponent,
     CompteFormComponent,
     EcritureListComponent,
@@ -49,7 +71,20 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     BalanceComponent,
     BilanComponent,
     ResultatComponent,
-    DashboardComponent
+    DashboardComponent,
+    FournisseursComponent,
+    CommandesComponent,
+    ProduitsComponent,
+    ListDFComponent,
+    DFFormComponent,
+    DFDetailComponent,
+    MSComponent,
+    UtilisateurComponent,
+    AddUtilisateurComponent,
+    UtilisateurDetailsComponent,
+    RoleComponent,
+    AddRoleComponent,
+    RoleDetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -72,7 +107,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
-    MatProgressSpinnerModule, 
+    MatProgressSpinnerModule,
     MatExpansionModule
   ],
   providers: [],

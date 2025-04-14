@@ -1,0 +1,39 @@
+<div class="produit-container">
+  <h2>Liste des Produits</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <table class="table table-striped" *ngIf="produits.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th> <!-- Nouvelle colonne pour l'ID -->
+        <th>Nom</th>
+        <th>Catégorie</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let produit of produits">
+        <td>{{ produit._id }}</td> <!-- Affichage de l'ID -->
+        <td>{{ produit.nom }}</td>
+        <td>{{ produit.categorie }}</td>
+        <td>{{ produit.prix }}</td>
+        <td>{{ produit.stock }}</td>
+        <td>
+          <button class="btn btn-sm btn-primary mr-2" (click)="editProduit(produit)">
+            Modifier
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="deleteProduit(produit._id || '')">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="produits.length === 0 && !errorMessage">Aucun produit trouvé.</p>
+</div>

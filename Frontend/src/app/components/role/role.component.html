@@ -1,0 +1,19 @@
+<div class="container">
+    <h2>Liste des Rôles</h2>
+
+    <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="row">
+        <div class="col-md-4" *ngFor="let role of Roles">
+            <div class="card text-white mb-3" style="max-width: 18rem;">
+                <div class="card-header">Rôle</div>
+                <div class="card-body">
+                    <h5 class="card-title">Nom: {{ role.nom }}</h5>
+                    <p class="card-text">Permissions: {{ role.permissions.join(', ') }}</p>
+                    
+                    <button *ngIf="role._id" (click)="deleteRole(role._id)" class="btn btn-danger">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

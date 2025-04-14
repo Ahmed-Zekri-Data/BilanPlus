@@ -5,4 +5,6 @@ import { CompteListComponent } from "./components/compte-list/compte-list.compon
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent {}
+export class AppComponent {
+}
+

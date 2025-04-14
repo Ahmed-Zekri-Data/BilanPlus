@@ -1,0 +1,90 @@
+<div *ngIf="isEditMode && !declaration._id ? loading : true">
+  <h2>{{ isEditMode ? 'Edit Declaration Fiscale' : 'Add New Declaration Fiscale' }}</h2>
+
+  <form (ngSubmit)="saveDeclaration()">
+    <div class="form-group">
+      <label for="periode">Periode:</label>
+      <input
+        type="text"
+        id="periode"
+        name="periode"
+        [(ngModel)]="declaration.periode"
+        required
+      />
+      <p *ngIf="fieldErrors.periode" class="error">{{ fieldErrors.periode }}</p>
+    </div>
+
+    <div class="form-group">
+      <label for="montantTotal">Montant Total:</label>
+      <input
+        type="number"
+        id="montantTotal"
+        name="montantTotal"
+        [(ngModel)]="declaration.montantTotal"
+        required
+        step="0.01"
+      />
+      <p *ngIf="fieldErrors.montantTotal" class="error">{{ fieldErrors.montantTotal }}</p>
+    </div>
+
+    <div class="form-group">
+      <label for="statut">Statut:</label>
+      <select
+        id="statut"
+        name="statut"
+        [(ngModel)]="declaration.statut"
+        required
+      >
+        <option value="" disabled>Select a Statut</option>
+        <option value="brouillon">Brouillon</option>
+        <option value="soumis">Soumis</option>
+        <option value="payé">Payé</option>
+        <option value="rejeté">Rejeté</option>
+      </select>
+      <p *ngIf="fieldErrors.statut" class="error">{{ fieldErrors.statut }}</p>
+    </div>
+
+    <div class="form-group">
+      <label for="compteComptable">Compte Comptable:</label>
+      <select
+        id="compteComptable"
+        name="compteComptable"
+        [(ngModel)]="declaration.compteComptable"
+        required
+      >
+        <option value="" disabled>Select a Compte Comptable</option>
+        <option *ngFor="let compte of comptesComptables" [value]="compte._id">
+          {{ compte.numeroCompte }} - {{ compte.nom }} ({{ compte.type }})
+        </option>
+      </select>
+      <p *ngIf="fieldErrors.compteComptable" class="error">{{ fieldErrors.compteComptable }}</p>
+    </div>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" type="submit">
+        {{ isEditMode ? 'Update Declaration' : 'Add Declaration' }}
+      </button>
+      <button mat-raised-button (click)="goBack()">Cancel</button>
+    </div>
+
+    <!-- Affichage des erreurs globales non associées à un champ -->
+    <div *ngIf="errors.length > 0 && !fieldErrors.periode && !fieldErrors.montantTotal && !fieldErrors.statut && !fieldErrors.compteComptable" class="error-container">
+      <p class="error-title">Erreur(s) :</p>
+      <ul>
+        <li *ngFor="let error of errors" class="error">{{ error }}</li>
+      </ul>
+    </div>
+  </form>
+</div>
+
+<ng-template #loading>
+  <div *ngIf="errors.length > 0; else spinner" class="error-container">
+    <p class="error-title">Erreur(s) :</p>
+    <ul>
+      <li *ngFor="let error of errors" class="error">{{ error }}</li>
+    </ul>
+  </div>
+  <ng-template #spinner>
+    <p>Loading declaration details...</p>
+  </ng-template>
+</ng-template>

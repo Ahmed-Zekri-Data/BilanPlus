@@ -1,13 +1,12 @@
-// models/DeclarationFiscale.js
-var mongo = require("mongoose");
-const Schema = mongo.Schema
-const DeclarationFiscale =new Schema ({
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const DeclarationFiscaleSchema = new Schema({
     periode: { type: String, required: true },
     montantTotal: { type: Number, required: true },
     statut: { type: String, required: true },
-    compteComptable: { type: mongo.Schema.Types.ObjectId, ref: 'CompteComptable' }
+    compteComptable: { type: mongoose.Schema.Types.ObjectId, ref: "CompteComptable", required: true }
 });
 
-module.exports = mongo.model('DeclarationFiscale', DeclarationFiscale);
-
+module.exports = mongoose.models.DeclarationFiscale || mongoose.model("DeclarationFiscale", DeclarationFiscaleSchema); 
 
