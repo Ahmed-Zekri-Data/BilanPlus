@@ -65,3 +65,4 @@ async function updateTVA(req, res) {
 }
 
 module.exports = { addTVA, getall, getbyid, deleteTVA, updateTVA };
+

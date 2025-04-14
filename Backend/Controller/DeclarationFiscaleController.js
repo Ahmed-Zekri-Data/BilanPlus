@@ -81,3 +81,4 @@ async function updateDF(req, res) {
 }
 
 module.exports = { addDF, getall, getbyid, deleteDF, updateDF, findDeclarationById };
+

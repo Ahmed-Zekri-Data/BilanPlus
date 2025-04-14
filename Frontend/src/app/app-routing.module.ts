@@ -1,21 +1,82 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
+// Stock
+import { MSComponent } from './components/ms/ms.component';
+import { ProduitComponent } from './components/produit.component';
+
+// Main / Comptabilité / Utilisateurs / Rôles
+import { HomeComponent } from './home/home.component';
+import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
+import { CompteListComponent } from './components/compte-list/compte-list.component';
+import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
+import { CommandesComponent } from './components/commandes/commandes.component';
+import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
+import { ProduitsComponent } from './components/produits/produits.component';
+import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
+import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+import { RoleComponent } from './components/role/role.component';
+import { AddRoleComponent } from './components/add-role/add-role.component';
+import { RoleDetailsComponent } from './components/role-details/role-details.component';
+
+// TVA / Déclarations fiscales
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { DFFormComponent } from './components/df-form/df-form.component';
+import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
+import { TvaFormComponent } from './components/tva-form/tva-form.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
+import { DFFormComponent } from './components/df-form/df-form.component';
+import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/list-declarations', pathMatch: 'full' },
-  { path: 'list-tva', component: ListTVAComponent }, // Correction de l'URL
-  { path: 'getTVA/:id', component: TvaDetailComponent },
-  { path: 'edit-tva/:id', component: TvaFormComponent }, // Correction de l'URL (updatetva → edit-tva)
-  { path: 'add-tva', component: TvaFormComponent }, // Correction de l'URL (addtva → add-tva)
-  { path: 'list-declarations', component: ListDFComponent }, // Correction de l'URL (DF → list-declarations)
-  { path: 'add-declaration', component: DFFormComponent }, // Correction de l'URL (addDF → add-declaration)
-  { path: 'edit-declaration/:id', component: DFFormComponent }, // Correction de l'URL (UpdateDF → edit-declaration)
-  { path: '**', redirectTo: '/list-declarations' } // Redirection pour les routes inconnues
+  { path: '', component: HomeComponent },
+
+  // Gestion comptable
+  {
+    path: 'gestion-comptable',
+    component: GestionComptableComponent,
+    children: [
+      { path: 'comptes', component: CompteListComponent },
+      { path: 'ecritures', component: EcritureListComponent },
+      { path: '', redirectTo: 'comptes', pathMatch: 'full' }
+    ]
+  },
+
+  // Stock
+  { path: 'produits', component: ProduitsComponent },
+  { path: 'produit', component: ProduitComponent },
+  { path: 'stock-movements', component: MSComponent },
+
+  // Commandes & fournisseurs
+  { path: 'commandes', component: CommandesComponent },
+  { path: 'fournisseurs', component: FournisseursComponent },
+
+  // Utilisateurs
+  { path: 'utilisateurs', component: UtilisateurComponent },
+  { path: 'utilisateur/add', component: AddUtilisateurComponent },
+  { path: 'utilisateur/edit/:id', component: AddUtilisateurComponent },
+  { path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent },
+
+  // Rôles
+  { path: 'roles', component: RoleComponent },
+  { path: 'role/add', component: AddRoleComponent },
+  { path: 'role/edit/:id', component: AddRoleComponent },
+  { path: 'role/details/:id', component: RoleDetailsComponent },
+
+  // TVA
+  { path: 'list-tva', component: ListTVAComponent },
+  { path: 'get-tva/:id', component: TvaDetailComponent },
+  { path: 'edit-tva/:id', component: TvaFormComponent },
+  { path: 'add-tva', component: TvaFormComponent },
+
+  // Déclarations fiscales
+  { path: 'list-declarations', component: ListDFComponent },
+  { path: 'add-declaration', component: DFFormComponent },
+  { path: 'edit-declaration/:id', component: DFFormComponent },
+  { path: 'get-declaration/:id', component: DFDetailComponent },
+
+  // Fallback
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

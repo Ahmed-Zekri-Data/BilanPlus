@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
@@ -28,6 +29,7 @@ export class ListDFComponent implements OnInit {
       },
       error: (errors: string[]) => {
         this.errors = errors;
+
       }
     });
   }
@@ -39,6 +41,7 @@ export class ListDFComponent implements OnInit {
   viewDetails(id: string): void {
     this.router.navigate(['/getDF', id]); // Cette route n'est pas définie, à vérifier
   }
+
 
   deleteDeclaration(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette déclaration ?')) {
@@ -56,5 +59,11 @@ export class ListDFComponent implements OnInit {
 
   addNewDeclaration(): void {
     this.router.navigate(['/add-declaration']); // Correction de l'URL
+
   }
+  
+  viewDetails(id: string): void {
+    this.router.navigate(['/getDF', id]); // Added for detail redirection
+  }
+
 }

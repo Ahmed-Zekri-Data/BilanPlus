@@ -9,3 +9,4 @@ const DeclarationFiscaleSchema = new Schema({
 });
 
 module.exports = mongoose.models.DeclarationFiscale || mongoose.model("DeclarationFiscale", DeclarationFiscaleSchema); 
+

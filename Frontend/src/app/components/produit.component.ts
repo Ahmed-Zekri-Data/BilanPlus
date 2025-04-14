@@ -118,10 +118,10 @@ export class ProduitComponent implements OnInit {
       return;
     }
 
-    const term = this.searchTerm.toLowerCase();
-    this.filteredProduits = this.produits.filter(produit =>
-      produit.nom.toLowerCase().includes(term) ||
-      produit.categorie.toLowerCase().includes(term)
-    );
+    // const term = this.searchTerm.toLowerCase();
+    // this.filteredProduits = this.produits.filter(produit =>
+    //   produit.nom.toLowerCase().includes(term) ||
+    //   produit.categorie.toLowerCase().includes(term)
+    // );
   }
 }

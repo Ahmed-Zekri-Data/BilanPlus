@@ -1,9 +1,8 @@
-import { Produit } from './Produit';
-
 export interface CommandeAchat {
   _id?: string;
-  produit: Produit | string;
+  produit: string; // ID du produit
   quantite: number;
-  prixTotal: number;
-  statut: string;
+  prix: number;
+  statut?: string; // Optionnel, comme dans le backend
+  fournisseurID: string; // ID du fournisseur
 }

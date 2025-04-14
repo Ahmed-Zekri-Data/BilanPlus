@@ -52,6 +52,7 @@ const createCompte = async (req, res) => {
     }
 };
 
+
 // Mettre à jour un compte comptable
 const updateCompte = async (req, res) => {
     try {
