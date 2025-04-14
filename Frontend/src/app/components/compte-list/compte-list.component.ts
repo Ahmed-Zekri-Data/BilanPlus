@@ -1,51 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CompteComptableService } from '../../compte-comptable.service';
 import { CompteComptable } from '../../Models/CompteComptable';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-compte-list',
-  template: `
-    <h2>Liste des comptes</h2>
-    <button (click)="showForm = true; selectedCompte = null" *ngIf="!showForm">Ajouter un compte</button>
-    <app-compte-form 
-      *ngIf="showForm" 
-      [compte]="selectedCompte || { numeroCompte: '', nom: '', type: 'actif', solde: 0 }"
-      (saved)="onCompteSaved($event)"
-      (cancelled)="showForm = false">
-    </app-compte-form>
-    <ul>
-      <li *ngFor="let compte of comptes">
-        {{ compte.numeroCompte }} - {{ compte.nom }} ({{ compte.type }}) - Solde: {{ compte.solde }}
-        <button (click)="editCompte(compte)">Modifier</button>
-        <button (click)="deleteCompte(compte._id!)">Supprimer</button>
-      </li>
-    </ul>
-  `,
-  styles: [`
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button {
-      margin-left: 10px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-  `]
+  templateUrl: './compte-list.component.html',
+  styleUrls: ['./compte-list.component.css'],
 })
 export class CompteListComponent implements OnInit {
   comptes: CompteComptable[] = [];
   showForm: boolean = false;
   selectedCompte: CompteComptable | null = null;
 
-  constructor(private compteService: CompteComptableService) {}
+  constructor(
+    private compteService: CompteComptableService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.loadComptes();
@@ -59,28 +30,35 @@ export class CompteListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erreur lors de la récupération des comptes:', err);
-      }
+        this.snackBar.open('Erreur lors de la récupération des comptes.', 'Fermer', { duration: 5000 });
+      },
     });
   }
 
   deleteCompte(id: string) {
     if (confirm('Voulez-vous vraiment supprimer ce compte ?')) {
       this.compteService.deleteCompte(id).subscribe({
-        next: () => this.loadComptes(),
-        error: (err) => console.error('Erreur lors de la suppression:', err)
+        next: () => {
+          this.snackBar.open('Compte supprimé avec succès !', 'Fermer', { duration: 3000 });
+          this.loadComptes();
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression:', err);
+          this.snackBar.open('Erreur lors de la suppression du compte.', 'Fermer', { duration: 5000 });
+        },
       });
     }
   }
 
   editCompte(compte: CompteComptable) {
-    console.log('Modifier cliqué, compte:', compte); // Log ajouté
+    console.log('Modifier cliqué, compte:', compte);
     this.selectedCompte = { ...compte };
     this.showForm = true;
-    console.log('showForm après Modifier:', this.showForm); // Log ajouté
+    console.log('showForm après Modifier:', this.showForm);
   }
 
   onCompteSaved(compte: CompteComptable) {
-    console.log('Compte sauvegardé:', compte); // Log ajouté
+    console.log('Compte sauvegardé:', compte);
     this.showForm = false;
     this.selectedCompte = null;
     this.loadComptes();

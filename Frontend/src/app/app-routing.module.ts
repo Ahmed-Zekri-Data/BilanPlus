@@ -4,15 +4,19 @@ import { RouterModule, Routes } from '@angular/router';
 // Stock
 import { MSComponent } from './components/ms/ms.component';
 import { ProduitComponent } from './components/produit.component';
+import { ProduitsComponent } from './components/produits/produits.component';
 
 // Main / Comptabilité / Utilisateurs / Rôles
 import { HomeComponent } from './home/home.component';
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { ProduitsComponent } from './components/produits/produits.component';
+import { JournalComponent } from './components/journal/journal.component';
+import { GrandLivreComponent } from './components/grand-livre/grand-livre.component';
+import { BalanceComponent } from './components/balance/balance.component';
+import { BilanComponent } from './components/bilan/bilan.component';
+import { ResultatComponent } from './components/resultat/resultat.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
@@ -28,6 +32,10 @@ import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
+// Commandes & fournisseurs
+import { CommandesComponent } from './components/commandes/commandes.component';
+import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
+
 const routes: Routes = [
   { path: '', component: HomeComponent },
 
@@ -38,6 +46,12 @@ const routes: Routes = [
     children: [
       { path: 'comptes', component: CompteListComponent },
       { path: 'ecritures', component: EcritureListComponent },
+      { path: 'journal', component: JournalComponent },
+      { path: 'grand-livre', component: GrandLivreComponent },
+      { path: 'balance', component: BalanceComponent },
+      { path: 'bilan', component: BilanComponent },
+      { path: 'resultat', component: ResultatComponent },
+      { path: 'dashboard', component: DashboardComponent },
       { path: '', redirectTo: 'comptes', pathMatch: 'full' }
     ]
   },
