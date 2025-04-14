@@ -1,1 +1,25 @@
-<p>compte-list works!</p>
+<div class="compte-list-container">
+  <h2>Liste des comptes comptables</h2>
+  <button mat-raised-button color="primary" (click)="showForm = true; selectedCompte = null" *ngIf="!showForm">
+    Ajouter un compte
+  </button>
+
+  <app-compte-form
+    *ngIf="showForm"
+    [compte]="selectedCompte || { numeroCompte: '', nom: '', type: 'actif', solde: 0 }"
+    (saved)="onCompteSaved($event)"
+    (cancelled)="showForm = false"
+  ></app-compte-form>
+
+  <div class="compte-list">
+    <mat-card *ngFor="let compte of comptes" class="compte-item">
+      <mat-card-content>
+        <span>{{ compte.numeroCompte }} - {{ compte.nom }} ({{ compte.type | titlecase }}) - Solde: {{ compte.solde }}</span>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="editCompte(compte)">Modifier</button>
+        <button mat-button color="warn" (click)="deleteCompte(compte._id!)">Supprimer</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

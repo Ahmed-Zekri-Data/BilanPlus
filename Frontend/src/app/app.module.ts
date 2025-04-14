@@ -16,12 +16,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
 import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
+import { JournalComponent } from './components/journal/journal.component';
+import { GrandLivreComponent } from './components/grand-livre/grand-livre.component';
+import { BalanceComponent } from './components/balance/balance.component';
+import { BilanComponent } from './components/bilan/bilan.component';
+import { ResultatComponent } from './components/resultat/resultat.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+
 
 @NgModule({
   declarations: [
@@ -31,7 +43,13 @@ import { GestionComptableComponent } from './components/gestion-comptable/gestio
     CompteFormComponent,
     EcritureListComponent,
     EcritureFormComponent,
-    GestionComptableComponent
+    GestionComptableComponent,
+    JournalComponent,
+    GrandLivreComponent,
+    BalanceComponent,
+    BilanComponent,
+    ResultatComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +68,12 @@ import { GestionComptableComponent } from './components/gestion-comptable/gestio
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule,
+    MatProgressSpinnerModule, 
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -3,7 +3,7 @@ const cors = require('cors'); // Keep CORS for frontend communication
 var http = require("http");
 var bodyParser = require("body-parser");
 var path = require("path");
-
+var JournalRouter = require("./Routes/JournalRoute");
 // Import all routes
 var TVArouter = require("./Routes/TVAroute");
 var Userrouter = require("./Routes/Utilisateur");
@@ -15,7 +15,11 @@ var PRODrouter = require("./Routes/Produitroute");
 var MSrouter = require("./Routes/MSroute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-
+var GrandLivreRouter = require("./Routes/GrandLivreRoute");
+var BalanceRouter = require("./Routes/BalanceRoute");
+var BilanRouter = require("./Routes/BilanRoute");
+var ResultatRouter = require("./Routes/ResultatRoute");
+var DashboardRouter = require("./Routes/DashboardRoute");
 /*var indexRouter = require("./Routes/index");
 var { add } = require('./Controller/chatController');*/
 
@@ -52,6 +56,12 @@ app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
+app.use("/journal", JournalRouter);
+app.use("/grand-livre", GrandLivreRouter);
+app.use("/balance", BalanceRouter);
+app.use("/bilan", BilanRouter);
+app.use("/resultat", ResultatRouter);
+app.use("/dashboard", DashboardRouter);
 
 /*app.use("/index", indexRouter);*/
 
@@ -77,6 +87,6 @@ io.on("connection", (socket) => {
 });*/
 
 // Start server on port 3000 (you can change to 4000 if preferred)
-server.listen(3000);
+server.listen(4000);
 
 module.exports = app;
