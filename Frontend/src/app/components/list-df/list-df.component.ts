@@ -11,7 +11,7 @@ import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
 })
 export class ListDFComponent implements OnInit {
   declarations: DeclarationFiscale[] = [];
-  errorMessage: string | null = null;
+  errors: string[] = []; // Remplacement de errorMessage par une liste d'erreurs
 
   constructor(
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
@@ -27,16 +27,19 @@ export class ListDFComponent implements OnInit {
       next: (declarations) => {
         this.declarations = declarations;
       },
-      error: (error) => {
-        this.errorMessage = 'Failed to load declarations: ' + error.message;
+      error: (errors: string[]) => {
+        this.errors = errors;
 
       }
     });
   }
 
   editDeclaration(id: string): void {
+    this.router.navigate(['/edit-declaration', id]); // Correction de l'URL
+  }
 
-    this.router.navigate(['/edit-declaration', id]); // Updated from '/UpdateDF'
+  viewDetails(id: string): void {
+    this.router.navigate(['/getDF', id]); // Cette route n'est pas définie, à vérifier
   }
 
 
@@ -47,16 +50,16 @@ export class ListDFComponent implements OnInit {
           this.declarations = this.declarations.filter(d => d._id !== id);
           console.log('Déclaration supprimée avec succès');
         },
-        error: (error) => {
-          this.errorMessage = 'Échec de la suppression de la déclaration : ' + error.message;
+        error: (errors: string[]) => {
+          this.errors = errors;
         }
       });
     }
   }
 
   addNewDeclaration(): void {
+    this.router.navigate(['/add-declaration']); // Correction de l'URL
 
-    this.router.navigate(['/add-declaration']); // Updated from '/addDF'
   }
   
   viewDetails(id: string): void {

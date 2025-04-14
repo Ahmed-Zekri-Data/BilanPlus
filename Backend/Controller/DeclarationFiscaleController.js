@@ -1,116 +1,84 @@
-const DeclarationFiscale = require("../models/DeclarationFiscale");
-const { body, param, validationResult } = require("express-validator");
+const DeclarationFiscale = require("../Models/DeclarationFiscale");
 
-const validate = (validations) => {
-    return async (req, res, next) => {
-        await Promise.all(validations.map(validation => validation.run(req)));
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-        next();
-    };
-};
+const DF = DeclarationFiscale;
 
-exports.addDF = [
-    body("periode")
-        .matches(/^\d{4}-(0[1-9]|1[0-2])$/)
-        .withMessage("La période doit être au format YYYY-MM (ex. 2025-03)"),
-    body("montantTotal")
-        .isFloat({ min: 0 })
-        .withMessage("Le montant total doit être positif ou nul"),
-    body("statut")
-        .isIn(["brouillon", "soumis", "payé", "rejeté"])
-        .withMessage("Statut invalide"),
-    body("compteComptable")
-        .isMongoId()
-        .withMessage("ID de compte comptable invalide"),
-    validate([]),
-    async (req, res) => {
-        try {
-            const declaration = new DeclarationFiscale({
-                periode: req.body.periode,
-                montantTotal: req.body.montantTotal,
-                statut: req.body.statut,
-                compteComptable: req.body.compteComptable,
-            });
-            await declaration.save();
-            res.status(201).json(declaration);
-        } catch (error) {
-            res.status(500).json({ message: "Erreur lors de l'ajout de la déclaration", error: error.message });
-        }
-    }
-];
-
-exports.getall = async (req, res) => {
+// Fonction utilitaire pour vérifier l'existence d'une déclaration par ID
+const findDeclarationById = async (id) => {
     try {
-        const declarations = await DeclarationFiscale.find().populate("compteComptable");
-        res.status(200).json(declarations);
-    } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la récupération", error: error.message });
+        const declaration = await DF.findById(id);
+        if (!declaration) {
+            throw new Error("Déclaration non trouvée");
+        }
+        return declaration;
+    } catch (err) {
+        throw new Error(err.message);
     }
 };
 
-exports.getbyid = [
-    param("id")
-        .isMongoId()
-        .withMessage("ID invalide"),
-    validate([]),
-    async (req, res) => {
-        try {
-            const declaration = await DeclarationFiscale.findById(req.params.id).populate("compteComptable");
-            if (!declaration) return res.status(404).json({ message: "Déclaration non trouvée" });
-            res.status(200).json(declaration);
-        } catch (error) {
-            res.status(500).json({ message: "Erreur lors de la récupération", error: error.message });
-        }
+// Ajouter une déclaration fiscale
+async function addDF(req, res) {
+    try {
+        const newDF = new DF({
+            periode: req.body.periode,
+            montantTotal: req.body.montantTotal,
+            statut: req.body.statut,
+            compteComptable: req.body.compteComptable,
+        });
+        await newDF.save();
+        res.status(201).json({ message: "Déclaration fiscale ajoutée", data: newDF });
+    } catch (err) {
+        res.status(400).json({ message: "Erreur lors de l'ajout de la déclaration", error: err.message });
     }
-];
+}
 
-exports.deleteDF = [
-    param("id")
-        .isMongoId()
-        .withMessage("ID invalide"),
-    validate([]),
-    async (req, res) => {
-        try {
-            const declaration = await DeclarationFiscale.findByIdAndDelete(req.params.id);
-            if (!declaration) return res.status(404).json({ message: "Déclaration non trouvée" });
-            res.status(200).json({ message: "Déclaration supprimée" });
-        } catch (error) {
-            res.status(500).json({ message: "Erreur lors de la suppression", error: error.message });
-        }
+// Récupérer toutes les déclarations fiscales
+async function getall(req, res) {
+    try {
+        const getDF = await DF.find().populate("compteComptable");
+        res.status(200).json(getDF);
+    } catch (err) {
+        res.status(400).json({ message: "Erreur lors de la récupération", error: err.message });
     }
-];
+}
 
-exports.updateDF = [
-    param("id")
-        .isMongoId()
-        .withMessage("ID invalide"),
-    body("periode")
-        .optional()
-        .matches(/^\d{4}-(0[1-9]|1[0-2])$/)
-        .withMessage("La période doit être au format YYYY-MM"),
-    body("montantTotal")
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage("Le montant total doit être positif ou nul"),
-    body("statut")
-        .optional()
-        .isIn(["brouillon", "soumis", "payé", "rejeté"])
-        .withMessage("Statut invalide"),
-    body("compteComptable")
-        .optional()
-        .isMongoId()
-        .withMessage("ID de compte comptable invalide"),
-    validate([]),
-    async (req, res) => {
-        try {
-            const declaration = await DeclarationFiscale.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!declaration) return res.status(404).json({ message: "Déclaration non trouvée" });
-            res.status(200).json(declaration);
-        } catch (error) {
-            res.status(500).json({ message: "Erreur lors de la mise à jour", error: error.message });
+// Récupérer une déclaration fiscale par ID
+async function getbyid(req, res) {
+    try {
+        const getoneDF = await DF.findById(req.params.id).populate("compteComptable");
+        if (!getoneDF) {
+            return res.status(404).json({ message: "Déclaration non trouvée" });
         }
+        res.status(200).json(getoneDF);
+    } catch (err) {
+        res.status(400).json({ message: "Erreur lors de la récupération", error: err.message });
     }
-];
+}
+
+// Supprimer une déclaration fiscale
+async function deleteDF(req, res) {
+    try {
+        const DFdeleted = await DF.findByIdAndDelete(req.params.id);
+        if (!DFdeleted) {
+            return res.status(404).json({ message: "Déclaration non trouvée" });
+        }
+        res.status(200).json({ message: "Déclaration supprimée" });
+    } catch (err) {
+        res.status(400).json({ message: "Erreur lors de la suppression", error: err.message });
+    }
+}
+
+// Mettre à jour une déclaration fiscale
+async function updateDF(req, res) {
+    try {
+        const DFupdated = await DF.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!DFupdated) {
+            return res.status(404).json({ message: "Déclaration non trouvée" });
+        }
+        res.status(200).json({ message: "Déclaration mise à jour", data: DFupdated });
+    } catch (err) {
+        res.status(400).json({ message: "Erreur lors de la mise à jour", error: err.message });
+    }
+}
+
+module.exports = { addDF, getall, getbyid, deleteDF, updateDF, findDeclarationById };
+
