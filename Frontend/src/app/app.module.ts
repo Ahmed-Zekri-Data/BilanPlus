@@ -44,10 +44,10 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
     ListDFComponent,
 
-    DFFormComponent
+    DFFormComponent,
 
     DFFormComponent,
-    DFDetailComponent
+    DFDetailComponent,
 
     ProduitComponent
 

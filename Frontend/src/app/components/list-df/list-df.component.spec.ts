@@ -58,7 +58,7 @@ export class ListDFComponent implements OnInit {
   }
 
   addNewDeclaration(): void {
-    this.router.navigate(['/add-declaration']);
+    this.router.navigate(['/addDF']);
   }
 
   isString(value: any): boolean {

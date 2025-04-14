@@ -10,7 +10,7 @@ import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
 })
 export class ListDFComponent implements OnInit {
   declarations: DeclarationFiscale[] = [];
-  errorMessage: string | null = null;
+  errors: string[] = []; // Remplacement de errorMessage par une liste d'erreurs
 
   constructor(
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
@@ -26,18 +26,18 @@ export class ListDFComponent implements OnInit {
       next: (declarations) => {
         this.declarations = declarations;
       },
-      error: (error) => {
-        this.errorMessage = 'Échec du chargement des déclarations : ' + error.message;
+      error: (errors: string[]) => {
+        this.errors = errors;
       }
     });
   }
 
   editDeclaration(id: string): void {
-    this.router.navigate(['/edit-declaration', id]); // Updated from '/UpdateDF'
+    this.router.navigate(['/edit-declaration', id]); // Correction de l'URL
   }
 
   viewDetails(id: string): void {
-    this.router.navigate(['/getDF', id]); // Added for detail redirection
+    this.router.navigate(['/getDF', id]); // Cette route n'est pas définie, à vérifier
   }
 
   deleteDeclaration(id: string): void {
@@ -47,14 +47,14 @@ export class ListDFComponent implements OnInit {
           this.declarations = this.declarations.filter(d => d._id !== id);
           console.log('Déclaration supprimée avec succès');
         },
-        error: (error) => {
-          this.errorMessage = 'Échec de la suppression de la déclaration : ' + error.message;
+        error: (errors: string[]) => {
+          this.errors = errors;
         }
       });
     }
   }
 
   addNewDeclaration(): void {
-    this.router.navigate(['/add-declaration']); // Updated from '/addDF'
+    this.router.navigate(['/add-declaration']); // Correction de l'URL
   }
 }
