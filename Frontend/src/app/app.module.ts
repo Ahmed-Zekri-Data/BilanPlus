@@ -72,7 +72,6 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
 
   imports: [
     BrowserModule,
-    CommonModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,

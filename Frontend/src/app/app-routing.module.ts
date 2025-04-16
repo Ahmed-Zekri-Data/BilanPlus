@@ -22,8 +22,8 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 
 // TVA / Déclarations fiscales
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
-import { TvaFormComponent } from './components/tva-form/tva-form.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';

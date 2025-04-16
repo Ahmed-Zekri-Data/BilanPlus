@@ -62,8 +62,5 @@ export class ListDFComponent implements OnInit {
 
   }
   
-  viewDetails(id: string): void {
-    this.router.navigate(['/getDF', id]); // Added for detail redirection
-  }
-
+ 
 }
