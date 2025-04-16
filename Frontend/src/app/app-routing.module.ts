@@ -23,8 +23,8 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 // Assuming these components exist based on the routes
-import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
-import { TvaFormComponent } from './components/tva-form/tva-form.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 
 const routes: Routes = [

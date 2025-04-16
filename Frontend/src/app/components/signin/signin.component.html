@@ -1,0 +1,26 @@
+<div class="container">
+    <h2>Connexion</h2>
+    <form [formGroup]="signinForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" class="form-control" placeholder="Votre email">
+        <div *ngIf="signinForm.controls['email'].invalid && signinForm.controls['email'].touched" class="alert alert-danger">
+          <p *ngIf="signinForm.controls['email'].errors?.['required']">L'email est obligatoire</p>
+          <p *ngIf="signinForm.controls['email'].errors?.['email']">Veuillez entrer un email valide</p>
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="motDePasse">Mot de passe</label>
+        <input type="password" id="motDePasse" formControlName="motDePasse" class="form-control" placeholder="Votre mot de passe">
+        <div *ngIf="signinForm.controls['motDePasse'].invalid && signinForm.controls['motDePasse'].touched" class="alert alert-danger">
+          <p *ngIf="signinForm.controls['motDePasse'].errors?.['required']">Le mot de passe est obligatoire</p>
+          <p *ngIf="signinForm.controls['motDePasse'].errors?.['minlength']">Le mot de passe doit avoir au moins 6 caractères</p>
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="signinForm.invalid">Se connecter</button>
+      <a routerLink="/forgot-password" class="btn btn-link">Mot de passe oublié ?</a>
+    </form>
+    <div class="alert alert-info mt-3" *ngIf="message">{{ message }}</div>
+  </div>

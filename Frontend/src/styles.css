@@ -1,3 +1,5 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 /* S'assurer que le fond s'applique à toute la page */
 html, body {
   font-family: 'Roboto', sans-serif;
@@ -24,3 +26,6 @@ router-outlet + * {
   background-color: #F5F5F5 !important;
 }
 
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
