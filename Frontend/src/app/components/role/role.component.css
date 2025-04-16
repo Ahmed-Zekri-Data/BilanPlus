@@ -1,0 +1,20 @@
+.roles-container {
+    padding: 20px;
+  }
+  
+  .card {
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .table {
+    margin-top: 20px;
+  }
+  
+  .btn {
+    margin-right: 10px;
+  }

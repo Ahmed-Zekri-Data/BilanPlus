@@ -1,34 +1,46 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
-  styleUrls: ['./forgot-password.component.css']
+  styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent {
-  forgotForm = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email])
-  });
+  resetForm: FormGroup;
+  submitted = false;
+  loading = false;
+  success = false;
+  error = '';
 
-  message: string = '';
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService
+  ) {
+    this.resetForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
 
-  constructor(private authService: AuthService) {}
+  onSubmit(): void {
+    this.submitted = true;
 
-  onSubmit() {
-    if (this.forgotForm.invalid) {
-      this.message = 'Veuillez entrer un email valide';
+    if (this.resetForm.invalid) {
       return;
     }
 
-    const email = this.forgotForm.value.email || ''; // Garantit que email est une chaîne
-    this.authService.forgotPassword(email).subscribe({
-      next: (response) => {
-        this.message = 'Un lien de réinitialisation a été envoyé à votre email.';
+    this.loading = true;
+    this.authService.requestPasswordReset({
+      email: this.resetForm.controls['email'].value
+    }).subscribe({
+      next: () => {
+        this.success = true;
+        this.loading = false;
       },
-      error: (err) => {
-        this.message = 'Erreur : ' + err.error.message;
+      error: error => {
+        this.error = error.error.message || 'Une erreur est survenue';
+        this.loading = false;
       }
     });
   }

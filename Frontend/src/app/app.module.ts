@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule  , ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppComponent } from './app.component';
+
 
 // Importation des composants
 import { HomeComponent } from './home/home.component';
@@ -41,8 +42,9 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
-import { SigninComponent } from './components/signin/signin.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { LoginComponent } from './components/login/login.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -70,8 +72,9 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
     AddRoleComponent,
     RoleComponent,
     DFDetailComponent,
-    SigninComponent,
-    ForgotPasswordComponent
+    ForgotPasswordComponent,
+    LoginComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,

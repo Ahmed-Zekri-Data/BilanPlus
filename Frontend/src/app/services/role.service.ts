@@ -7,27 +7,35 @@ import { Role } from '../Models/Role';
   providedIn: 'root'
 })
 export class RoleService {
-  private RoleApiUrl = 'http://localhost:3000/role'; // URL de l'API pour les rôles
+  private apiUrl = 'http://localhost:3000/role'; // URL temporaire
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(`${this.RoleApiUrl}/getall`);
+    return this.http.get<Role[]>(this.apiUrl);
   }
 
   getRoleById(id: string): Observable<Role> {
-    return this.http.get<Role>(`${this.RoleApiUrl}/getbyid/${id}`);
+    return this.http.get<Role>(`${this.apiUrl}/${id}`);
   }
 
-  createRole(role: Role): Observable<Role> {
-    return this.http.post<Role>(`${this.RoleApiUrl}/add`, role);
+  createRole(role: Role): Observable<{ message: string, role: Role }> {
+    return this.http.post<{ message: string, role: Role }>(this.apiUrl, role);
   }
 
-  updateRole(id: string, role: Role): Observable<Role> {
-    return this.http.put<Role>(`${this.RoleApiUrl}/update/${id}`, role);
+  updateRole(id: string, role: Partial<Role>): Observable<{ message: string, role: Role }> {
+    return this.http.put<{ message: string, role: Role }>(`${this.apiUrl}/${id}`, role);
   }
 
-  deleteRole(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.RoleApiUrl}/delete/${id}`);
+  deleteRole(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  getUsersPerRole(): Observable<{ stats: { roleId: string, roleName: string, nombreUtilisateurs: number, actifs: number, inactifs: number }[] }> {
+    return this.http.get<{ stats: { roleId: string, roleName: string, nombreUtilisateurs: number, actifs: number, inactifs: number }[] }>(`${this.apiUrl}/stats`);
+  }
+
+  analysePermissionsUsage(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/permissions`);
   }
 }

@@ -1,0 +1,20 @@
+.user-form-container {
+    padding: 20px;
+  }
+  
+  .card {
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .form-label {
+    font-weight: bold;
+  }
+  
+  .invalid-feedback {
+    color: #dc3545;
+  }
+  
+  .btn {
+    margin-right: 10px;
+  }

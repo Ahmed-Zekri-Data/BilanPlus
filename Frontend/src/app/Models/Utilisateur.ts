@@ -1,10 +1,23 @@
 import { Role } from './Role';
 
 export interface Utilisateur {
-  _id?: string;
+  id?: string;
   nom: string;
+  prenom: string;
   email: string;
-  motDePasse?: string;  // Facultatif pour éviter d'exposer le mot de passe
-  role:  string;  // Peut être un objet ou simplement l'ID
+  password?: string;
+  dateCreation?: Date;
+  dernierConnexion?: Date;
+  actif: boolean;
+  tentativesConnexion?: number;
+  telephone?: string;
+  adresse?: string;
+  photo?: string;
+  role: string | Role;
+  preferences?: {
+    theme: string;
+    langue: string;
+    notificationsEmail: boolean;
+  };
 }
     

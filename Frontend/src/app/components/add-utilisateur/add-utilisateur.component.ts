@@ -1,100 +1,140 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UtilisateurService } from '../../services/utilisateur.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Utilisateur } from '../../Models/Utilisateur';
+import { Role } from '../../Models/Role';
+import { UtilisateurService } from '../../services/utilisateur.service';
+import { RoleService } from '../../services/role.service';
 
 @Component({
-  selector: 'app-add-utilisateur',
+  selector: 'app-user-form',
   templateUrl: './add-utilisateur.component.html',
   styleUrls: ['./add-utilisateur.component.css']
 })
 export class AddUtilisateurComponent implements OnInit {
-  private userId?: string;
-  public isEditMode: boolean = false;
+  userForm: FormGroup;
+  loading = false;
+  submitted = false;
+  error = '';
+  isEditMode = false;
+  userId = '';
+  roles: Role[] = [];
 
   constructor(
-    private utilisateurService: UtilisateurService,
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private utilisateurService: UtilisateurService,
+    private roleService: RoleService
+  ) {
+    this.userForm = this.createForm();
+  }
 
-  utilisateurForm = new FormGroup({
-    nom: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    motDePasse: new FormControl('', [Validators.required, Validators.minLength(6)]), // Obligatoire pour création
-    role: new FormControl('', Validators.required)
-  });
-
-  message: string = '';
-
-  ngOnInit() {
-    this.userId = this.route.snapshot.paramMap.get('id') || undefined;
-    if (this.userId) {
-      this.isEditMode = true;
+  ngOnInit(): void {
+    this.loadRoles();
+    
+    this.userId = this.route.snapshot.params['id'];
+    this.isEditMode = !!this.userId;
+    
+    if (this.isEditMode) {
       this.loadUserData();
     }
   }
-
-  private loadUserData() {
-    if (this.userId) {
-      this.utilisateurService.getUserById(this.userId).subscribe({ // Correction : supprimé Number()
-        next: (user: Utilisateur) => {
-          this.utilisateurForm.patchValue({
-            nom: user.nom,
-            email: user.email,
-            role: user.role // Chaîne "admin" ou "user"
-          });
-        },
-        error: (err) => {
-          this.message = 'Erreur lors du chargement de l\'utilisateur';
-          console.error('Erreur chargement:', err);
-        }
-      });
-    }
+  
+  createForm(): FormGroup {
+    return this.formBuilder.group({
+      nom: ['', [Validators.required]],
+      prenom: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(8)]],
+      role: ['', [Validators.required]],
+      telephone: [''],
+      adresse: [''],
+      actif: [true],
+      preferences: this.formBuilder.group({
+        theme: ['light'],
+        langue: ['fr'],
+        notificationsEmail: [true]
+      })
+    });
   }
-
-  submitUtilisateur() {
-    if (this.utilisateurForm.invalid) {
-      this.message = 'Veuillez remplir correctement tous les champs requis';
-      console.log('Formulaire invalide:', this.utilisateurForm.value); // Log pour diagnostic
+  
+  loadRoles(): void {
+    this.roleService.getAllRoles().subscribe({
+      next: (data: Role[]) => {
+        this.roles = data.filter(role => role.actif);
+      },
+      error: (err: Error) => {
+        this.error = err.message || 'Erreur lors du chargement des rôles';
+      }
+    });
+  }
+  
+  loadUserData(): void {
+    this.loading = true;
+    this.utilisateurService.getUserById(this.userId).subscribe({
+      next: (user: Utilisateur | null) => {
+        if (user) {
+          // Supprimer le champ password pour l'édition
+          const userData = { ...user };
+          delete userData.password;
+          
+          this.userForm.patchValue(userData);
+          
+          // Vérification renforcée avec suppression temporaire de la vérification stricte
+          // @ts-ignore
+          if (user.role && typeof user.role === 'object' && '_id' in user.role) {
+            this.userForm.get('role').setValue(user.role._id);
+          } else if (typeof user.role === 'string') {
+            this.userForm.get('role').setValue(user.role);
+          } else {
+            this.error = 'Rôle invalide ou non défini pour cet utilisateur';
+          }
+        } else {
+          this.error = 'Utilisateur non trouvé';
+        }
+        this.loading = false;
+      },
+      error: (err: Error) => {
+        this.error = err.message || 'Erreur lors du chargement des données utilisateur';
+        this.loading = false;
+      }
+    });
+  }
+  
+  onSubmit(): void {
+    this.submitted = true;
+    
+    if (this.userForm.invalid) {
       return;
     }
-
-    const userData: any = {
-      nom: this.utilisateurForm.value.nom ?? "",
-      email: this.utilisateurForm.value.email ?? "",
-      role: this.utilisateurForm.value.role ?? "" // "admin" ou "user"
-    };
-
-    if (this.utilisateurForm.value.motDePasse) {
-      userData.motDePasse = this.utilisateurForm.value.motDePasse;
+    
+    this.loading = true;
+    const userData = this.userForm.value;
+    
+    // Si aucun mot de passe n'est fourni en mode édition, on le supprime
+    if (this.isEditMode && !userData.password) {
+      delete userData.password;
     }
-
-    console.log('Données envoyées:', userData); // Log pour vérifier les données
-
-    if (this.isEditMode && this.userId) {
-      this.utilisateurService.updateUser(this.userId, userData).subscribe({ // Correction : supprimé Number()
-        next: (response) => {
-          console.log('Réponse mise à jour:', response); // Log pour confirmer
-          this.message = 'Utilisateur mis à jour avec succès'; // Message de succès
-          this.router.navigateByUrl("/utilisateurs"); // Redirection
+    
+    if (this.isEditMode) {
+      this.utilisateurService.updateUser(this.userId, userData).subscribe({
+        next: () => {
+          this.router.navigate(['/users']);
         },
-        error: (err) => {
-          this.message = 'Erreur lors de la mise à jour';
-          console.error('Erreur mise à jour:', err);
+        error: (err: Error) => {
+          this.error = err.message || 'Erreur lors de la mise à jour';
+          this.loading = false;
         }
       });
     } else {
       this.utilisateurService.createUser(userData).subscribe({
-        next: (response) => {
-          console.log('Utilisateur ajouté avec succès:', response); // Log pour confirmation
-          this.message = 'Utilisateur ajouté avec succès'; // Message de succès
-          this.router.navigateByUrl("/utilisateurs"); // Redirection après succès
+        next: () => {
+          this.router.navigate(['/users']);
         },
-        error: (err) => {
-          this.message = 'Erreur lors de la création';
-          console.error('Erreur création:', err);
+        error: (err: Error) => {
+          this.error = err.message || 'Erreur lors de la création';
+          this.loading = false;
         }
       });
     }

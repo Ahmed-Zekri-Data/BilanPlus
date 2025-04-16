@@ -1,51 +1,78 @@
-<br>
-<h1>{{ isEditMode ? 'Modification de rôle' : 'Ajout de rôle' }}</h1>
-
-<form [formGroup]="roleForm" (ngSubmit)="submitRole()" class="mt-4">
-
-    <div class="form-group mb-3">
-        <label for="nom">Nom</label>
-        <input 
+<div class="role-form-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ isEditMode ? 'Modifier' : 'Créer' }} un rôle</h2>
+    </div>
+    
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center mb-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+      
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      
+      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="nom" class="form-label">Nom*</label>
+          <input 
             type="text" 
-            id="nom"
-            class="form-control" 
             formControlName="nom" 
-            placeholder="Entrer le nom du rôle"
-            [class.is-invalid]="roleForm.controls['nom'].invalid && roleForm.controls['nom'].touched">
-        <div class="alert alert-danger mt-2" 
-             *ngIf="roleForm.controls['nom'].invalid && roleForm.controls['nom'].touched">
-            <p *ngIf="roleForm.controls['nom'].hasError('required')">Le nom est obligatoire</p>
-            <p *ngIf="roleForm.controls['nom'].hasError('minlength')">Le nom doit comporter au moins 3 caractères</p>
-        </div>
-    </div>
-
-    <div class="form-group mb-3">
-        <label for="permissions">Permissions (séparées par des virgules)</label>
-        <input 
-            type="text" 
-            id="permissions"
             class="form-control" 
-            formControlName="permissions" 
-            placeholder="Ex: lire, écrire, supprimer"
-            [class.is-invalid]="roleForm.controls['permissions'].invalid && roleForm.controls['permissions'].touched">
-        <div class="alert alert-danger mt-2" 
-             *ngIf="roleForm.controls['permissions'].invalid && roleForm.controls['permissions'].touched">
-            <p *ngIf="roleForm.controls['permissions'].hasError('required')">Les permissions sont obligatoires</p>
+            [ngClass]="{ 'is-invalid': submitted && roleForm.controls['nom'].errors }" 
+          />
+          <div *ngIf="submitted && roleForm.controls['nom'].errors" class="invalid-feedback">
+            <div *ngIf="roleForm.controls['nom'].errors['required']">Le nom est requis</div>
+          </div>
         </div>
+        
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea 
+            formControlName="description" 
+            class="form-control" 
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div class="mb-3" formGroupName="permissions">
+          <h4>Permissions</h4>
+          <div class="row">
+            <div *ngFor="let perm of permissionKeys" class="col-md-6 mb-2">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  [formControlName]="perm" 
+                  class="form-check-input" 
+                  [id]="perm"
+                >
+                <label class="form-check-label" [for]="perm">
+                  {{ getPermissionLabel(perm) }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="isEditMode" class="mb-3 form-check">
+          <input 
+            type="checkbox" 
+            formControlName="actif" 
+            class="form-check-input" 
+            id="actif"
+          >
+          <label class="form-check-label" for="actif">Rôle actif</label>
+        </div>
+        
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+            {{ isEditMode ? 'Mettre à jour' : 'Créer' }} le rôle
+          </button>
+          <button type="button" class="btn btn-secondary" routerLink="/roles">Annuler</button>
+        </div>
+      </form>
     </div>
-
-    <div class="mt-4">
-        <button 
-            type="submit" 
-            class="btn btn-primary me-2" 
-            [disabled]="roleForm.invalid">
-            {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
-        </button>
-        <a routerLink="/roles" class="btn btn-secondary">Annuler</a>
-    </div>
-</form>
-
-<!-- Message de feedback -->
-<div class="alert alert-info mt-3" *ngIf="message">
-    {{ message }}
+  </div>
 </div>

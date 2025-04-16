@@ -1,87 +1,124 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { RoleService } from '../../services/role.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Role } from '../../Models/Role';
+import { RoleService } from '../../services/role.service';
 
 @Component({
-  selector: 'app-add-role',
+  selector: 'app-role-form',
   templateUrl: './add-role.component.html',
-  styleUrls: ['./add-role.component.css']
+  styleUrls: ['./add-role.component.scss']
 })
 export class AddRoleComponent implements OnInit {
-  private roleId?: string;
-  public isEditMode: boolean = false;
+  roleForm: FormGroup;
+  loading = false;
+  submitted = false;
+  error = '';
+  isEditMode = false;
+  roleId = '';
+  permissionKeys = [
+    'gestionUtilisateurs', 'gestionRoles', 'gestionClients', 'gestionFournisseurs',
+    'gestionFactures', 'gestionComptabilite', 'gestionBilans', 'gestionDeclarations',
+    'rapportsAvances', 'parametresSysteme'
+  ];
 
   constructor(
-    private roleService: RoleService,
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private roleService: RoleService
+  ) {
+    this.roleForm = this.createForm();
+  }
 
-  roleForm = new FormGroup({
-    nom: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    permissions: new FormControl('', Validators.required) // On pourrait utiliser un FormArray pour une liste
-  });
+  ngOnInit(): void {
+    this.roleId = this.route.snapshot.params['id'];
+    this.isEditMode = !!this.roleId;
 
-  message: string = '';
-
-  ngOnInit() {
-    this.roleId = this.route.snapshot.paramMap.get('id') || undefined;
-    if (this.roleId) {
-      this.isEditMode = true;
+    if (this.isEditMode) {
       this.loadRoleData();
     }
   }
 
-  private loadRoleData() {
-    if (this.roleId) {
-      this.roleService.getRoleById(this.roleId).subscribe({
-        next: (role: Role) => {
-          this.roleForm.patchValue({
-            nom: role.nom,
-            permissions: role.permissions.join(', ') // Convertit le tableau en chaîne pour l'affichage
-          });
-        },
-        error: (err) => {
-          this.message = 'Erreur lors du chargement du rôle';
-          console.error(err);
-        }
-      });
-    }
+  createForm(): FormGroup {
+    return this.formBuilder.group({
+      nom: ['', [Validators.required]],
+      description: [''],
+      permissions: this.formBuilder.group(
+        this.permissionKeys.reduce((acc, key) => ({
+          ...acc,
+          [key]: [false]
+        }), {})
+      ),
+      actif: [true]
+    });
   }
 
-  submitRole() {
+  loadRoleData(): void {
+    this.loading = true;
+    this.roleService.getRoleById(this.roleId).subscribe({
+      next: (role: Role) => {
+        this.roleForm.patchValue({
+          nom: role.nom,
+          description: role.description,
+          permissions: role.permissions,
+          actif: role.actif
+        });
+        this.loading = false;
+      },
+      error: (error) => {
+        this.error = error.message || 'Erreur lors du chargement des données du rôle';
+        this.loading = false;
+      }
+    });
+  }
+
+  onSubmit(): void {
+    this.submitted = true;
+
     if (this.roleForm.invalid) {
-      this.message = 'Veuillez remplir correctement tous les champs requis';
       return;
     }
 
-    const roleData: any = {
-      nom: this.roleForm.value.nom ?? "",
-      permissions: this.roleForm.value.permissions?.split(',').map((p: string) => p.trim()) ?? [] // Convertit la chaîne en tableau
-    };
+    this.loading = true;
+    const roleData = this.roleForm.value;
 
-    if (this.isEditMode && this.roleId) {
+    if (this.isEditMode) {
       this.roleService.updateRole(this.roleId, roleData).subscribe({
         next: () => {
-          this.router.navigateByUrl("/roles");
+          this.router.navigate(['/roles']);
         },
-        error: (err) => {
-          this.message = 'Erreur lors de la mise à jour';
-          console.error(err);
+        error: (error) => {
+          this.error = error.error?.message || 'Erreur lors de la mise à jour';
+          this.loading = false;
         }
       });
     } else {
       this.roleService.createRole(roleData).subscribe({
         next: () => {
-          this.router.navigateByUrl("/roles");
+          this.router.navigate(['/roles']);
         },
-        error: (err) => {
-          this.message = 'Erreur lors de la création';
-          console.error(err);
+        error: (error) => {
+          this.error = error.error?.message || 'Erreur lors de la création';
+          this.loading = false;
         }
       });
     }
+  }
+
+  getPermissionLabel(perm: string): string {
+    const labels: { [key: string]: string } = {
+      gestionUtilisateurs: 'Gestion des utilisateurs',
+      gestionRoles: 'Gestion des rôles',
+      gestionClients: 'Gestion des clients',
+      gestionFournisseurs: 'Gestion des fournisseurs',
+      gestionFactures: 'Gestion des factures',
+      gestionComptabilite: 'Gestion de la comptabilité',
+      gestionBilans: 'Gestion des bilans',
+      gestionDeclarations: 'Gestion des déclarations',
+      rapportsAvances: 'Rapports avancés',
+      parametresSysteme: 'Paramètres système'
+    };
+    return labels[perm] || perm;
   }
 }

@@ -1,56 +1,72 @@
 import { Component, OnInit } from '@angular/core';
-import { UtilisateurService } from '../../services/utilisateur.service';
-import { Utilisateur } from '../../Models/Utilisateur';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Utilisateur } from '../../Models/Utilisateur';
+import { UtilisateurService } from '../../services/utilisateur.service';
 
 @Component({
-  selector: 'app-utilisateur-details',
+  selector: 'app-user-detail',
   templateUrl: './utilisateur-details.component.html',
-  styleUrls: ['./utilisateur-details.component.css']
+  styleUrls: ['./utilisateur-details.component.scss']
 })
 export class UtilisateurDetailsComponent implements OnInit {
   utilisateur: Utilisateur | null = null;
-  errorMessage: string = '';
+  loading = false;
+  error = '';
+  userId = '';
 
   constructor(
-    private utilisateurService: UtilisateurService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router,
+    private utilisateurService: UtilisateurService
+  ) { }
 
   ngOnInit(): void {
-    // Récupérer l'ID depuis les paramètres de l'URL
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.getUtilisateurDetails(id); // Passer l'ID tel quel (chaîne)
-    } else {
-      this.errorMessage = 'ID d\'utilisateur non spécifié';
-    }
+    this.userId = this.route.snapshot.params['id'];
+    this.loadUserData();
   }
 
-  getUtilisateurDetails(id: string): void {
-    this.utilisateurService.getUserById(id).subscribe({ // Passer id comme string
+  loadUserData(): void {
+    this.loading = true;
+    this.utilisateurService.getUserById(this.userId).subscribe({
       next: (data: Utilisateur) => {
-        console.log('Détails récupérés:', data); // Log pour confirmer
         this.utilisateur = data;
+        this.loading = false;
       },
-      error: (err) => {
-        this.errorMessage = 'Erreur lors de la récupération des détails de l\'utilisateur';
-        console.error('Erreur détails:', err); // Log erreur détaillé
-        console.error('Statut:', err.status, 'Détails:', err.error); // Plus de détails
+      error: (error: Error) => {
+        this.error = error.message || 'Erreur lors du chargement des données utilisateur';
+        this.loading = false;
       }
     });
   }
 
-  // Méthode pour retourner à la liste
-  goBack(): void {
-    this.router.navigate(['/utilisateurs']);
+  editUser(): void {
+    this.router.navigate(['/users/edit', this.userId]);
   }
 
-  // Méthode pour aller à la page d'édition
-  editUser(): void {
-    if (this.utilisateur?._id) {
-      this.router.navigate(['/utilisateur/edit', this.utilisateur._id]);
+  goBack(): void {
+    this.router.navigate(['/users']);
+  }
+
+  getPermissionsArray(): string[] {
+    if (!this.utilisateur || !this.utilisateur.role || typeof this.utilisateur.role !== 'object') {
+      return [];
     }
+    return Object.keys(this.utilisateur.role['permissions'] || {});
+  }
+  
+  getPermissionLabel(perm: string): string {
+    const labels: { [key: string]: string } = {
+      gestionUtilisateurs: 'Gestion des utilisateurs',
+      gestionRoles: 'Gestion des rôles',
+      gestionClients: 'Gestion des clients',
+      gestionFournisseurs: 'Gestion des fournisseurs',
+      gestionFactures: 'Gestion des factures',
+      gestionComptabilite: 'Gestion de la comptabilité',
+      gestionBilans: 'Gestion des bilans',
+      gestionDeclarations: 'Gestion des déclarations',
+      rapportsAvances: 'Rapports avancés',
+      parametresSysteme: 'Paramètres système'
+    };
+    return labels[perm] || perm;
   }
 }
