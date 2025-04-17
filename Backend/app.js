@@ -16,13 +16,23 @@ const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
+const froutes = require("./Routes/fiscaliteRoutes")
 const config = require("./Config/db.json");
 
 // Connexion à la base de données
-mongoose
-  .connect(config.url)
-  .then(() => console.log("Database connected"))
-  .catch((err) => console.error("Database not connected:", err));
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(config.url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connecté');
+  } catch (error) {
+    console.error('Erreur de connexion MongoDB:', error);
+    process.exit(1);
+  }
+};
 
 const app = express();
 
@@ -48,6 +58,7 @@ app.use("/MS", MSrouter);
 app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
+app.use("/fiscalité",froutes)
 // app.use("/clients", clientRoutes);
 // app.use("/factures", factureRoutes);
 
@@ -75,5 +86,6 @@ io.on("connection", (socket) => {
 server.listen(3000, () => {
   console.log("🚀 Server is running on port 3000");
 });
+
 
 module.exports = app;

@@ -27,5 +27,8 @@ route.get("/getallDF", DFC.getall);
 route.get("/getDFbyid/:id", validateDeclarationId, DFC.getbyid);
 route.delete("/deleteDF/:id", validateDeclarationId, DFC.deleteDF);
 route.put("/updateDF/:id", validateDeclarationId, validateDeclarationFiscale, DFC.updateDF);
-
+route.post('/declaration/generer', DFC.genererDeclarationFiscale);
+route.get('/declaration/formulaire/:declarationId', DFC.genererFormulaireOfficiel);
+route.post('/declaration/verification-delais', DFC.verifierDelaisDeclaration);
+route.put('/declaration/soumettre/:declarationId', DFC.soumettreDeclaration);
 module.exports = route;

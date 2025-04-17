@@ -1,9 +1,10 @@
 const DeclarationFiscale = require("../Models/DeclarationFiscale");
-
+// const DeclarationFiscaleService = require('../services/DeclarationFiscaleService');
+const DeclarationFiscaleService = require('../Services/DeclarationFiscaleService');
 const DF = DeclarationFiscale;
 
 // Fonction utilitaire pour vérifier l'existence d'une déclaration par ID
-const findDeclarationById = async (id) => {
+async function findDeclarationById(id) {
     try {
         const declaration = await DF.findById(id);
         if (!declaration) {
@@ -13,7 +14,7 @@ const findDeclarationById = async (id) => {
     } catch (err) {
         throw new Error(err.message);
     }
-};
+}
 
 // Ajouter une déclaration fiscale
 async function addDF(req, res) {
@@ -80,5 +81,216 @@ async function updateDF(req, res) {
     }
 }
 
-module.exports = { addDF, getall, getbyid, deleteDF, updateDF, findDeclarationById };
+// Générer une déclaration fiscale
+async function genererDeclarationFiscale(req, res) {
+    try {
+        const { dateDebut, dateFin, type } = req.body;
+        
+        if (!dateDebut || !dateFin || !type) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates de début et de fin ainsi que le type de déclaration sont requis'
+            });
+        }
+        
+        // Vérifier le type de déclaration
+        if (!['mensuelle', 'trimestrielle', 'annuelle'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le type de déclaration doit être "mensuelle", "trimestrielle" ou "annuelle"'
+            });
+        }
+        
+        // Générer la déclaration fiscale complète
+        const declarationComplete = await DeclarationFiscaleService.genererDeclarationFiscale(
+            new Date(dateDebut), 
+            new Date(dateFin), 
+            type
+        );
+        
+        // Sauvegarder la déclaration dans la base de données
+        const nouvelleDeclaration = new DeclarationFiscale({
+            periode: declarationComplete.periode,
+            type: declarationComplete.type,
+            statut: declarationComplete.statut,
+            totalTVACollectee: declarationComplete.dataSummary.tva.collectee,
+            totalTVADeductible: declarationComplete.dataSummary.tva.deductible,
+            totalTVADue: declarationComplete.dataSummary.tva.solde,
+            totalTCL: declarationComplete.dataSummary.tcl.montantTCL,
+            totalDroitTimbre: declarationComplete.dataSummary.droitTimbre.totalDroitTimbre,
+            dateCreation: new Date(),
+        });
+        
+        await nouvelleDeclaration.save();
+        
+        return res.status(201).json({
+            success: true,
+            message: 'Déclaration fiscale générée avec succès',
+            data: {
+                declaration: nouvelleDeclaration,
+                detailsCalcul: declarationComplete.detailsCalcul
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
 
+// Générer un formulaire officiel
+async function genererFormulaireOfficiel(req, res) {
+    try {
+        const { declarationId } = req.params;
+        
+        // Récupérer la déclaration
+        const declaration = await DeclarationFiscale.findById(declarationId);
+        
+        if (!declaration) {
+            return res.status(404).json({
+                success: false,
+                message: 'Déclaration fiscale non trouvée'
+            });
+        }
+        
+        // Préparer les données pour le formulaire
+        const declarationData = {
+            periode: declaration.periode,
+            type: declaration.type,
+            dataSummary: {
+                tva: {
+                    collectee: declaration.totalTVACollectee,
+                    deductible: declaration.totalTVADeductible,
+                    solde: declaration.totalTVADue,
+                    aPayer: declaration.totalTVADue > 0,
+                    aRembourser: declaration.totalTVADue < 0,
+                    montantFinal: Math.abs(declaration.totalTVADue)
+                },
+                tcl: {
+                    montantTCL: declaration.totalTCL
+                },
+                droitTimbre: {
+                    totalDroitTimbre: declaration.totalDroitTimbre
+                },
+                totalAPayer: declaration.totalTVADue > 0 ? 
+                    declaration.totalTVADue + declaration.totalTCL + declaration.totalDroitTimbre : 
+                    declaration.totalTCL + declaration.totalDroitTimbre
+            }
+        };
+        
+        // Générer le formulaire officiel
+        const formulaire = DeclarationFiscaleService.genererFormulaireOfficiel(declarationData);
+        
+        return res.status(200).json({
+            success: true,
+            data: formulaire
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Vérifier les délais de déclaration
+async function verifierDelaisDeclaration(req, res) {
+    try {
+        const { type, finPeriode } = req.body;
+        
+        if (!type || !finPeriode) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le type de déclaration et la date de fin de période sont requis'
+            });
+        }
+        
+        const infoDelais = DeclarationFiscaleService.verifierDelaisDeclaration(type, new Date(finPeriode));
+        
+        return res.status(200).json({
+            success: true,
+            data: infoDelais
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Soumettre une déclaration fiscale
+async function soumettreDeclaration(req, res) {
+    try {
+        const { declarationId } = req.params;
+        
+        // Récupérer la déclaration
+        const declaration = await DeclarationFiscale.findById(declarationId);
+        
+        if (!declaration) {
+            return res.status(404).json({
+                success: false,
+                message: 'Déclaration fiscale non trouvée'
+            });
+        }
+        
+        // Vérifier si la déclaration est déjà soumise
+        if (declaration.statut === 'soumise' || declaration.statut === 'validée') {
+            return res.status(400).json({
+                success: false,
+                message: `La déclaration est déjà ${declaration.statut}`
+            });
+        }
+        
+        // Vérifier les délais et calculer les pénalités si nécessaire
+        const infoDelais = DeclarationFiscaleService.verifierDelaisDeclaration(
+            declaration.type, 
+            declaration.periode.fin
+        );
+        
+        // Mettre à jour la déclaration
+        declaration.statut = 'soumise';
+        declaration.dateSoumission = new Date();
+        
+        // Ajouter les pénalités si en retard
+        if (infoDelais.estEnRetard) {
+            declaration.penalites = {
+                estEnRetard: true,
+                retardJours: infoDelais.retardJours,
+                tauxPenalite: infoDelais.penalites.totalPenalites,
+                montantPenalite: (declaration.totalTVADue > 0 ? declaration.totalTVADue : 0) * (infoDelais.penalites.totalPenalites / 100)
+            };
+        }
+        
+        await declaration.save();
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Déclaration fiscale soumise avec succès',
+            data: {
+                declaration,
+                infoDelais: infoDelais.estEnRetard ? infoDelais : null
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Exporter toutes les méthodes
+module.exports = {
+    addDF,
+    getall,
+    getbyid,
+    deleteDF,
+    updateDF,
+    findDeclarationById,
+    genererDeclarationFiscale,
+    genererFormulaireOfficiel,
+    verifierDelaisDeclaration,
+    soumettreDeclaration
+};

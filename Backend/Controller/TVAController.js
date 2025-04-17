@@ -1,4 +1,5 @@
 const TVA = require("../Models/TVA");
+const TvaService = require("../Services/TVAService");
 
 // Ajouter une TVA
 async function addTVA(req, res) {
@@ -64,5 +65,107 @@ async function updateTVA(req, res) {
     }
 }
 
-module.exports = { addTVA, getall, getbyid, deleteTVA, updateTVA };
+// Calculer TVA pour une facture
+async function calculerTVAFacture(req, res) {
+    try {
+        const { factureId } = req.params;
+        const resultatTVA = await TvaService.calculerTVAFacture(factureId);
+        return res.status(200).json({
+            success: true,
+            data: resultatTVA
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
 
+// Calculer TVA déductible
+async function calculerTVADeductible(req, res) {
+    try {
+        const { dateDebut, dateFin } = req.body;
+        if (!dateDebut || !dateFin) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates de début et de fin sont requises'
+            });
+        }
+        const resultatTVA = await TvaService.calculerTVADeductible(new Date(dateDebut), new Date(dateFin));
+        return res.status(200).json({
+            success: true,
+            data: resultatTVA
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Réconciliation TVA
+async function reconciliationTVA(req, res) {
+    try {
+        const { dateDebut, dateFin } = req.body;
+        if (!dateDebut || !dateFin) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates de début et de fin sont requises'
+            });
+        }
+        const bilanTVA = await TvaService.reconciliationTVA(new Date(dateDebut), new Date(dateFin));
+        return res.status(200).json({
+            success: true,
+            data: bilanTVA
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Vérifier régime forfaitaire
+async function verifierRegimeForfaitaire(req, res) {
+    try {
+        const { entreprise, chiffreAffairesAnnuel } = req.body;
+        if (!entreprise || chiffreAffairesAnnuel === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les informations de l\'entreprise et le chiffre d\'affaires sont requis'
+            });
+        }
+        const resultat = TvaService.verifierEligibiliteRegimeForfaitaire(entreprise, chiffreAffairesAnnuel);
+        return res.status(200).json({
+            success: true,
+            data: {
+                entreprise: entreprise.nom || entreprise.raisonSociale,
+                chiffreAffairesAnnuel,
+                estEligible: resultat,
+                message: resultat
+                    ? 'L\'entreprise est éligible au régime forfaitaire'
+                    : 'L\'entreprise n\'est pas éligible au régime forfaitaire'
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = {
+    addTVA,
+    getall,
+    getbyid,
+    deleteTVA,
+    updateTVA,
+    calculerTVAFacture,
+    calculerTVADeductible,
+    reconciliationTVA,
+    verifierRegimeForfaitaire
+};
