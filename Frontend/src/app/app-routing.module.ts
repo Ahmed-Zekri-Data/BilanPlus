@@ -21,7 +21,6 @@ import { ClientListComponent } from './components/client-list/client-list.compon
 
 const routes: Routes = [
   { path: '', redirectTo: '/produit', pathMatch: 'full' },
-  { path: '**', redirectTo: '/produit' },
   { path: 'produit', component: ProduitComponent },
   {path:'TVA', component:ListTVAComponent},
   {path: 'getTVA/:id', component:TvaDetailComponent},
@@ -37,7 +36,9 @@ const routes: Routes = [
 
   {path : 'getDF/:id', component:DFDetailComponent},
   {path : 'clientform', component:ClientFormComponent},
-  {path : 'clientlist', component:ClientListComponent}
+  {path : 'clientlist', component:ClientListComponent},
+  { path: '**', redirectTo: '/produit' }
+
 
 
 

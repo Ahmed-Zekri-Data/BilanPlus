@@ -1,27 +1,34 @@
 <div class="form-container">
-    <h2>Ajouter un Client</h2>
+    <h2>Modifier un Client</h2>
     <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
-      <label>Nom :</label>
-      <input type="text" formControlName="nom">
-      <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched">
-        Nom requis (min. 3 caractères).
+      
+      <div class="form-group">
+        <label for="nom">Nom :</label>
+        <input type="text" id="nom" formControlName="nom" placeholder="Entrez le nom du client">
+        <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched" class="error-message">
+          Nom requis (min. 3 caractères).
+        </div>
       </div>
   
-      <label>Email :</label>
-      <input type="email" formControlName="email">
-      <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched">
-        Email invalide.
+      <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" formControlName="email" placeholder="Entrez l'email du client">
+        <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched" class="error-message">
+          Email invalide.
+        </div>
       </div>
   
-      <label>Téléphone :</label>
-      <input type="text" formControlName="telephone">
-      <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched">
-        Doit contenir 8 chiffres.
+      <div class="form-group">
+        <label for="telephone">Téléphone :</label>
+        <input type="text" id="telephone" formControlName="telephone" placeholder="Entrez le téléphone du client">
+        <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched" class="error-message">
+          Doit contenir 8 chiffres.
+        </div>
       </div>
   
-      <button type="submit" [disabled]="clientForm.invalid">Ajouter</button>
+      <div class="form-group">
+        <button type="submit" [disabled]="clientForm.invalid">Enregistrer</button>
+      </div>
     </form>
-  
-    <p *ngIf="message">{{ message }}</p>
   </div>
   

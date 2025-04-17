@@ -24,8 +24,16 @@ export class ClientFormComponent {
         email: this.clientForm.value.email as string,
         telephone: this.clientForm.value.telephone as string
       };
-
-      this.clientAdded.emit(newClient);
+  
+      // Récupérer les anciens clients du localStorage
+      const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
+  
+      // Ajouter le nouveau client
+      existingClients.push(newClient);
+  
+      // Enregistrer dans le localStorage
+      localStorage.setItem('clients', JSON.stringify(existingClients));
+  
       this.message = "Client ajouté avec succès !";
       this.clientForm.reset();
     } else {

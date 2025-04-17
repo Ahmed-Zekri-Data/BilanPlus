@@ -1,18 +1,66 @@
 <div class="list-container">
-  
-    <!-- Connexion avec le formulaire -->
-    <app-client-form (clientAdded)="addClient($event)"></app-client-form>
     <h2>Liste des Clients</h2>
-    <ul *ngIf="clients.length > 0; else noClients">
-      <li *ngFor="let client of clients; let i = index">
-        <span>{{ client.nom }} - {{ client.email }} - {{ client.telephone }}</span>
-        <button (click)="deleteClient(i)">Supprimer</button>
+  
+    <!-- Champ de recherche -->
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="🔍 Rechercher par nom..."
+      class="search-input"
+    />
+  
+    <ul *ngIf="filteredClients.length > 0; else noClients">
+      <li
+        *ngFor="let client of filteredClients; let i = index"
+        class="client-item"
+      >
+        <div class="client-info">
+          <span>{{ client.nom }} - {{ client.email }} - {{ client.telephone }}</span>
+          <div class="btn-group">
+            <button class="btn delete" (click)="deleteClient(i)">Supprimer</button>
+            <button class="btn edit" (click)="editClient(i)">Modifier</button>
+          </div>
+        </div>
+  
+        <!-- Formulaire d'édition -->
+        <form
+          *ngIf="editingIndex === i"
+          (ngSubmit)="updateClient()"
+          class="edit-form"
+        >
+          <input
+            type="text"
+            [(ngModel)]="editedClient.nom"
+            name="nom"
+            placeholder="Nom"
+            required
+            minlength="3"
+          />
+          <input
+            type="email"
+            [(ngModel)]="editedClient.email"
+            name="email"
+            placeholder="Email"
+            required
+          />
+          <input
+            type="text"
+            [(ngModel)]="editedClient.telephone"
+            name="telephone"
+            placeholder="Téléphone"
+            required
+            pattern="[0-9]{8}"
+          />
+          <div class="btn-group">
+            <button type="submit" class="btn confirm">Valider</button>
+            <button type="button" class="btn cancel" (click)="cancelEdit()">Annuler</button>
+          </div>
+        </form>
       </li>
     </ul>
   
     <ng-template #noClients>
-      <p>Aucun client ajouté.</p>
+      <p>Aucun client ne correspond à la recherche.</p>
     </ng-template>
-    
   </div>
   
