@@ -1,83 +1,21 @@
-<div class="users-container">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h2>Gestion des Utilisateurs</h2>
-        <div>
-          <button class="btn btn-success me-2" routerLink="/users/create">
-            <i class="bi bi-plus-circle"></i> Nouvel Utilisateur
-          </button>
-          <button class="btn btn-secondary" (click)="exportCSV()">
-            <i class="bi bi-download"></i> Exporter CSV
-          </button>
-        </div>
-      </div>
-  
-      <div class="card-body">
-        <div class="form-group">
-          <div class="input-group mb-3">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input 
-              type="text" 
-              class="form-control" 
-              placeholder="Rechercher un utilisateur..." 
-              [(ngModel)]="searchTerm"
-              (keyup)="applyFilter()"
-            >
-          </div>
-        </div>
-  
-        <div *ngIf="loading" class="text-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Chargement...</span>
-          </div>
-        </div>
-  
-        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-  
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Statut</th>
-                <th>Dernière connexion</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of filteredUtilisateurs">
-                <td>{{ user.nom }}</td>
-                <td>{{ user.prenom }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.role['nom'] || 'N/A' }}</td>
-                <td>
-                  <span class="badge" [ngClass]="user.actif ? 'bg-success' : 'bg-danger'">
-                    {{ user.actif ? 'Actif' : 'Inactif' }}
-                  </span>
-                </td>
-                <td>{{ user.dernierConnexion | date:'dd/MM/yyyy HH:mm' || 'Jamais' }}</td>
-                <td>
-                  <button class="btn btn-sm btn-info me-1" (click)="viewUser(user._id)">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <button class="btn btn-sm btn-primary me-1" (click)="editUser(user._id)">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteUser(user._id)">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-  
-        <div *ngIf="!loading && filteredUtilisateurs.length === 0" class="text-center p-3">
-          <p>Aucun utilisateur trouvé</p>
+<div class="container">
+  <h2>Liste des Utilisateurs</h2>
+  <div class="mb-3">
+    <button class="btn btn-success" (click)="goToAddUser()">Ajouter Utilisateur</button>
+  </div>
+  <div class="row">
+    <div class="col-md-4" *ngFor="let user of User">
+      <div class="card text-blue mb-3" style="max-width: 18rem;">
+        <div class="card-header">Utilisateur</div>
+        <div class="card-body">
+          <h5 class="card-title">Nom: {{ user.nom }}</h5>
+          <p class="card-text">Email: {{ user.email }}</p>
+          <p class="card-text">Rôle: {{ getRoleName(user) }}</p>
+          <button *ngIf="user._id" class="btn btn-sm btn-info me-1" (click)="viewUser(user._id)">Détails</button>
+          <button *ngIf="user._id" class="btn btn-sm btn-primary me-1" (click)="editUser(user._id)">Modifier</button>
+          <button *ngIf="user._id" class="btn btn-sm btn-danger" (click)="deleteUser(user._id)">Supprimer</button>
         </div>
       </div>
     </div>
   </div>
+</div>

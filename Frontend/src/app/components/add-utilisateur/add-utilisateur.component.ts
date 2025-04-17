@@ -33,7 +33,7 @@ export class AddUtilisateurComponent implements OnInit {
   ngOnInit(): void {
     this.loadRoles();
     
-    this.userId = this.route.snapshot.params['id'];
+    this.userId = this.route.snapshot.params['id'] || '';
     this.isEditMode = !!this.userId;
     
     if (this.isEditMode) {
@@ -81,14 +81,17 @@ export class AddUtilisateurComponent implements OnInit {
           
           this.userForm.patchValue(userData);
           
-          // Vérification renforcée avec suppression temporaire de la vérification stricte
-          // @ts-ignore
-          if (user.role && typeof user.role === 'object' && '_id' in user.role) {
-            this.userForm.get('role').setValue(user.role._id);
-          } else if (typeof user.role === 'string') {
-            this.userForm.get('role').setValue(user.role);
+          const roleControl = this.userForm.get('role');
+          if (roleControl) {
+            if (typeof user.role === 'string') {
+              roleControl.setValue(user.role);
+            } else if (user.role && 'id' in user.role) {
+              roleControl.setValue(user.role.id);
+            } else {
+              this.error = 'Rôle invalide ou non défini pour cet utilisateur';
+            }
           } else {
-            this.error = 'Rôle invalide ou non défini pour cet utilisateur';
+            this.error = 'Erreur lors de la récupération du contrôle de rôle';
           }
         } else {
           this.error = 'Utilisateur non trouvé';

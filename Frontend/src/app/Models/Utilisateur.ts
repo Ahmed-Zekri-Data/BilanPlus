@@ -1,23 +1,18 @@
 import { Role } from './Role';
 
 export interface Utilisateur {
-  id?: string;
+  _id: string; // Ajouté pour refléter MongoDB
   nom: string;
-  prenom: string;
+  prenom?: string;
   email: string;
   password?: string;
-  dateCreation?: Date;
-  dernierConnexion?: Date;
-  actif: boolean;
-  tentativesConnexion?: number;
+  role: string | Role;
   telephone?: string;
   adresse?: string;
-  photo?: string;
-  role: string | Role;
+  actif?: boolean;
   preferences?: {
-    theme: string;
-    langue: string;
-    notificationsEmail: boolean;
+    theme?: string;
+    langue?: string;
+    notificationsEmail?: boolean;
   };
 }
-    

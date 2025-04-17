@@ -1,93 +1,53 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Utilisateur } from '../../Models/Utilisateur';
+import { Component } from '@angular/core';
 import { UtilisateurService } from '../../services/utilisateur.service';
+import { Utilisateur } from '../../Models/Utilisateur';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-utilisateur',
   templateUrl: './utilisateur.component.html',
-  styleUrls: ['./utilisateur.component.scss']
+  styleUrls: ['./utilisateur.component.css']
 })
-export class UtilisateurComponent implements OnInit {
-  utilisateurs: Utilisateur[] = [];
-  loading = false;
-  error = '';
-  searchTerm = '';
-  filteredUtilisateurs: Utilisateur[] = [];
+export class UtilisateurComponent {
+  User: Utilisateur[] = [];
 
-  constructor(
-    private utilisateurService: UtilisateurService,
-    private router: Router
-  ) { }
+  constructor(private userService: UtilisateurService, private router: Router) {}
 
-  ngOnInit(): void {
-    this.loadUsers();
-  }
-
-  loadUsers(): void {
-    this.loading = true;
-    this.utilisateurService.getAllUsers().subscribe({
-      next: (data: Utilisateur[]) => {
-        this.utilisateurs = data;
-        this.filteredUtilisateurs = [...this.utilisateurs];
-        this.loading = false;
-      },
-      error: (error: Error) => {
-        this.error = error.message || 'Une erreur est survenue';
-        this.loading = false;
-      }
-    });
-  }
-
-  applyFilter(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredUtilisateurs = [...this.utilisateurs];
-      return;
-    }
-    
-    const searchTermLower = this.searchTerm.toLowerCase();
-    this.filteredUtilisateurs = this.utilisateurs.filter(user => 
-      user.nom.toLowerCase().includes(searchTermLower) ||
-      user.prenom.toLowerCase().includes(searchTermLower) ||
-      user.email.toLowerCase().includes(searchTermLower)
+  ngOnInit() {
+    this.userService.getAllUsers().subscribe(
+      (data) => this.User = data
     );
   }
 
-  editUser(id: string): void {
-    this.router.navigate(['/users/edit', id]);
-  }
-
-  viewUser(id: string): void {
-    this.router.navigate(['/users/view', id]);
-  }
-
-  deleteUser(id: string): void {
-    if (confirm('Êtes-vous sûr de vouloir désactiver cet utilisateur ?')) {
-      this.utilisateurService.deleteUser(id).subscribe({
-        next: () => {
-          this.loadUsers();
-        },
-        error: (error: Error) => {
-          this.error = error.message || 'Une erreur est survenue lors de la désactivation';
-        }
-      });
-    }
-  }
-
-  exportCSV(): void {
-    this.utilisateurService.exporterUtilisateursCSV().subscribe({
-      next: (data: Blob) => {
-        const url = window.URL.createObjectURL(data);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'utilisateurs.csv';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
+  deleteUser(id: string) {
+    this.userService.deleteUser(id).subscribe({
+      next: () => {
+        console.log('Utilisateur supprimé avec succès, ID:', id);
+        this.User = this.User.filter(user => user._id !== id);
+        console.log('Liste mise à jour:', this.User);
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Une erreur est survenue lors de l\'exportation';
+      error: (err) => {
+        console.error('Erreur lors de la suppression:', err);
+        this.User = this.User.filter(user => user._id !== id);
       }
     });
+  }
+
+  viewUser(id: string) {
+    this.router.navigate(['/utilisateur/details', id]);
+  }
+
+  editUser(id: string) {
+    this.router.navigate(['/utilisateur/edit', id]);
+  }
+
+  goToAddUser() {
+    this.router.navigate(['/utilisateur/add']);
+  }
+
+  // Méthode auxiliaire pour le template
+  getRoleName(user: Utilisateur): string {
+    if (!user.role) return 'N/A';
+    return typeof user.role === 'string' ? user.role : (user.role.nom || 'N/A');
   }
 }

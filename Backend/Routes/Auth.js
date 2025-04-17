@@ -4,23 +4,40 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const Utilisateur = require('../Models/Utilisateur');
+const config = require('../Config/db.json');
 const router = express.Router();
 
 // Configuration de l'envoi d'email
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER || 'votre-email@gmail.com',
+    pass: process.env.EMAIL_PASS || 'votre-mot-de-passe'
   }
 });
 
 // Sign Up
 router.post('/signup', async (req, res) => {
   try {
-    const { nom, email, motDePasse, role } = req.body;
+    const { nom, prenom, email, motDePasse, role } = req.body;
+
+    // Validate required fields
+    if (!nom || !prenom || !email || !motDePasse || !role) {
+      return res.status(400).json({ message: 'Tous les champs (nom, prenom, email, motDePasse, role) sont requis' });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(motDePasse, 10);
-    const utilisateur = new Utilisateur({ nom, email, motDePasse: hashedPassword, role });
+
+    // Create new user
+    const utilisateur = new Utilisateur({
+      nom,
+      prenom,
+      email,
+      password: hashedPassword, // Map to 'password' field
+      role
+    });
+
     await utilisateur.save();
     res.status(201).json({ message: 'Utilisateur créé avec succès' });
   } catch (err) {
@@ -36,11 +53,11 @@ router.post('/signin', async (req, res) => {
     if (!utilisateur) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
-    const isMatch = await bcrypt.compare(motDePasse, utilisateur.motDePasse);
+    const isMatch = await bcrypt.compare(motDePasse, utilisateur.password); // Compare with 'password'
     if (!isMatch) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
-    const token = jwt.sign({ id: utilisateur._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: utilisateur._id }, config.jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (err) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: err.message });
@@ -62,7 +79,7 @@ router.post('/forgot-password', async (req, res) => {
     await utilisateur.save();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER || 'votre-email@gmail.com',
       to: email,
       subject: 'Réinitialisation de mot de passe',
       text: `Vous avez demandé une réinitialisation de mot de passe. Cliquez sur ce lien : http://localhost:4200/reset-password/${resetToken}`

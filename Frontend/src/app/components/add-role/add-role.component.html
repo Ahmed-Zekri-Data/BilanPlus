@@ -11,11 +11,11 @@
         </div>
       </div>
       
-      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
       
       <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-          <label for="nom" class="form-label">Nom*</label>
+          <label for="nom" class="form-label">Nom du rôle*</label>
           <input 
             type="text" 
             formControlName="nom" 
@@ -36,16 +36,16 @@
           ></textarea>
         </div>
         
-        <div class="mb-3" formGroupName="permissions">
+        <div class="mb-3">
           <h4>Permissions</h4>
           <div class="row">
-            <div *ngFor="let perm of permissionKeys" class="col-md-6 mb-2">
+            <div class="col-md-4" *ngFor="let perm of permissionsList">
               <div class="form-check">
                 <input 
                   type="checkbox" 
-                  [formControlName]="perm" 
                   class="form-check-input" 
-                  [id]="perm"
+                  [id]="perm" 
+                  [formControlName]="perm"
                 >
                 <label class="form-check-label" [for]="perm">
                   {{ getPermissionLabel(perm) }}
@@ -70,7 +70,7 @@
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
             {{ isEditMode ? 'Mettre à jour' : 'Créer' }} le rôle
           </button>
-          <button type="button" class="btn btn-secondary" routerLink="/roles">Annuler</button>
+          <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
         </div>
       </form>
     </div>

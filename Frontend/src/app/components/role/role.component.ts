@@ -13,7 +13,7 @@ interface RoleStats {
 
 @Component({
   selector: 'app-role',
-  templateUrl: './role.component.html', // Assure-toi que ce fichier existe
+  templateUrl: './role.component.html',
   styleUrls: ['./role.component.css']
 })
 export class RoleComponent implements OnInit {
@@ -63,14 +63,19 @@ export class RoleComponent implements OnInit {
   }
 
   editRole(id: string): void {
-    this.router.navigate(['/roles/edit', id]);
+    if (id) {
+      this.router.navigate(['/roles/edit', id]);
+    }
   }
 
   viewRole(id: string): void {
-    this.router.navigate(['/roles/view', id]);
+    if (id) {
+      this.router.navigate(['/roles/view', id]);
+    }
   }
 
   deleteRole(id: string): void {
+    if (!id) return;
     if (confirm('Êtes-vous sûr de vouloir désactiver ce rôle ?')) {
       this.roleService.deleteRole(id).subscribe({
         next: () => {

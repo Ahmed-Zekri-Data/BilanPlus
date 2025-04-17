@@ -12,12 +12,12 @@ router.post("/request-reset-password", utilisateurController.requestPasswordRese
 router.post("/reset-password", utilisateurController.resetPassword);
 
 // Routes protégées
-router.get("/", verifierToken, utilisateurController.getAllUsers);
+router.get("/getall", verifierToken, utilisateurController.getAllUsers);
 router.get("/activite", verifierToken, verifierAdmin, utilisateurController.analyserActiviteUtilisateurs);
 router.get("/export-csv", verifierToken, verifierAdmin, utilisateurController.exporterUtilisateursCSV);
-router.get("/:id", verifierToken, utilisateurController.getUserById);
-router.post("/", verifierToken, verifierAdmin, utilisateurController.createUser);
-router.put("/:id", verifierToken, utilisateurController.updateUser);
-router.delete("/:id", verifierToken, verifierAdmin, utilisateurController.deleteUser);
+router.get("/getbyid/:id", verifierToken, utilisateurController.getUserById);
+router.post("/add", verifierToken, verifierAdmin, utilisateurController.createUser);
+router.put("/update/:id", verifierToken, utilisateurController.updateUser);
+router.delete("/delete/:id", verifierToken, verifierAdmin, utilisateurController.deleteUser);
 
 module.exports = router;

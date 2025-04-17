@@ -1,72 +1,64 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Role } from '../../Models/Role';
 import { RoleService } from '../../services/role.service';
+import { Role } from '../../Models/Role';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-role-detail',
+  selector: 'app-role-details',
   templateUrl: './role-details.component.html',
-  styleUrls: ['./role-details.component.scss']
+  styleUrls: ['./role-details.component.css']
 })
 export class RoleDetailsComponent implements OnInit {
   role: Role | null = null;
-  loading = false;
-  error = '';
-  roleId = '';
+  errorMessage: string = '';
+  // Liste des clés de permissions pour itérer dans le template
+  permissionsList: (keyof Role['permissions'])[] = [
+    'gestionUtilisateurs',
+    'gestionRoles',
+    'gestionClients',
+    'gestionFournisseurs',
+    'gestionFactures',
+    'gestionComptabilite',
+    'gestionBilans',
+    'gestionDeclarations',
+    'rapportsAvances',
+    'parametresSysteme'
+  ];
 
   constructor(
+    private roleService: RoleService,
     private route: ActivatedRoute,
-    private router: Router,
-    private roleService: RoleService
-  ) { }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.roleId = this.route.snapshot.params['id'];
-    this.loadRoleData();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.getRoleDetails(id);
+    } else {
+      this.errorMessage = 'ID de rôle non spécifié';
+    }
   }
 
-  loadRoleData(): void {
-    this.loading = true;
-    this.roleService.getRoleById(this.roleId).subscribe({
+  getRoleDetails(id: string): void {
+    this.roleService.getRoleById(id).subscribe({
       next: (data: Role) => {
         this.role = data;
-        this.loading = false;
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Erreur lors du chargement des données du rôle';
-        this.loading = false;
+      error: (err) => {
+        this.errorMessage = 'Erreur lors de la récupération des détails du rôle';
+        console.error(err);
       }
     });
-  }
-
-  editRole(): void {
-    this.router.navigate(['/roles/edit', this.roleId]);
   }
 
   goBack(): void {
     this.router.navigate(['/roles']);
   }
 
-  getPermissionsArray(): string[] {
-    if (!this.role || !this.role.permissions) {
-      return [];
+  editRole(): void {
+    if (this.role?.id) {
+      this.router.navigate(['/role/edit', this.role.id]);
     }
-    return Object.keys(this.role.permissions);
-  }
-
-  getPermissionLabel(perm: string): string {
-    const labels: { [key: string]: string } = {
-      gestionUtilisateurs: 'Gestion des utilisateurs',
-      gestionRoles: 'Gestion des rôles',
-      gestionClients: 'Gestion des clients',
-      gestionFournisseurs: 'Gestion des fournisseurs',
-      gestionFactures: 'Gestion des factures',
-      gestionComptabilite: 'Gestion de la comptabilité',
-      gestionBilans: 'Gestion des bilans',
-      gestionDeclarations: 'Gestion des déclarations',
-      rapportsAvances: 'Rapports avancés',
-      parametresSysteme: 'Paramètres système'
-    };
-    return labels[perm] || perm;
   }
 }

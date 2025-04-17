@@ -81,7 +81,7 @@
               [ngClass]="{ 'is-invalid': submitted && userForm.controls['role'].errors }" 
             >
               <option value="">Sélectionner un rôle</option>
-              <option *ngFor="let role of roles" [value]="role._id">{{ role.nom }}</option>
+              <option *ngFor="let role of roles" [value]="role.id">{{ role.nom }}</option>
             </select>
             <div *ngIf="submitted && userForm.controls['role'].errors" class="invalid-feedback">
               <div *ngIf="userForm.controls['role'].errors['required']">Le rôle est requis</div>
