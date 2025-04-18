@@ -1,13 +1,30 @@
-<!-- src/app/app.component.html -->
-<div class="container mt-4">
-  <nav>
-    <a [routerLink]="['/commandes']" class="btn btn-link">Commandes</a> |
-    <a [routerLink]="['/fournisseurs']" class="btn btn-link">Fournisseurs</a> |
-    <a [routerLink]="['/TVA']" class="btn btn-link">TVA</a> |
-    <a [routerLink]="['/DF']" class="btn btn-link">DF</a> |
-    <a [routerLink]="['/utilisateurs']" class="btn btn-link">Utilisateurs</a> |
-    <a [routerLink]="['/comptes']" class="btn btn-link">Comptes</a> |
-    <a [routerLink]="['/ecritures']" class="btn btn-link">Écritures</a>
-  </nav>
+<!-- Combined navigation from both branches -->
+<nav>
+  <a [routerLink]="['/commandes']">Commandes</a> |
+  <a [routerLink]="['/fournisseurs']">Fournisseurs</a> |
+  <a [routerLink]="['/produits']">Gérer les Produits</a> |
+  <a [routerLink]="['/stock-movements']">Mouvements de Stock</a> |
+  <a [routerLink]="['/TVA']">Liste TVA</a> |
+  <a [routerLink]="['/DF']">Liste DF</a> |
+  <a [routerLink]="['/gestion-comptable/comptes']">Comptes</a> |
+  <a [routerLink]="['/gestion-comptable/ecritures']">Écritures</a>
+</nav>
+
+<!-- Container with router outlet -->
+<div class="app-container">
+  <h1>Gestion de Stock</h1>
   <router-outlet></router-outlet>
 </div>
+
+<!-- Component tags from main branch - these could be moved to their respective routes -->
+<app-add-utilisateur></app-add-utilisateur>
+<app-utilisateur-details></app-utilisateur-details>
+<app-list-tva></app-list-tva>
+<app-list-df></app-list-df>
+
+<!-- Accounting module section from main branch -->
+<h1>Module Comptable</h1>
+<h2>Comptes</h2>
+<app-compte-list></app-compte-list>
+<h2>Écritures</h2>
+<app-ecriture-list></app-ecriture-list>

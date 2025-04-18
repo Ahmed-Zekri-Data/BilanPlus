@@ -10,31 +10,12 @@ import { Produit } from 'src/app/Models/Produit'; // Gardé pour compatibilité 
   providedIn: 'root'
 })
 export class ApiService {
-<<<<<<< HEAD
-  private baseUrl = 'http://localhost:3000/api'; // Base URL générique pour toutes les entités
-=======
   private apiUrl = 'http://localhost:3000'; // Base URL de ton backend
->>>>>>> b6d6b22e0023e10f3122aaffd592f7f57297fe1c
 
   constructor(private http: HttpClient) {}
 
   // Fournisseurs
   getFournisseurs(): Observable<Fournisseur[]> {
-<<<<<<< HEAD
-    return this.http.get<Fournisseur[]>(`${this.baseUrl}/fournisseurs`);
-  }
-
-  getFournisseur(id: string): Observable<Fournisseur> {
-    return this.http.get<Fournisseur>(`${this.baseUrl}/fournisseurs/${id}`);
-  }
-
-  addFournisseur(fournisseur: Fournisseur): Observable<Fournisseur> {
-    return this.http.post<Fournisseur>(`${this.baseUrl}/fournisseurs`, fournisseur);
-  }
-
-  deleteFournisseur(_id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/fournisseurs/${_id}`);
-=======
     return this.http.get<Fournisseur[]>(`${this.apiUrl}/fournisseurs`);
   }
 
@@ -48,7 +29,6 @@ export class ApiService {
 
   deleteFournisseur(_id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/fournisseurs/${_id}`);
->>>>>>> b6d6b22e0023e10f3122aaffd592f7f57297fe1c
   }
 
   // Commandes

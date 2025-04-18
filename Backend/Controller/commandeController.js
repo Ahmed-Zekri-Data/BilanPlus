@@ -1,7 +1,6 @@
 const Commande = require('../Models/commandeAchat');
 const Produit = require('../Models/Produit');
 const Fournisseur = require('../Models/Fournisseur');
-const FournisseurController = require('../Controller/fournisseurController');
 
 const sendEmail = require('../Utils/sendEmail');
 
@@ -105,9 +104,14 @@ const createDevis = async (req, res) => {
 
   try {
     // Find all suppliers in the same category
-    const fournisseurs = await FournisseurController.getFournisseursByCategorie(categorie);
+    const fournisseurs = await Fournisseur.find({ categorie: categorie });
     
-    
+    if (!fournisseurs || fournisseurs.length === 0) {
+      return res.status(404).json({ 
+        message: "Aucun fournisseur trouvé dans cette catégorie",
+        categorie: categorie
+      });
+    }
 
     const htmlTemplate = `
       <!DOCTYPE html>

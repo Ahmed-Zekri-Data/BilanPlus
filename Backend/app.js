@@ -4,12 +4,6 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const express = require("express");
-const http = require("http");
-const bodyParser = require("body-parser");
-const path = require("path");
-const cors = require("cors");
-const mongoose = require("mongoose");
 
 // Import routes
 const TVArouter = require("./Routes/TVAroute");
@@ -20,8 +14,9 @@ const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const PRODrouter = require("./Routes/Produitroute");
 const MSrouter = require("./Routes/MSroute");
+const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-//const JournalRouter = require("./Routes/JournalRoute");
+const JournalRouter = require("./Routes/JournalRoute");
 const GrandLivreRouter = require("./Routes/GrandLivreRoute");
 const BalanceRouter = require("./Routes/BalanceRoute");
 const BilanRouter = require("./Routes/BilanRoute");
@@ -29,19 +24,15 @@ const ResultatRouter = require("./Routes/ResultatRoute");
 const DashboardRouter = require("./Routes/DashboardRoute");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
-const FournisseursRoutes = require("./Routes/FournisseurRoutes");
-
 
 const config = require("./Config/db.json");
 
 // Connexion à la base de données
 mongoose
-mongoose
   .connect(config.url)
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
 
-const app = express();
 const app = express();
 
 // Middleware CORS pour autoriser les requêtes du frontend Angular
@@ -64,9 +55,9 @@ app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
 app.use("/produits", PRODrouter);
-app.use("/fournisseurs", FournisseurRoutes);
+app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
-//app.use("/journal", JournalRouter);
+app.use("/journal", JournalRouter);
 app.use("/grand-livre", GrandLivreRouter);
 app.use("/balance", BalanceRouter);
 app.use("/bilan", BilanRouter);
