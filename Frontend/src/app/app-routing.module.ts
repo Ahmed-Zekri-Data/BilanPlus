@@ -17,6 +17,10 @@ import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
 import { ClientListComponent } from './components/client-list/client-list.component';
+import { DevisFormComponent } from './devis-form/devis-form.component';
+import { DevisListComponent } from './devis-list/devis-list.component';
+import { FactureListComponent } from './facture-list/facture-list.component';
+import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
 
 
 const routes: Routes = [
@@ -35,8 +39,17 @@ const routes: Routes = [
   {path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent},
 
   {path : 'getDF/:id', component:DFDetailComponent},
+  // chaima
   {path : 'clientform', component:ClientFormComponent},
   {path : 'clientlist', component:ClientListComponent},
+  {path : 'clientdevis', component:DevisFormComponent},
+  {path : 'clientdevislist', component:DevisListComponent},
+  {path : 'facturelist', component:FactureListComponent},
+  {path : 'relance', component:RelanceAutomationComponent},
+
+
+
+
   { path: '**', redirectTo: '/produit' }
 
 

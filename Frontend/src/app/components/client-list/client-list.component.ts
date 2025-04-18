@@ -9,23 +9,28 @@ export class ClientListComponent {
   clients: { nom: string; email: string; telephone: string }[] = [];
   editingIndex: number | null = null;
   editedClient = { nom: '', email: '', telephone: '' };
-
-  // **Nouveau** : terme de recherche
   searchTerm: string = '';
 
   constructor() {
-    const storedClients = localStorage.getItem('clients');
-    this.clients = storedClients ? JSON.parse(storedClients) : [];
+    const stored = localStorage.getItem('clients');
+    this.clients = stored ? JSON.parse(stored) : [];
   }
 
-  deleteClient(index: number) {
-    this.clients.splice(index, 1);
+  get filteredClients() {
+    const term = this.searchTerm.trim().toLowerCase();
+    return term
+      ? this.clients.filter(c => c.nom.toLowerCase().includes(term))
+      : this.clients;
+  }
+
+  deleteClient(i: number) {
+    this.clients.splice(i, 1);
     localStorage.setItem('clients', JSON.stringify(this.clients));
   }
 
-  editClient(index: number) {
-    this.editingIndex = index;
-    this.editedClient = { ...this.clients[index] };
+  editClient(i: number) {
+    this.editingIndex = i;
+    this.editedClient = { ...this.clients[i] };
   }
 
   updateClient() {
@@ -38,14 +43,5 @@ export class ClientListComponent {
 
   cancelEdit() {
     this.editingIndex = null;
-  }
-
-  // **Nouveau** : retourne la liste filtrée
-  get filteredClients() {
-    const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.clients;
-    return this.clients.filter(c =>
-      c.nom.toLowerCase().includes(term)
-    );
   }
 }

@@ -23,6 +23,10 @@ import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { ClientListComponent } from './components/client-list/client-list.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
+import { DevisFormComponent } from './devis-form/devis-form.component';
+import { DevisListComponent } from './devis-list/devis-list.component';
+import { FactureListComponent } from './facture-list/facture-list.component';
+import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
 
 
 
@@ -54,6 +58,11 @@ import { ClientFormComponent } from './components/client-form/client-form.compon
     ProduitComponent,
       ClientListComponent,
       ClientFormComponent,
+      DevisFormComponent,
+      DevisListComponent,
+      FactureListComponent,
+      RelanceAutomationComponent,
+      
 
   ],
   imports: [
