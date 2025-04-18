@@ -2,48 +2,94 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UtilisateurSchema = new Schema({
-  nom: { type: String, required: true },
-  prenom: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  dateCreation: { type: Date, default: Date.now },
-  dernierConnexion: { type: Date },
-  actif: { type: Boolean, default: true },
-  tentativesConnexion: { type: Number, default: 0 },
-  telephone: { type: String },
-  adresse: { type: String },
-  photo: { type: String }, // URL de l'image de profil
-  role: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
+  nom: { 
+    type: String, 
+    required: true 
+  },
+  prenom: { 
+    type: String, 
+    required: true 
+  },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true, // This creates a unique index
+    trim: true,
+    lowercase: true
+  },
+  password: { 
+    type: String, 
+    required: true 
+  },
+  dateCreation: { 
+    type: Date, 
+    default: Date.now 
+  },
+  dernierConnexion: { 
+    type: Date 
+  },
+  actif: { 
+    type: Boolean, 
+    default: true 
+  },
+  tentativesConnexion: { 
+    type: Number, 
+    default: 0 
+  },
+  telephone: { 
+    type: String 
+  },
+  adresse: { 
+    type: String 
+  },
+  photo: { 
+    type: String // URL de l'image de profil
+  },
+  role: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Role", 
+    required: true 
+  },
   preferences: {
-    theme: { type: String, default: "light" },
-    langue: { type: String, default: "fr" },
-    notificationsEmail: { type: Boolean, default: true }
-  }
+    theme: { 
+      type: String, 
+      default: "light" 
+    },
+    langue: { 
+      type: String, 
+      default: "fr" 
+    },
+    notificationsEmail: { 
+      type: Boolean, 
+      default: true 
+    }
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 });
 
 // Méthode pour vérifier si un utilisateur est admin
-UtilisateurSchema.methods.estAdmin = function() {
-  return this.role.nom === "admin";
+UtilisateurSchema.methods.isAdmin = function() {
+  return this.role && 
+         this.role.permissions && 
+         this.role.permissions.parametresSysteme === true;
 };
 
-// Méthode pour vérifier si le compte est verrouillé
-UtilisateurSchema.methods.estVerrouille = function() {
-  return this.tentativesConnexion >= 5;
+// Méthode pour vérifier si l'utilisateur a une permission spécifique
+UtilisateurSchema.methods.hasPermission = function(permissionName) {
+  return this.role && 
+         this.role.permissions && 
+         this.role.permissions[permissionName] === true;
 };
 
-// Méthode pour réinitialiser les tentatives de connexion
-UtilisateurSchema.methods.reinitialiserTentatives = function() {
-  this.tentativesConnexion = 0;
-  return this.save();
+// Méthode pour créer un objet utilisateur sans le mot de passe
+UtilisateurSchema.methods.toSafeObject = function() {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
 };
 
-// Méthode pour générer un token de réinitialisation de mot de passe
-UtilisateurSchema.methods.genererTokenReinitialisation = function() {
-  const token = Math.random().toString(36).substring(2, 15) + 
-               Math.random().toString(36).substring(2, 15);
-  this.tokenReinitialisation = token;
-  this.dateExpirationToken = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
-  return this.save().then(() => token);
-};
+// Indexation pour améliorer les performances
+UtilisateurSchema.index({ role: 1 }); // Keep this if you query by role frequently
 
 module.exports = mongoose.model("Utilisateur", UtilisateurSchema);

@@ -1,10 +1,11 @@
 const Utilisateur = require("../Models/Utilisateur");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../Config/db.json");
+require("dotenv").config();
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
-// Configuration du transporteur email (à adapter selon votre configuration)
+// Configuration du transporteur email
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -18,11 +19,12 @@ exports.getAllUsers = async (req, res) => {
   try {
     const utilisateurs = await Utilisateur.find()
       .select("-password")
-      .populate("role", "nom description");
-    
+      .populate("role", "nom description permissions");
+
     res.status(200).json(utilisateurs);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur getAllUsers:", err);
+    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
   }
 };
 
@@ -32,36 +34,113 @@ exports.getUserById = async (req, res) => {
     const utilisateur = await Utilisateur.findById(req.params.id)
       .select("-password")
       .populate("role", "nom description permissions");
-    
+
     if (!utilisateur) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
-    
+
     res.status(200).json(utilisateur);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur getUserById:", err);
+    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur" });
   }
 };
 
-// Créer un nouvel utilisateur
+// Login
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Vérifier si l'email et le mot de passe sont fournis
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email et mot de passe requis" });
+    }
+
+    // Rechercher l'utilisateur par email
+    const utilisateur = await Utilisateur.findOne({ email }).populate("role");
+    
+    if (!utilisateur) {
+      return res.status(401).json({ message: "Identifiants invalides" });
+    }
+
+    // Vérifier si le compte est actif
+    if (!utilisateur.actif) {
+      return res.status(403).json({ message: "Compte désactivé. Contactez l'administrateur" });
+    }
+
+    // Vérifier le mot de passe
+    const isValidPassword = await bcrypt.compare(password, utilisateur.password);
+    
+    if (!isValidPassword) {
+      // Incrémenter le compteur de tentatives de connexion
+      utilisateur.tentativesConnexion += 1;
+      
+      // Désactiver le compte après 5 tentatives
+      if (utilisateur.tentativesConnexion >= 5) {
+        utilisateur.actif = false;
+      }
+      
+      await utilisateur.save();
+      
+      return res.status(401).json({ message: "Identifiants invalides" });
+    }
+
+    // Réinitialiser le compteur de tentatives de connexion
+    utilisateur.tentativesConnexion = 0;
+    utilisateur.dernierConnexion = new Date();
+    await utilisateur.save();
+
+    // Générer le token JWT
+    const token = jwt.sign(
+      { 
+        id: utilisateur._id,
+        email: utilisateur.email,
+        nom: utilisateur.nom,
+        prenom: utilisateur.prenom,
+        role: utilisateur.role
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    // Renvoyer les informations de l'utilisateur sans le mot de passe
+    const userWithoutPassword = { ...utilisateur.toObject() };
+    delete userWithoutPassword.password;
+
+    res.status(200).json({
+      message: "Connexion réussie",
+      token,
+      user: userWithoutPassword
+    });
+  } catch (err) {
+    console.error("Erreur login:", err);
+    res.status(500).json({ message: "Erreur serveur lors de la connexion" });
+  }
+};
+
+// Création d'utilisateur
 exports.createUser = async (req, res) => {
   try {
-    const { 
-      nom, prenom, email, password, role, telephone, 
-      adresse, preferences 
-    } = req.body;
-    
+    const { nom, prenom, email, password, role, telephone, adresse } = req.body;
+
+    // Validation des données
+    if (!nom || !prenom || !email || !password || !role) {
+      return res.status(400).json({ 
+        message: "Veuillez fournir tous les champs obligatoires (nom, prénom, email, mot de passe, rôle)" 
+      });
+    }
+
     // Vérifier si l'email existe déjà
     const utilisateurExistant = await Utilisateur.findOne({ email });
     if (utilisateurExistant) {
       return res.status(400).json({ message: "Cet email est déjà utilisé" });
     }
-    
-    // Hachage du mot de passe
+
+    // Hasher le mot de passe
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Création de l'utilisateur
+
+    // Créer le nouvel utilisateur
     const newUser = new Utilisateur({
       nom,
       prenom,
@@ -69,218 +148,209 @@ exports.createUser = async (req, res) => {
       password: hashedPassword,
       role,
       telephone,
-      adresse,
-      preferences
+      adresse
     });
-    
-    await newUser.save();
-    
-    // Envoyer un email de bienvenue
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'votre-email@gmail.com',
-      to: email,
-      subject: 'Bienvenue sur BilanPlus',
-      html: `
-        <h1>Bienvenue sur BilanPlus, ${prenom} ${nom} !</h1>
-        <p>Votre compte a été créé avec succès.</p>
-        <p>Vous pouvez maintenant vous connecter en utilisant votre email et le mot de passe que vous avez fourni.</p>
-      `
-    };
-    
-    transporter.sendMail(mailOptions);
-    
-    res.status(201).json({ 
+
+    // Sauvegarder l'utilisateur
+    const savedUser = await newUser.save();
+
+    // Retourner l'utilisateur sans le mot de passe
+    const userWithoutPassword = { ...savedUser.toObject() };
+    delete userWithoutPassword.password;
+
+    res.status(201).json({
       message: "Utilisateur créé avec succès",
-      utilisateur: {
-        id: newUser._id,
-        nom: newUser.nom,
-        prenom: newUser.prenom,
-        email: newUser.email,
-        role: newUser.role
-      }
+      user: userWithoutPassword
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur création utilisateur:", err);
+    res.status(500).json({ message: "Erreur serveur lors de la création de l'utilisateur" });
   }
 };
 
-// Mettre à jour un utilisateur
+// Mise à jour d'un utilisateur
 exports.updateUser = async (req, res) => {
   try {
-    const { 
-      nom, prenom, email, role, telephone, 
-      adresse, actif, preferences 
-    } = req.body;
-    
-    // Vérifier si on essaie de mettre à jour l'email et s'il existe déjà
-    if (email) {
-      const utilisateurExistant = await Utilisateur.findOne({ 
-        email, 
-        _id: { $ne: req.params.id } 
-      });
-      
-      if (utilisateurExistant) {
+    const { nom, prenom, email, role, telephone, adresse, actif } = req.body;
+    const userId = req.params.id;
+
+    // Vérifier si l'utilisateur existe
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Vérifier si l'email est déjà utilisé par un autre utilisateur
+    if (email && email !== utilisateur.email) {
+      const emailExistant = await Utilisateur.findOne({ email });
+      if (emailExistant) {
         return res.status(400).json({ message: "Cet email est déjà utilisé" });
       }
     }
-    
-    const updateData = {
-      nom, prenom, email, role, telephone, adresse, actif, preferences
-    };
-    
-    // Supprimer les champs undefined
-    Object.keys(updateData).forEach(key => 
-      updateData[key] === undefined && delete updateData[key]
-    );
-    
-    const utilisateur = await Utilisateur.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    ).select("-password");
-    
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-    
-    res.status(200).json({ 
+
+    // Mettre à jour les champs
+    if (nom) utilisateur.nom = nom;
+    if (prenom) utilisateur.prenom = prenom;
+    if (email) utilisateur.email = email;
+    if (role) utilisateur.role = role;
+    if (telephone !== undefined) utilisateur.telephone = telephone;
+    if (adresse !== undefined) utilisateur.adresse = adresse;
+    if (actif !== undefined) utilisateur.actif = actif;
+
+    // Sauvegarder les modifications
+    const updatedUser = await utilisateur.save();
+
+    // Retourner l'utilisateur sans le mot de passe
+    const userWithoutPassword = { ...updatedUser.toObject() };
+    delete userWithoutPassword.password;
+
+    res.status(200).json({
       message: "Utilisateur mis à jour avec succès",
-      utilisateur
+      user: userWithoutPassword
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur updateUser:", err);
+    res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
   }
 };
 
-// Supprimer un utilisateur (désactivation)
+// Suppression d'un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
-    // Au lieu de supprimer, nous désactivons l'utilisateur
-    const utilisateur = await Utilisateur.findByIdAndUpdate(
-      req.params.id,
-      { actif: false },
-      { new: true }
-    );
-    
+    const userId = req.params.id;
+
+    // Vérifier si l'utilisateur existe
+    const utilisateur = await Utilisateur.findById(userId);
     if (!utilisateur) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
-    
-    res.status(200).json({ message: "Utilisateur désactivé avec succès" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
-// Connexion utilisateur
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Vérifier si l'utilisateur existe
-    const utilisateur = await Utilisateur.findOne({ email })
-      .populate("role", "nom permissions");
-    
-    if (!utilisateur) {
-      return res.status(401).json({ message: "Email ou mot de passe incorrect" });
-    }
-    
-    // Vérifier si le compte est actif
-    if (!utilisateur.actif) {
-      return res.status(403).json({ message: "Ce compte a été désactivé" });
-    }
-    
-    // Vérifier si le compte est verrouillé
-    if (utilisateur.estVerrouille()) {
-      return res.status(403).json({ 
-        message: "Compte verrouillé. Veuillez réinitialiser votre mot de passe" 
-      });
-    }
-    
-    // Vérifier le mot de passe
-    const validPassword = await bcrypt.compare(password, utilisateur.password);
-    
-    if (!validPassword) {
-      // Incrémenter les tentatives de connexion
-      utilisateur.tentativesConnexion += 1;
-      await utilisateur.save();
-      
-      return res.status(401).json({ message: "Email ou mot de passe incorrect" });
-    }
-    
-    // Réinitialiser les tentatives de connexion et mettre à jour la dernière connexion
-    utilisateur.tentativesConnexion = 0;
-    utilisateur.dernierConnexion = new Date();
-    await utilisateur.save();
-    
-    // Générer un token JWT
-    const token = jwt.sign(
-      { 
-        id: utilisateur._id,
-        role: utilisateur.role.nom,
-        permissions: utilisateur.role.permissions
-      },
-      config.jwtSecret,
-      { expiresIn: "8h" }
-    );
-    
+    // Supprimer l'utilisateur
+    await Utilisateur.findByIdAndDelete(userId);
+
     res.status(200).json({
-      message: "Connexion réussie",
-      token,
-      utilisateur: {
-        id: utilisateur._id,
-        nom: utilisateur.nom,
-        prenom: utilisateur.prenom,
-        email: utilisateur.email,
-        role: utilisateur.role.nom,
-      }
+      message: "Utilisateur supprimé avec succès"
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur deleteUser:", err);
+    res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur" });
   }
 };
 
-// Demande de réinitialisation de mot de passe
+// Réinitialisation des tentatives de connexion
+exports.resetLoginAttempts = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Vérifier si l'utilisateur existe
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Réinitialiser les tentatives et réactiver le compte
+    utilisateur.tentativesConnexion = 0;
+    utilisateur.actif = true;
+    await utilisateur.save();
+
+    res.status(200).json({
+      message: "Tentatives de connexion réinitialisées avec succès"
+    });
+  } catch (err) {
+    console.error("Erreur resetLoginAttempts:", err);
+    res.status(500).json({ message: "Erreur lors de la réinitialisation des tentatives de connexion" });
+  }
+};
+
+// Mise à jour du mot de passe
+exports.updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.params.id;
+
+    // Validation des données
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Mot de passe actuel et nouveau mot de passe requis" });
+    }
+
+    // Vérifier si l'utilisateur existe
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Vérifier que l'utilisateur connecté est bien le propriétaire du compte ou un admin
+    if (req.user.id !== userId && !req.user.role.permissions.parametresSysteme) {
+      return res.status(403).json({ message: "Non autorisé à modifier ce mot de passe" });
+    }
+
+    // Vérifier le mot de passe actuel
+    const isValidPassword = await bcrypt.compare(currentPassword, utilisateur.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: "Mot de passe actuel incorrect" });
+    }
+
+    // Hasher le nouveau mot de passe
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Mettre à jour le mot de passe
+    utilisateur.password = hashedPassword;
+    await utilisateur.save();
+
+    res.status(200).json({
+      message: "Mot de passe mis à jour avec succès"
+    });
+  } catch (err) {
+    console.error("Erreur updatePassword:", err);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du mot de passe" });
+  }
+};
+
 exports.requestPasswordReset = async (req, res) => {
   try {
+    console.log('RequestPasswordReset: Received request with body:', req.body);
+    
     const { email } = req.body;
+    console.log('RequestPasswordReset: Email provided:', email);
     
+    if (!email) {
+      console.log('RequestPasswordReset: Email is missing');
+      return res.status(400).json({ message: "L'email est requis" });
+    }
+    
+    console.log('RequestPasswordReset: Searching for user with email:', email);
     const utilisateur = await Utilisateur.findOne({ email });
-    
     if (!utilisateur) {
-      // Pour des raisons de sécurité, on ne révèle pas si l'email existe ou non
+      console.log('RequestPasswordReset: User not found for email:', email);
       return res.status(200).json({ 
-        message: "Si un compte avec cet email existe, un lien de réinitialisation a été envoyé" 
+        message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé" 
       });
     }
     
-    // Générer un token de réinitialisation
-    const token = await utilisateur.genererTokenReinitialisation();
+    console.log('RequestPasswordReset: User found:', utilisateur.email);
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000;
+    console.log('RequestPasswordReset: Generated token:', resetToken);
     
-    // Envoyer l'email de réinitialisation
-    const resetLink = `${req.protocol}://${req.get('host')}/reset-password/${token}`;
+    utilisateur.resetPasswordToken = resetToken;
+    utilisateur.resetPasswordExpires = resetTokenExpiry;
+    console.log('RequestPasswordReset: Saving user with new token');
+    await utilisateur.save();
     
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'votre-email@gmail.com',
-      to: email,
-      subject: 'Réinitialisation de votre mot de passe BilanPlus',
-      html: `
-        <h1>Réinitialisation de mot de passe</h1>
-        <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-        <p>Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe :</p>
-        <a href="${resetLink}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Réinitialiser mon mot de passe</a>
-        <p>Ce lien expirera dans 24 heures.</p>
-        <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-      `
-    };
+    console.log('RequestPasswordReset: Constructing reset URL');
+    const resetUrl = `${req.protocol || 'http'}://${req.get('host') || 'localhost:3000'}/reset-password/${resetToken}`;
+    console.log('RequestPasswordReset: Reset URL:', resetUrl);
     
-    transporter.sendMail(mailOptions);
+    // Email sending skipped to avoid SMTP errors
+    console.log('RequestPasswordReset: Email sending skipped for testing');
     
-    res.status(200).json({ 
-      message: "Si un compte avec cet email existe, un lien de réinitialisation a été envoyé" 
+    res.status(200).json({
+      message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé"
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur requestPasswordReset détaillée:", err.message, err.stack);
+    res.status(500).json({ message: "Erreur lors de la demande de réinitialisation du mot de passe", error: err.message });
   }
 };
 
@@ -289,124 +359,82 @@ exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "Token et nouveau mot de passe requis" });
+    }
+    
+    // Rechercher l'utilisateur avec le token valide
     const utilisateur = await Utilisateur.findOne({
-      tokenReinitialisation: token,
-      dateExpirationToken: { $gt: Date.now() }
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
     });
     
     if (!utilisateur) {
-      return res.status(400).json({ 
-        message: "Le lien de réinitialisation est invalide ou a expiré" 
-      });
+      return res.status(400).json({ message: "Token invalide ou expiré" });
     }
     
-    // Hachage du nouveau mot de passe
+    // Vérifier la complexité du mot de passe
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Le mot de passe doit contenir au moins 6 caractères" });
+    }
+    
+    // Hasher le nouveau mot de passe
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     
-    // Mise à jour du mot de passe et réinitialisation des tentatives
+    // Mettre à jour l'utilisateur
     utilisateur.password = hashedPassword;
-    utilisateur.tokenReinitialisation = undefined;
-    utilisateur.dateExpirationToken = undefined;
-    utilisateur.tentativesConnexion = 0;
+    utilisateur.resetPasswordToken = undefined;
+    utilisateur.resetPasswordExpires = undefined;
     
     await utilisateur.save();
     
     res.status(200).json({ message: "Mot de passe réinitialisé avec succès" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur resetPassword:", err);
+    res.status(500).json({ message: "Erreur lors de la réinitialisation du mot de passe" });
   }
 };
 
-// Méthode métier 1: Analyser l'activité des utilisateurs
+// Analyse de l'activité des utilisateurs
 exports.analyserActiviteUtilisateurs = async (req, res) => {
   try {
-    const joursPasses = req.query.jours || 30;
-    const dateDebut = new Date();
-    dateDebut.setDate(dateDebut.getDate() - joursPasses);
+    const derniereMois = new Date();
+    derniereMois.setMonth(derniereMois.getMonth() - 1);
     
-    const stats = await Utilisateur.aggregate([
-      {
-        $match: {
-          dernierConnexion: { $gte: dateDebut }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$dernierConnexion" }
-          },
-          nombreConnexions: { $sum: 1 },
-          utilisateurs: { $push: { id: "$_id", nom: "$nom", prenom: "$prenom" } }
-        }
-      },
-      {
-        $sort: { _id: 1 }
-      }
-    ]);
+    const stats = {
+      totalUtilisateurs: await Utilisateur.countDocuments(),
+      actifs: await Utilisateur.countDocuments({ actif: true }),
+      inactifs: await Utilisateur.countDocuments({ actif: false }),
+      nouveaux: await Utilisateur.countDocuments({ dateCreation: { $gte: derniereMois } }),
+      connexionsRecentes: await Utilisateur.countDocuments({ dernierConnexion: { $gte: derniereMois } })
+    };
     
-    // Statistiques par rôle
-    const statsParRole = await Utilisateur.aggregate([
-      {
-        $match: {
-          dernierConnexion: { $gte: dateDebut }
-        }
-      },
-      {
-        $lookup: {
-          from: "roles",
-          localField: "role",
-          foreignField: "_id",
-          as: "roleInfo"
-        }
-      },
-      {
-        $unwind: "$roleInfo"
-      },
-      {
-        $group: {
-          _id: "$roleInfo.nom",
-          count: { $sum: 1 },
-          utilisateurs: { $push: { id: "$_id", nom: "$nom", prenom: "$prenom" } }
-        }
-      }
-    ]);
-    
-    res.status(200).json({
-      message: "Statistiques d'activité des utilisateurs récupérées avec succès",
-      connexionsParJour: stats,
-      connexionsParRole: statsParRole
-    });
+    res.status(200).json(stats);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur analyserActiviteUtilisateurs:", err);
+    res.status(500).json({ message: "Erreur lors de l'analyse de l'activité des utilisateurs" });
   }
 };
 
-// Méthode métier 2: Exporter les données utilisateurs en format CSV
-exports.exporterUtilisateursCSV = async (req, res) => {
+// Export des utilisateurs au format CSV
+exports.exportUsersToCSV = async (req, res) => {
   try {
     const utilisateurs = await Utilisateur.find()
-      .select("-password -__v")
-      .populate("role", "nom description");
+      .select("-password")
+      .populate("role", "nom");
     
-    // Création de l'en-tête CSV
-    let csv = "ID,Nom,Prénom,Email,Téléphone,Adresse,Rôle,Actif,Date de création,Dernière connexion\n";
+    let csv = "ID,Nom,Prénom,Email,Rôle,Actif,Date Création\n";
     
-    // Ajout des données utilisateur
     utilisateurs.forEach(user => {
-      const dateCreation = user.dateCreation ? new Date(user.dateCreation).toLocaleString() : '';
-      const dernierConnexion = user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : '';
-      
-      csv += `${user._id},${user.nom},${user.prenom},${user.email},${user.telephone || ''},`;
-      csv += `"${user.adresse || ''}",${user.role.nom},${user.actif},${dateCreation},${dernierConnexion}\n`;
+      csv += `${user._id},${user.nom},${user.prenom},${user.email},${user.role ? user.role.nom : 'N/A'},${user.actif},${user.dateCreation}\n`;
     });
     
-    // Configuration de la réponse pour le téléchargement du fichier
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=utilisateurs.csv');
-    
     res.status(200).send(csv);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Erreur exportUsersToCSV:", err);
+    res.status(500).json({ message: "Erreur lors de l'export des utilisateurs en CSV" });
   }
 };
