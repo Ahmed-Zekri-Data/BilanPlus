@@ -40,3 +40,25 @@ exports.deleteFournisseur = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la suppression", error });
     }
 };
+
+// 📌 Récupérer les fournisseurs par catégorie
+exports.getFournisseursByCategorie = async (req, res) => {
+    try {
+        const { categorie } = req.params;
+        const fournisseurs = await Fournisseur.find({ categorie });
+        
+        if (!fournisseurs || fournisseurs.length === 0) {
+            return res.status(404).json({ 
+                message: "Aucun fournisseur trouvé dans cette catégorie",
+                categorie 
+            });
+        }
+
+        res.status(200).json(fournisseurs);
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Erreur lors de la récupération des fournisseurs", 
+            error 
+        });
+    }
+};
