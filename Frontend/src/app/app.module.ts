@@ -27,6 +27,8 @@ import { DevisFormComponent } from './devis-form/devis-form.component';
 import { DevisListComponent } from './devis-list/devis-list.component';
 import { FactureListComponent } from './facture-list/facture-list.component';
 import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ReportingComponent } from './reporting/reporting.component';
 
 
 
@@ -62,6 +64,8 @@ import { RelanceAutomationComponent } from './relance-automation/relance-automat
       DevisListComponent,
       FactureListComponent,
       RelanceAutomationComponent,
+      DashboardComponent,
+      ReportingComponent,
       
 
   ],

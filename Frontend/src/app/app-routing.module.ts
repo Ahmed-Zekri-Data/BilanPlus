@@ -21,6 +21,8 @@ import { DevisFormComponent } from './devis-form/devis-form.component';
 import { DevisListComponent } from './devis-list/devis-list.component';
 import { FactureListComponent } from './facture-list/facture-list.component';
 import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ReportingComponent } from './reporting/reporting.component';
 
 
 const routes: Routes = [
@@ -46,6 +48,9 @@ const routes: Routes = [
   {path : 'clientdevislist', component:DevisListComponent},
   {path : 'facturelist', component:FactureListComponent},
   {path : 'relance', component:RelanceAutomationComponent},
+  {path : 'dashboard', component:DashboardComponent},
+  {path : 'reporting', component:ReportingComponent},
+
 
 
 
