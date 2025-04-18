@@ -16,17 +16,21 @@ export class UtilisateurService {
       return this.http.get<Utilisateur[]>(`${this.UserApiUrl}/getall`);
     }
   
-  getUserById(id: number): Observable<Utilisateur> {
+    getUserById(id: string): Observable<Utilisateur> { // Doit être string
+      console.log('Récupération utilisateur ID:', id);
       return this.http.get<Utilisateur>(`${this.UserApiUrl}/getbyid/${id}`);
     }
   
-    createUser(declaration: Utilisateur): Observable<Utilisateur> {
-      return this.http.post<Utilisateur>(`${this.UserApiUrl}/add`, declaration);
-    }
-    updateUser(id: number, declaration: Utilisateur): Observable<Utilisateur> {
+    updateUser(id: string, declaration: Utilisateur): Observable<Utilisateur> { // Doit être string
+      console.log('Mise à jour utilisateur ID:', id);
       return this.http.put<Utilisateur>(`${this.UserApiUrl}/update/${id}`, declaration);
     }
-    deleteUser(id: string): Observable<void> {
+  
+    createUser(declaration: Utilisateur): Observable<Utilisateur> {
+      console.log('Création utilisateur:', declaration);
+      return this.http.post<Utilisateur>(`${this.UserApiUrl}/add`, declaration);
+    }
+     deleteUser(id: string): Observable<void> {
       return this.http.delete<void>(`${this.UserApiUrl}/delete/${id}`);
     }
     

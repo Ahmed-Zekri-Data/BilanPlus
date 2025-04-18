@@ -4,7 +4,6 @@ import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale
 import { TVA } from '../../Models/TVA';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
 
-
 @Component({
   selector: 'app-tva-form',
   templateUrl: './tvaform.component.html',
@@ -17,7 +16,13 @@ export class TvaFormComponent implements OnInit {
     declaration: '' // Will hold the selected DeclarationFiscale _id
   };
   declarations: DeclarationFiscale[] = [];
-  errorMessage: string | null = null;
+  errors: string[] = [];
+  // Définir fieldErrors avec un type explicite pour éviter les erreurs d'index signature
+  fieldErrors: { taux: string; montant: string; declaration: string } = {
+    taux: '',
+    montant: '',
+    declaration: ''
+  };
   isEditMode: boolean = false;
 
   constructor(
@@ -38,14 +43,15 @@ export class TvaFormComponent implements OnInit {
   loadTvaDetails(id: string): void {
     this.declarationFiscaleTVAService.getTVAById(id).subscribe({
       next: (tva) => {
-        this.tva = { ...tva }; // Create a copy to avoid mutating the original
-        // If declaration is a DeclarationFiscale object, extract its _id
+        this.tva = { ...tva };
         if (this.tva.declaration && typeof this.tva.declaration !== 'string') {
           this.tva.declaration = this.tva.declaration._id!;
         }
+        this.clearErrors();
       },
-      error: (error) => {
-        this.errorMessage = 'Failed to load TVA details: ' + error.message;
+      error: (errors: string[]) => {
+        this.errors = errors;
+        this.mapFieldErrors(errors);
       }
     });
   }
@@ -55,15 +61,19 @@ export class TvaFormComponent implements OnInit {
       next: (declarations) => {
         this.declarations = declarations;
       },
-      error: (error) => {
-        this.errorMessage = 'Failed to load declarations: ' + error.message;
+      error: (errors: string[]) => {
+        this.errors = errors;
+        this.mapFieldErrors(errors);
       }
     });
   }
 
   saveTva(): void {
+    this.clearErrors();
+
     if (!this.tva.taux || !this.tva.montant || !this.tva.declaration) {
-      this.errorMessage = 'All fields are required';
+      this.errors = ['Tous les champs sont requis'];
+      this.mapFieldErrors(this.errors);
       return;
     }
 
@@ -72,10 +82,12 @@ export class TvaFormComponent implements OnInit {
       this.declarationFiscaleTVAService.updateTVA(this.tva._id!, this.tva).subscribe({
         next: (updatedTva) => {
           console.log('TVA updated successfully:', updatedTva);
+          this.clearErrors();
           this.router.navigate(['/list-tva']);
         },
-        error: (error) => {
-          this.errorMessage = 'Failed to update TVA: ' + error.message;
+        error: (errors: string[]) => {
+          this.errors = errors;
+          this.mapFieldErrors(errors);
         }
       });
     } else {
@@ -83,16 +95,38 @@ export class TvaFormComponent implements OnInit {
       this.declarationFiscaleTVAService.createTVA(this.tva).subscribe({
         next: (createdTva) => {
           console.log('TVA created successfully:', createdTva);
+          this.clearErrors();
           this.router.navigate(['/list-tva']);
         },
-        error: (error) => {
-          this.errorMessage = 'Failed to create TVA: ' + error.message;
+        error: (errors: string[]) => {
+          this.errors = errors;
+          this.mapFieldErrors(errors);
         }
       });
     }
   }
 
   goBack(): void {
+    this.clearErrors();
     this.router.navigate(['/list-tva']);
+  }
+
+  // Méthode pour réinitialiser les erreurs
+  private clearErrors(): void {
+    this.errors = [];
+    this.fieldErrors = { taux: '', montant: '', declaration: '' };
+  }
+
+  // Méthode pour associer les erreurs aux champs
+  private mapFieldErrors(errors: string[]): void {
+    errors.forEach(error => {
+      if (error.toLowerCase().includes('taux')) {
+        this.fieldErrors['taux'] = error;
+      } else if (error.toLowerCase().includes('montant')) {
+        this.fieldErrors['montant'] = error;
+      } else if (error.toLowerCase().includes('déclaration') || error.toLowerCase().includes('declaration')) {
+        this.fieldErrors['declaration'] = error;
+      }
+    });
   }
 }

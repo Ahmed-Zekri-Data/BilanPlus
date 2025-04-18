@@ -4,6 +4,12 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const path = require("path");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
 // Import routes
 const TVArouter = require("./Routes/TVAroute");
@@ -30,10 +36,12 @@ const config = require("./Config/db.json");
 
 // Connexion à la base de données
 mongoose
+mongoose
   .connect(config.url)
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database not connected:", err));
 
+const app = express();
 const app = express();
 
 // Middleware CORS pour autoriser les requêtes du frontend Angular

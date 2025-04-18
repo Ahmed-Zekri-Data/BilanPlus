@@ -1,56 +1,68 @@
-var TVA  = require("../Models/TVA")
+const TVA = require("../Models/TVA");
 
-
+// Ajouter une TVA
 async function addTVA(req, res) {
     try {
-      const newTVA = new TVA({
-            taux : req.body.taux,
-            montant : req.body.montant,
-            declaration : req.body.declaration,
-      });
-      await newTVA.save();
-      res.status(200).send("TVA added");
+        const newTVA = new TVA({
+            taux: req.body.taux,
+            montant: req.body.montant,
+            declaration: req.body.declaration,
+        });
+        await newTVA.save();
+        res.status(201).json({ message: "TVA ajoutée", data: newTVA });
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).json({ message: "Erreur lors de l'ajout de la TVA", error: err.message });
     }
-  }
+}
 
-  async function getall (req, res) {
+// Récupérer toutes les TVA
+async function getall(req, res) {
     try {
-      const getTVA = await TVA.find();
-      res.json(getTVA);
+        const getTVA = await TVA.find().populate("declaration");
+        res.status(200).json(getTVA);
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).json({ message: "Erreur lors de la récupération", error: err.message });
     }
-  }
+}
 
-  async function getbyid (req, res) {
+// Récupérer une TVA par ID
+async function getbyid(req, res) {
     try {
-      const getonetva = await TVA.findById(req.params.id);
-      res.json(getonetva);
+        const getonetva = await TVA.findById(req.params.id).populate("declaration");
+        if (!getonetva) {
+            return res.status(404).json({ message: "TVA non trouvée" });
+        }
+        res.status(200).json(getonetva);
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).json({ message: "Erreur lors de la récupération", error: err.message });
     }
-  }
+}
 
-  async function deleteTVA (req, res) {
+// Supprimer une TVA
+async function deleteTVA(req, res) {
     try {
-      const TVAdeleted = await TVA.findByIdAndDelete(req.params.id);
-      res.status(200).send("TVA deleted");
+        const TVAdeleted = await TVA.findByIdAndDelete(req.params.id);
+        if (!TVAdeleted) {
+            return res.status(404).json({ message: "TVA non trouvée" });
+        }
+        res.status(200).json({ message: "TVA supprimée" });
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).json({ message: "Erreur lors de la suppression", error: err.message });
     }
-  }
+}
 
-  async function updateTVA(req, res) {
+// Mettre à jour une TVA
+async function updateTVA(req, res) {
     try {
-      const TVAUPDATED = await TVA.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,});
-      res.status(200).json(TVAUPDATED);
+        const TVAupdated = await TVA.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!TVAupdated) {
+            return res.status(404).json({ message: "TVA non trouvée" });
+        }
+        res.status(200).json({ message: "TVA mise à jour", data: TVAupdated });
     } catch (err) {
-      res.status(400).send(err);
+        res.status(400).json({ message: "Erreur lors de la mise à jour", error: err.message });
     }
-  }
+}
 
+module.exports = { addTVA, getall, getbyid, deleteTVA, updateTVA };
 
-  module.exports ={addTVA, getall,getbyid,deleteTVA,updateTVA}

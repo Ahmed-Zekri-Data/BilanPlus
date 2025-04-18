@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
-import { CompteComptableService } from '../../compte-comptable.service'; // Import the service
+import { CompteComptableService } from '../../compte-comptable.service';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
 import { CompteComptable } from '../../Models/CompteComptable';
 
@@ -15,43 +15,51 @@ export class DFFormComponent implements OnInit {
     periode: '',
     montantTotal: 0,
     statut: '',
-    compteComptable: '' // Will hold the selected CompteComptable _id as a string
+    compteComptable: ''
   };
   comptesComptables: CompteComptable[] = [];
-  errorMessage: string | null = null;
+  errors: string[] = [];
+  fieldErrors: { periode: string; montantTotal: string; statut: string; compteComptable: string } = {
+    periode: '',
+    montantTotal: '',
+    statut: '',
+    compteComptable: ''
+  };
   isEditMode: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
-    private compteComptableService: CompteComptableService // Inject the service
+    private compteComptableService: CompteComptableService
   ) {}
 
   ngOnInit(): void {
     console.log('ngOnInit called');
-  const id = this.route.snapshot.paramMap.get('id');
-  if (id) {
-    this.isEditMode = true;
-    console.log('Edit mode, loading declaration with ID:', id);
-    this.loadDeclarationDetails(id);
-  } else {
-    console.log('Add mode, no ID provided');
-  }
-  this.loadComptesComptables();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode = true;
+      console.log('Edit mode, loading declaration with ID:', id);
+      this.loadDeclarationDetails(id);
+    } else {
+      console.log('Add mode, no ID provided');
+    }
+    this.loadComptesComptables();
   }
 
   loadDeclarationDetails(id: string): void {
     this.declarationFiscaleTVAService.getDeclarationById(id).subscribe({
       next: (declaration) => {
         this.declaration = { ...declaration };
-        // If compteComptable is an object, extract its _id
         if (this.declaration.compteComptable && typeof this.declaration.compteComptable !== 'string') {
           this.declaration.compteComptable = this.declaration.compteComptable._id!;
         }
+        this.clearErrors();
       },
-      error: (error) => {
-        this.errorMessage = 'Failed to load declaration details: ' + error.message;
+      error: (errors: string[]) => {
+        console.error('Error loading declaration details:', errors);
+        this.errors = errors;
+        this.mapFieldErrors(errors);
       }
     });
   }
@@ -59,10 +67,13 @@ export class DFFormComponent implements OnInit {
   loadComptesComptables(): void {
     this.compteComptableService.getComptes().subscribe({
       next: (comptes) => {
+        console.log('Comptes comptables loaded:', comptes);
         this.comptesComptables = comptes;
       },
-      error: (error) => {
-        this.errorMessage = 'Failed to load comptes comptables: ' + error.message;
+      error: (errors: string[]) => {
+        console.error('Error loading comptes comptables:', errors);
+        this.errors = errors;
+        this.mapFieldErrors(errors);
       }
     });
   }
@@ -71,42 +82,67 @@ export class DFFormComponent implements OnInit {
     console.log('saveDeclaration called');
     console.log('Form data:', this.declaration);
   
+    this.clearErrors();
+
     if (!this.declaration.periode || !this.declaration.montantTotal || !this.declaration.statut || !this.declaration.compteComptable) {
-      this.errorMessage = 'All fields are required';
-      console.log('Validation failed:', this.errorMessage);
+      this.errors = ['Tous les champs sont requis'];
+      this.mapFieldErrors(this.errors);
+      console.log('Validation failed:', this.errors);
       return;
     }
   
     if (this.isEditMode) {
       console.log('Updating declaration with ID:', this.declaration._id);
-      // Update existing declaration
       this.declarationFiscaleTVAService.updateDeclaration(String(this.declaration._id), this.declaration).subscribe({
         next: (updatedDeclaration) => {
           console.log('Declaration updated successfully:', updatedDeclaration);
+          this.clearErrors();
           this.router.navigate(['/list-declarations']);
         },
-        error: (error) => {
-          console.error('Update error:', error); // Use console.error for visibility
-          this.errorMessage = 'Failed to update declaration: ' + error.message;
+        error: (errors: string[]) => {
+          console.error('Update error:', errors);
+          this.errors = errors;
+          this.mapFieldErrors(errors);
         }
       });
     } else {
       console.log('Creating new declaration');
-      // Create new declaration
       this.declarationFiscaleTVAService.createDeclaration(this.declaration).subscribe({
         next: (createdDeclaration) => {
           console.log('Declaration created successfully:', createdDeclaration);
+          this.clearErrors();
           this.router.navigate(['/list-declarations']);
         },
-        error: (error) => {
-          console.error('Create error:', error);
-          this.errorMessage = 'Failed to create declaration: ' + error.message;
+        error: (errors: string[]) => {
+          console.error('Create error:', errors);
+          this.errors = errors;
+          this.mapFieldErrors(errors);
         }
       });
     }
   }
 
   goBack(): void {
+    this.clearErrors();
     this.router.navigate(['/list-declarations']);
+  }
+
+  private clearErrors(): void {
+    this.errors = [];
+    this.fieldErrors = { periode: '', montantTotal: '', statut: '', compteComptable: '' };
+  }
+
+  private mapFieldErrors(errors: string[]): void {
+    errors.forEach(error => {
+      if (error.toLowerCase().includes('période') || error.toLowerCase().includes('periode')) {
+        this.fieldErrors.periode = error;
+      } else if (error.toLowerCase().includes('montant total') || error.toLowerCase().includes('montanttotal')) {
+        this.fieldErrors.montantTotal = error;
+      } else if (error.toLowerCase().includes('statut')) {
+        this.fieldErrors.statut = error;
+      } else if (error.toLowerCase().includes('compte comptable') || error.toLowerCase().includes('comptecomptable')) {
+        this.fieldErrors.compteComptable = error;
+      }
+    });
   }
 }

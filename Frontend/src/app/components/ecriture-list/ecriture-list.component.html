@@ -1,1 +1,28 @@
-<p>ecriture-list works!</p>
+<div class="ecriture-list-container">
+  <h2>Liste des écritures comptables</h2>
+  <button mat-raised-button color="primary" (click)="showForm = true; selectedEcriture = null" *ngIf="!showForm">
+    Ajouter une écriture
+  </button>
+
+  <app-ecriture-form
+    *ngIf="showForm"
+    [ecriture]="selectedEcriture"
+    (saved)="onEcritureSaved($event)"
+    (cancelled)="onEcritureCancelled()"
+  ></app-ecriture-form>
+
+  <div class="ecriture-list">
+    <mat-card *ngFor="let ecriture of ecritures" class="ecriture-item">
+      <mat-card-content>
+        <span>{{ ecriture.date | date:'medium' }} - {{ ecriture.libelle }}</span>
+        <div *ngFor="let ligne of ecriture.lignes">
+          {{ ligne.nature | titlecase }}: {{ ligne.compte?.numeroCompte }} - {{ ligne.compte?.nom }} ({{ ligne.montant }})
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="editEcriture(ecriture)">Modifier</button>
+        <button mat-button color="warn" (click)="deleteEcriture(ecriture._id!)">Supprimer</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

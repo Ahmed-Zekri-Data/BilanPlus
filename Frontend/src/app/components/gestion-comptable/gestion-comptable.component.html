@@ -1,0 +1,99 @@
+<div class="gestion-comptable-container">
+  <div class="intro-section">
+    <h1>Gestion Comptable avec Bilan+</h1>
+    <p>Bienvenue dans le module de gestion comptable de Bilan+. Ici, vous pouvez gérer vos comptes, écritures et consulter vos états financiers.</p>
+  </div>
+
+  <div class="navigation-section">
+    <mat-card class="nav-card" routerLink="dashboard">
+      <mat-card-content>
+        <mat-icon class="nav-icon">dashboard</mat-icon>
+        <mat-card-title>Tableau de Bord</mat-card-title>
+        <p>Vue d'ensemble de la situation comptable.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+    <mat-card class="nav-card" routerLink="comptes">
+      <mat-card-content>
+        <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+        <mat-card-title>Plan Comptable</mat-card-title>
+        <p>Gérer les comptes comptables, créer, modifier et supprimer des comptes.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="ecritures">
+      <mat-card-content>
+        <mat-icon class="nav-icon">post_add</mat-icon>
+        <mat-card-title>Écritures Comptables</mat-card-title>
+        <p>Saisir et gérer les écritures comptables, débits et crédits.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="journal">
+      <mat-card-content>
+        <mat-icon class="nav-icon">assignment</mat-icon>
+        <mat-card-title>Journal Comptable</mat-card-title>
+        <p>Consulter le journal chronologique des écritures comptables.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="grand-livre">
+      <mat-card-content>
+        <mat-icon class="nav-icon">book</mat-icon>
+        <mat-card-title>Grand Livre</mat-card-title>
+        <p>Visualiser le grand livre détaillant les mouvements par compte.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="balance">
+      <mat-card-content>
+        <mat-icon class="nav-icon">balance</mat-icon>
+        <mat-card-title>Balance Comptable</mat-card-title>
+        <p>Consulter la synthèse des soldes de tous les comptes.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="bilan">
+      <mat-card-content>
+        <mat-icon class="nav-icon">insert_chart</mat-icon>
+        <mat-card-title>Bilan Comptable</mat-card-title>
+        <p>Générer l'état de situation financière de l'entreprise.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="nav-card" routerLink="resultat">
+      <mat-card-content>
+        <mat-icon class="nav-icon">trending_up</mat-icon>
+        <mat-card-title>Compte de Résultat</mat-card-title>
+        <p>Analyser les produits et charges pour déterminer le résultat.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Accéder</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="content-section">
+    <router-outlet></router-outlet>
+  </div>
+</div>

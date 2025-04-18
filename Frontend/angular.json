@@ -25,8 +25,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+              "src/custom-theme.scss",
+              "src/styles.css"
             ],
             "scripts": []
           },
@@ -59,12 +59,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "exam_1ALINFO1_2024:build"
+          },
           "configurations": {
             "production": {
-              "buildTarget": "exam_1ALINFO1_2024:build:production"
+              "browserTarget": "exam_1ALINFO1_2024:build:production"
             },
             "development": {
-              "buildTarget": "exam_1ALINFO1_2024:build:development"
+              "browserTarget": "exam_1ALINFO1_2024:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,7 +75,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "exam_1ALINFO1_2024:build"
+            "browserTarget": "exam_1ALINFO1_2024:build"
           }
         },
         "test": {
@@ -88,8 +91,9 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"  
+              "src/custom-theme.scss"
             ],
             "scripts": []
           }

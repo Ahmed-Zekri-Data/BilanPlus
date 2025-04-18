@@ -7,7 +7,7 @@ import { CompteComptable } from './Models/CompteComptable';
   providedIn: 'root'
 })
 export class CompteComptableService {
-  private apiUrl = 'http://localhost:3000/comptes'; // Changé de 4000 à 3000
+  private apiUrl = 'http://localhost:4000/comptes';
 
   constructor(private http: HttpClient) {}
 

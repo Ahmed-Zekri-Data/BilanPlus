@@ -1,10 +1,11 @@
-// models/TVA.js
-var mongo = require("mongoose");
-const Schema = mongo.Schema
-const TVA = new Schema({
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const TVASchema = new Schema({
     taux: { type: Number, required: true },
     montant: { type: Number, required: true },
-    declaration: { type: mongo.Schema.Types.ObjectId, ref: 'DeclarationFiscale' }
+    declaration: { type: mongoose.Schema.Types.ObjectId, ref: "DeclarationFiscale", required: true }
 });
 
-module.exports = mongo.model('TVA', TVA);
+module.exports = mongoose.models.TVA || mongoose.model("TVA", TVASchema);
+

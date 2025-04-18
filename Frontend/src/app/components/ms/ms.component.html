@@ -1,0 +1,100 @@
+<div class="ms-container">
+    <h2>Mouvements de Stock</h2>
+    <a routerLink="/produits" class="btn btn-secondary mb-3">Retour aux Produits</a>
+  
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  
+    <button class="btn btn-primary mb-3" (click)="showForm = true; editingMovement = null">
+      Ajouter un Mouvement
+    </button>
+  
+    <div *ngIf="showForm" class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title">{{ editingMovement ? 'Modifier' : 'Ajouter' }} un Mouvement</h4>
+        <form (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>Produit ID:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="editingMovement ? editingMovement.produit : newMovement.produit"
+              name="produit"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Type:</label>
+            <select
+              class="form-control"
+              [(ngModel)]="editingMovement ? editingMovement.type : newMovement.type"
+              name="type"
+              required
+            >
+              <option value="entree">Entrée</option>
+              <option value="sortie">Sortie</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantité:</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="editingMovement ? editingMovement.quantite : newMovement.quantite"
+              name="quantite"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Date:</label>
+            <input
+              type="datetime-local"
+              class="form-control"
+              [ngModel]="(editingMovement ? editingMovement.date : newMovement.date) | date:'yyyy-MM-ddTHH:mm'"
+              (ngModelChange)="editingMovement ? (editingMovement.date = $event) : (newMovement.date = $event)"
+              name="date"
+            />
+          </div>
+          <button type="submit" class="btn btn-success mr-2">
+            {{ editingMovement ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="editingMovement ? cancelEdit() : resetForm()">
+            Annuler
+          </button>
+        </form>
+      </div>
+    </div>
+  
+    <table class="table table-striped" *ngIf="stockMovements.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produit</th>
+          <th>Type</th>
+          <th>Quantité</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let movement of stockMovements">
+          <td>{{ movement._id }}</td>
+          <td>{{ getProduitNom(movement.produit) }}</td>
+          <td>{{ movement.type }}</td>
+          <td>{{ movement.quantite }}</td>
+          <td>{{ movement.date | date:'medium' }}</td>
+          <td>
+            <button class="btn btn-sm btn-warning mr-2" (click)="editMovement(movement)">
+              Modifier
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteMovement(movement._id || '')">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <p *ngIf="stockMovements.length === 0 && !errorMessage">Aucun mouvement de stock trouvé.</p>
+  </div>

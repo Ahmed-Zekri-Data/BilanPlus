@@ -2,8 +2,7 @@
 <h1>{{ isEditMode ? 'Modification d\'utilisateur' : 'Ajout d\'utilisateur' }}</h1>
 
 <form [formGroup]="utilisateurForm" (ngSubmit)="submitUtilisateur()" class="mt-4">
-
-    <div class="form-group mb-3">
+  <div class="form-group mb-3">
     <label for="nom">Nom</label>
     <input 
       type="text" 
@@ -35,7 +34,7 @@
     </div>
   </div>
 
-=  <div class="form-group mb-3">
+  <div class="form-group mb-3">
     <label for="motDePasse">Mot de passe</label>
     <input 
       type="password" 
@@ -68,14 +67,12 @@
       <option value="">Sélectionner un rôle</option>
       <option value="admin">Administrateur</option>
       <option value="user">Utilisateur</option>
-
     </select>
     <div class="alert alert-danger mt-2" 
          *ngIf="utilisateurForm.controls['role'].invalid && utilisateurForm.controls['role'].touched">
       <p *ngIf="utilisateurForm.controls['role'].hasError('required')">Le rôle est obligatoire</p>
     </div>
   </div>
-
 
   <div class="mt-4">
     <button 
@@ -84,12 +81,10 @@
       [disabled]="utilisateurForm.invalid">
       {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
     </button>
-    <!-- <button type="submit" routerLink="/utilisateurs" class="btn btn-primary me-2" Enregistrer [disabled]="utilisateurForm.invalid"> {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }} </button> -->
     <a routerLink="/utilisateurs" class="btn btn-secondary">Annuler</a>
   </div>
 </form>
 
-<!-- Message de feedback -->
 <div class="alert alert-info mt-3" *ngIf="message">
   {{ message }}
 </div>
