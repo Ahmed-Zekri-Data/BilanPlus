@@ -21,18 +21,12 @@ const config = require("./Config/db.json");
 
 // Connexion à la base de données
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(config.url, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB connecté');
-  } catch (error) {
-    console.error('Erreur de connexion MongoDB:', error);
-    process.exit(1);
-  }
-};
+// Connexion à la base de données
+mongoose
+  .connect(config.url)
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database not connected:", err));
+
 
 const app = express();
 
@@ -58,9 +52,9 @@ app.use("/MS", MSrouter);
 app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
-app.use("/fiscalité",froutes)
-// app.use("/clients", clientRoutes);
-// app.use("/factures", factureRoutes);
+app.use("/fiscalite",froutes)
+app.use("/clients", clientRoutes);
+app.use("/factures", factureRoutes);
 
 const server = http.createServer(app);
 

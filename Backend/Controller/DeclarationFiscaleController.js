@@ -2,6 +2,7 @@ const DeclarationFiscale = require("../Models/DeclarationFiscale");
 // const DeclarationFiscaleService = require('../services/DeclarationFiscaleService');
 const DeclarationFiscaleService = require('../Services/DeclarationFiscaleService');
 const DF = DeclarationFiscale;
+const mongoose = require('mongoose'); 
 
 // Fonction utilitaire pour vérifier l'existence d'une déclaration par ID
 async function findDeclarationById(id) {
@@ -82,63 +83,104 @@ async function updateDF(req, res) {
 }
 
 // Générer une déclaration fiscale
-async function genererDeclarationFiscale(req, res) {
+async function findCompteComptableById(id) {
     try {
-        const { dateDebut, dateFin, type } = req.body;
-        
-        if (!dateDebut || !dateFin || !type) {
-            return res.status(400).json({
-                success: false,
-                message: 'Les dates de début et de fin ainsi que le type de déclaration sont requis'
-            });
-        }
-        
-        // Vérifier le type de déclaration
-        if (!['mensuelle', 'trimestrielle', 'annuelle'].includes(type)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Le type de déclaration doit être "mensuelle", "trimestrielle" ou "annuelle"'
-            });
-        }
-        
-        // Générer la déclaration fiscale complète
-        const declarationComplete = await DeclarationFiscaleService.genererDeclarationFiscale(
-            new Date(dateDebut), 
-            new Date(dateFin), 
-            type
-        );
-        
-        // Sauvegarder la déclaration dans la base de données
-        const nouvelleDeclaration = new DeclarationFiscale({
-            periode: declarationComplete.periode,
-            type: declarationComplete.type,
-            statut: declarationComplete.statut,
-            totalTVACollectee: declarationComplete.dataSummary.tva.collectee,
-            totalTVADeductible: declarationComplete.dataSummary.tva.deductible,
-            totalTVADue: declarationComplete.dataSummary.tva.solde,
-            totalTCL: declarationComplete.dataSummary.tcl.montantTCL,
-            totalDroitTimbre: declarationComplete.dataSummary.droitTimbre.totalDroitTimbre,
-            dateCreation: new Date(),
-        });
-        
-        await nouvelleDeclaration.save();
-        
-        return res.status(201).json({
-            success: true,
-            message: 'Déclaration fiscale générée avec succès',
-            data: {
-                declaration: nouvelleDeclaration,
-                detailsCalcul: declarationComplete.detailsCalcul
-            }
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+      const compteComptable = await mongoose.model('CompteComptable').findById(id);
+      if (!compteComptable) {
+        throw new Error('Compte comptable non trouvé');
+      }
+      return compteComptable;
+    } catch (err) {
+      throw new Error(err.message);
     }
-}
-
+  }
+  
+  async function genererDeclarationFiscale(req, res) {
+    try {
+      const { dateDebut, dateFin, type, compteComptable } = req.body;
+  
+      // Vérifier les champs requis
+      if (!dateDebut || !dateFin || !type) {
+        return res.status(400).json({
+          success: false,
+          message: 'Les dates de début et de fin ainsi que le type de déclaration sont requis',
+        });
+      }
+  
+      // Vérifier le type de déclaration
+      if (!['mensuelle', 'trimestrielle', 'annuelle'].includes(type)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Le type de déclaration doit être "mensuelle", "trimestrielle" ou "annuelle"',
+        });
+      }
+  
+      // Vérifier et valider compteComptable
+      if (!compteComptable) {
+        return res.status(400).json({
+          success: false,
+          message: 'Le champ compteComptable est requis',
+        });
+      }
+  
+      if (!mongoose.isValidObjectId(compteComptable)) {
+        return res.status(400).json({
+          success: false,
+          message: 'L\'ID du compte comptable est invalide (doit être un ObjectId valide)',
+        });
+      }
+  
+      // Vérifier si le compte comptable existe
+      await findCompteComptableById(compteComptable);
+  
+      // Générer la déclaration fiscale complète
+      const declarationComplete = await DeclarationFiscaleService.genererDeclarationFiscale(
+        new Date(dateDebut),
+        new Date(dateFin),
+        type
+      );
+  
+      // Convertir l'objet periode en une chaîne de caractères
+      const periodeString = `${declarationComplete.periode.debut.toISOString()} - ${declarationComplete.periode.fin.toISOString()}`;
+  
+      // Calculer le montant total
+      const montantTotal =
+        declarationComplete.dataSummary.tva.solde +
+        declarationComplete.dataSummary.tcl.montantTCL +
+        declarationComplete.dataSummary.droitTimbre.totalDroitTimbre;
+  
+      // Sauvegarder la déclaration dans la base de données
+      const nouvelleDeclaration = new DeclarationFiscale({
+        periode: periodeString,
+        type: declarationComplete.type,
+        statut: declarationComplete.statut,
+        totalTVACollectee: declarationComplete.dataSummary.tva.collectee,
+        totalTVADeductible: declarationComplete.dataSummary.tva.deductible,
+        totalTVADue: declarationComplete.dataSummary.tva.solde,
+        totalTCL: declarationComplete.dataSummary.tcl.montantTCL,
+        totalDroitTimbre: declarationComplete.dataSummary.droitTimbre.totalDroitTimbre,
+        dateCreation: new Date(),
+        montantTotal: montantTotal,
+        compteComptable: compteComptable,
+      });
+  
+      await nouvelleDeclaration.save();
+  
+      return res.status(201).json({
+        success: true,
+        message: 'Déclaration fiscale générée avec succès',
+        data: {
+          declaration: nouvelleDeclaration,
+          detailsCalcul: declarationComplete.detailsCalcul,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 // Générer un formulaire officiel
 async function genererFormulaireOfficiel(req, res) {
     try {
