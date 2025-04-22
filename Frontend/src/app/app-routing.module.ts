@@ -12,7 +12,7 @@ import { CompteListComponent } from './components/compte-list/compte-list.compon
 import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { ProduitsComponent } from './components/produits/produits.component';
+//import { ProduitsComponent } from './components/produits/produits.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
@@ -23,8 +23,8 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 // Assuming these components exist based on the routes
-import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
-import { TvaFormComponent } from './components/tva-form/tva-form.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 
 const routes: Routes = [
@@ -38,7 +38,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'comptes', pathMatch: 'full' }
     ]
   },
-  { path: 'produits', component: ProduitsComponent }, // From main
+  //{ path: 'produits', component: ProduitsComponent }, // From main
   { path: 'produit', component: ProduitComponent },   // From Gestion_de_stock (renamed to avoid conflict)
   { path: 'stock-movements', component: MSComponent },
   { path: 'commandes', component: CommandesComponent },

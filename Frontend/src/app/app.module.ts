@@ -30,7 +30,7 @@ import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
-import { ProduitsComponent } from './components/produits/produits.component';
+
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { MSComponent } from './components/ms/ms.component';
@@ -41,6 +41,7 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,7 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     GestionComptableComponent,
     FournisseursComponent,
     CommandesComponent,
-    ProduitsComponent,
+    
     ListDFComponent,
     DFFormComponent,
     MSComponent,
@@ -67,7 +68,8 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     RoleDetailsComponent,
     AddRoleComponent,
     RoleComponent,
-    DFDetailComponent
+    DFDetailComponent,
+    ShortenIdPipe
   ],
   imports: [
     BrowserModule,
