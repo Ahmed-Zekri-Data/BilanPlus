@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { StockManagementService } from '../../services/stock-movements.service';
 import { MouvementStock } from '../../Models/MouvementStock';
 import { Produit } from '../../Models/Produit';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-ms',
@@ -24,10 +25,25 @@ export class MSComponent implements OnInit {
 
   constructor(
     private stockService: StockManagementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const produitId = params['produitId'];
+      if (produitId) {
+        this.newMovement = {
+          produit: produitId,
+          type: '',
+          quantite: 0,
+          date: new Date()
+        };
+        this.showForm = true;
+        this.editingMovement = null; // Ensure we're in "add" mode, not "edit"
+        this.cdr.detectChanges();
+      }
+    });
     this.loadStockMovements();
   }
 

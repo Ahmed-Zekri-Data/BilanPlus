@@ -15,7 +15,6 @@
   <table class="table" *ngIf="produits.length > 0">
     <thead>
       <tr>
-        <th>ID</th>
         <th>Nom</th>
         <th>Catégorie</th>
         <th>Prix</th>
@@ -26,7 +25,6 @@
     </thead>
     <tbody>
       <tr *ngFor="let produit of produits" [class.alert-warning]="produit.stock !== undefined && produit.seuilAlerte !== undefined && produit.stock <= produit.seuilAlerte">
-        <td>{{ produit._id }}</td>
         <td>{{ produit.nom }}</td>
         <td>{{ produit.categorie }}</td>
         <td>{{ produit.prix | currency:'EUR' }}</td>
@@ -35,6 +33,7 @@
         <td>
           <button (click)="editProduit(produit)">Modifier</button>
           <button (click)="deleteProduit(produit._id || '')">Supprimer</button>
+          <button [routerLink]="['/stock-movements']" [queryParams]="{ produitId: produit._id }" class="btn btn-info btn-sm">Mouvement de Stock</button>
         </td>
       </tr>
     </tbody>
