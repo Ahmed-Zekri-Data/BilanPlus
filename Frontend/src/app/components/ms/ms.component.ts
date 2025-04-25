@@ -67,6 +67,20 @@ export class MSComponent implements OnInit {
     });
   }
 
+  getUniqueLowStockProducts(): any[] {
+    const uniqueProductsMap = new Map<string, any>();
+  
+    this.stockMovements.forEach(movement => {
+      const product = movement.produit;
+      // Check if the product has low stock and hasn't been added yet
+      if (this.isLowStock(movement) && !uniqueProductsMap.has(this.getProduitNom(product))) {
+        uniqueProductsMap.set(this.getProduitNom(product), product);
+      }
+    });
+  
+    return Array.from(uniqueProductsMap.values());
+  }
+
   getProduitNom(produit: string | Produit): string {
     return typeof produit === 'string' ? 'ID: ' + produit : produit?.nom ?? 'Produit inconnu';
   }

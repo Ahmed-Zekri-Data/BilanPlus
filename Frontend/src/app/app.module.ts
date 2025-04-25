@@ -6,6 +6,9 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgChartsModule } from 'ng2-charts';// Correct import
+
+// ... rest of the module code remains the same
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-// Components from both branches
+// Components
 import { HomeComponent } from './home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
@@ -30,7 +33,6 @@ import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
-
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { MSComponent } from './components/ms/ms.component';
@@ -42,6 +44,7 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +61,6 @@ import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
     GestionComptableComponent,
     FournisseursComponent,
     CommandesComponent,
-    
     ListDFComponent,
     DFFormComponent,
     MSComponent,
@@ -69,7 +71,8 @@ import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
     AddRoleComponent,
     RoleComponent,
     DFDetailComponent,
-    ShortenIdPipe
+    ShortenIdPipe,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -79,12 +82,13 @@ import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    NgChartsModule ,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
     MatIconModule,
-    MatListModule,
+    MatListModule, // Added for mat-nav-list and mat-list-item
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,

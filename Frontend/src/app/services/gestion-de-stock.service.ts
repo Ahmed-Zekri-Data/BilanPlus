@@ -74,6 +74,12 @@ export class StockManagementService {
     );
   }
 
+  getStatistics(): Observable<{ totalStock: number, totalStockValue: number, outOfStock: number }> {
+    return this.http.get<{ totalStock: number, totalStockValue: number, outOfStock: number }>(`${this.produitApiUrl}/statistics`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: any) {
     let errorMessage = 'Erreur lors de l’appel au serveur';
     if (error.status === 0) {

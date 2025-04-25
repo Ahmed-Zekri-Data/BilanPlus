@@ -35,6 +35,9 @@
   
   .form-container {
     margin-bottom: 20px;
+    display: flex; /* Add flexbox */
+    justify-content: space-between; /* Space out the children */
+    align-items: center; /* Vertically center the items */
   }
   
   .form-group {

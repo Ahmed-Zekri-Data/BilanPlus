@@ -35,12 +35,15 @@
 }
 
 .alert-warning {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #f5b7b1; /* Changed from #f8d7da to a more vivid red */
+  color: #721c24;
 }
 
 .form-container {
   margin-bottom: 20px;
+  display: flex; /* Add flexbox */
+  justify-content: space-between; /* Space out the children */
+  align-items: center; /* Vertically center the items */
 }
 
 .form-group {

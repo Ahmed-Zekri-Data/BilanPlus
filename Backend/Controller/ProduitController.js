@@ -91,4 +91,24 @@ async function updateproduit(req, res) {
     }
 }
 
-module.exports = { addProduit, getall, getbyid, deleteproduit, updateproduit };
+async function getStatistics(req, res) {
+    try {
+        const products = await produit.find();
+
+        // Calculate statistics
+        const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
+        const totalStockValue = products.reduce((sum, product) => sum + (product.stock * product.prix), 0);
+        const outOfStock = products.filter(product => product.stock <= product.seuilAlerte).length;
+
+        // Return statistics
+        res.status(200).json({
+            totalStock,
+            totalStockValue,
+            outOfStock
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+module.exports = { addProduit, getall, getbyid, deleteproduit, updateproduit,getStatistics };

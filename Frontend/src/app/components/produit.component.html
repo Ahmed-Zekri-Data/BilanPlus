@@ -9,9 +9,12 @@
     <button (click)="editMode = true; selectedProduit = null; newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 }">
       Ajouter un produit
     </button>
-    <a routerLink="/stock-movements">Mouvement de Stock</a>
+    
+    
+    <a routerLink="/home" class="btn btn-primary">
+      <i class="fas fa-home"></i>
+    </a>
   </div>
-
   <table class="table" *ngIf="produits.length > 0">
     <thead>
       <tr>
