@@ -1,0 +1,58 @@
+<div class="fournisseur-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Modifier le Fournisseur' : 'Ajouter un Fournisseur' }}</mat-card-title>
+      <mat-card-subtitle>Remplissez les informations du fournisseur</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="fournisseurForm" (ngSubmit)="onSubmit()" class="fournisseur-form">
+        <div class="form-row">
+          <mat-form-field appearance="fill">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="nom" required>
+            <mat-error *ngIf="fournisseurForm.get('nom')?.hasError('required')">
+              Le nom est requis
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" required>
+            <mat-error *ngIf="fournisseurForm.get('email')?.hasError('required')">
+              L'email est requis
+            </mat-error>
+            <mat-error *ngIf="fournisseurForm.get('email')?.hasError('email')">
+              Veuillez entrer une adresse email valide
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill">
+            <mat-label>Adresse</mat-label>
+            <input matInput formControlName="adresse" required>
+            <mat-error *ngIf="fournisseurForm.get('adresse')?.hasError('required')">
+              L'adresse est requise
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Catégorie</mat-label>
+            <input matInput formControlName="categorie" required>
+            <mat-error *ngIf="fournisseurForm.get('categorie')?.hasError('required')">
+              La catégorie est requise
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!fournisseurForm.valid || isLoading">
+            {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+          </button>
+          <button mat-raised-button type="button" (click)="cancel()">Annuler</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div> 

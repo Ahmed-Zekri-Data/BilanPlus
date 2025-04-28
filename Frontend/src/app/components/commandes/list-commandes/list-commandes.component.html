@@ -1,0 +1,64 @@
+<div class="container">
+  <div class="header">
+    <h1>Liste des Commandes</h1>
+    <button mat-raised-button color="primary" (click)="addCommande()">
+      <mat-icon>add</mat-icon>
+      Nouvelle Commande
+    </button>
+  </div>
+
+  <div class="table-container">
+    <mat-table [dataSource]="commandes" class="mat-elevation-z8">
+      <!-- Produit Column -->
+      <ng-container matColumnDef="produit">
+        <mat-header-cell *matHeaderCellDef> Produit </mat-header-cell>
+        <mat-cell *matCellDef="let commande"> {{commande.produit.nom}} </mat-cell>
+      </ng-container>
+
+      <!-- Quantité Column -->
+      <ng-container matColumnDef="quantite">
+        <mat-header-cell *matHeaderCellDef> Quantité </mat-header-cell>
+        <mat-cell *matCellDef="let commande"> {{commande.quantite}} </mat-cell>
+      </ng-container>
+
+      <!-- Prix Column -->
+      <ng-container matColumnDef="prix">
+        <mat-header-cell *matHeaderCellDef> Prix </mat-header-cell>
+        <mat-cell *matCellDef="let commande"> {{commande.prix | currency:'EUR'}} </mat-cell>
+      </ng-container>
+
+      <!-- Statut Column -->
+      <ng-container matColumnDef="statut">
+        <mat-header-cell *matHeaderCellDef> Statut </mat-header-cell>
+        <mat-cell *matCellDef="let commande"> {{commande.statut || 'En attente'}} </mat-cell>
+      </ng-container>
+
+      <!-- Fournisseur Column -->
+      <ng-container matColumnDef="fournisseurID">
+        <mat-header-cell *matHeaderCellDef> Fournisseur </mat-header-cell>
+        <mat-cell *matCellDef="let commande"> {{commande.fournisseurID.nom}} </mat-cell>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+        <mat-cell *matCellDef="let commande">
+          <button mat-icon-button color="primary" (click)="viewCommande(commande._id)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editCommande(commande._id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCommande(commande._id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
+  </div>
+</div> 

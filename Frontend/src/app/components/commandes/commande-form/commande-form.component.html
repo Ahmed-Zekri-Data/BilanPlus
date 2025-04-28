@@ -1,0 +1,70 @@
+<div class="container">
+  <h1>{{ isEditMode ? 'Modifier la Commande' : 'Nouvelle Commande' }}</h1>
+
+  <form [formGroup]="commandeForm" (ngSubmit)="onSubmit()" class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Produit</mat-label>
+      <mat-select formControlName="produit" required>
+        <mat-option *ngFor="let produit of produits" [value]="produit.nom">
+          {{produit.nom}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="commandeForm.get('produit')?.hasError('required')">
+        Le produit est requis
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Quantité</mat-label>
+      <input matInput type="number" formControlName="quantite" required>
+      <mat-error *ngIf="commandeForm.get('quantite')?.hasError('required')">
+        La quantité est requise
+      </mat-error>
+      <mat-error *ngIf="commandeForm.get('quantite')?.hasError('min')">
+        La quantité doit être supérieure à 0
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Prix</mat-label>
+      <input matInput type="number" formControlName="prix" required>
+      <mat-error *ngIf="commandeForm.get('prix')?.hasError('required')">
+        Le prix est requis
+      </mat-error>
+      <mat-error *ngIf="commandeForm.get('prix')?.hasError('min')">
+        Le prix doit être supérieur à 0
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Statut</mat-label>
+      <mat-select formControlName="statut">
+        <mat-option value="En attente">En attente</mat-option>
+        <mat-option value="En cours">En cours</mat-option>
+        <mat-option value="Livrée">Livrée</mat-option>
+        <mat-option value="Annulée">Annulée</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Fournisseur</mat-label>
+      <mat-select formControlName="fournisseurID" required>
+        <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur">
+          {{fournisseur.nom}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="commandeForm.get('fournisseurID')?.hasError('required')">
+        Le fournisseur est requis
+      </mat-error>
+    </mat-form-field>
+
+    <div class="button-container">
+      <button mat-button type="button" (click)="cancel()">Annuler</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!commandeForm.valid || isLoading">
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+    </div>
+  </form>
+
+  <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
+</div>

@@ -39,10 +39,7 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { CommandesComponent } from './components/commandes/commandes.component';
 import { ProduitsComponent } from './components/produits/produits.component';
-import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { MSComponent } from './components/ms/ms.component';
@@ -52,6 +49,15 @@ import { UtilisateurDetailsComponent } from './components/utilisateur-details/ut
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
+import { ListDFComponent } from './components/list-df/list-df.component';
+import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
+import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
+import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
+
+// Fournisseurs Components
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
 @NgModule({
   declarations: [
@@ -72,8 +78,9 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     BilanComponent,
     ResultatComponent,
     DashboardComponent,
-    FournisseursComponent,
-    CommandesComponent,
+    ListFournisseursComponent,
+    FournisseurFormComponent,
+    FournisseurViewComponent,
     ProduitsComponent,
     ListDFComponent,
     DFFormComponent,
@@ -84,7 +91,10 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     UtilisateurDetailsComponent,
     RoleComponent,
     AddRoleComponent,
-    RoleDetailsComponent
+    RoleDetailsComponent,
+    ListCommandesComponent,
+    CommandeFormComponent,
+    CommandeViewComponent
   ],
   imports: [
     BrowserModule,

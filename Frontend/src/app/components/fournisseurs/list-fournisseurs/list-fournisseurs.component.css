@@ -1,0 +1,42 @@
+.fournisseurs-container {
+  padding: 20px;
+}
+
+.actions {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: center;
+}
+
+.mat-column-nom {
+  width: 20%;
+}
+
+.mat-column-email {
+  width: 25%;
+}
+
+.mat-column-adresse {
+  width: 25%;
+}
+
+.mat-column-categorie {
+  width: 15%;
+}
+
