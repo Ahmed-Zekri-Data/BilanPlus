@@ -19,25 +19,21 @@ export class AuthService {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  // Récupère l'utilisateur courant
   getCurrentUser(): Observable<any> {
     return this.currentUser;
   }
 
-  // Vérifie si l'utilisateur est connecté
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  // Récupère le token JWT depuis localStorage
   getToken(): string | null {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     return currentUser?.token || null;
   }
 
-  // Connexion
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
+    return this.http.post<LoginResponse>(`${this.apiUrl}/user/login`, credentials).pipe( // Correction : /auth/login -> /user/login
       map(response => {
         localStorage.setItem('currentUser', JSON.stringify(response));
         this.currentUserSubject.next(response.user);
@@ -46,20 +42,17 @@ export class AuthService {
     );
   }
 
-  // Déconnexion
   logout(): void {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
-  // Demande de réinitialisation de mot de passe
   requestPasswordReset(email: string): Observable<any> {
     const payload: PasswordResetRequest = { email };
-    return this.http.post(`${this.apiUrl}/user/request-password-reset`, payload); // Changement de /auth à /user
+    return this.http.post(`${this.apiUrl}/user/request-password-reset`, payload);
   }
 
-  // Réinitialisation du mot de passe
   resetPassword(data: PasswordReset): Observable<any> {
-    return this.http.post(`${this.apiUrl}/user/reset-password`, data); // Changement de /auth à /user
+    return this.http.post(`${this.apiUrl}/user/reset-password`, data);
   }
 }

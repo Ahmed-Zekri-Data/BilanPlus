@@ -1,31 +1,67 @@
-/* Page principale avec deux sections */
+/* login.component.css */
 .login-page {
   display: flex;
-  min-height: 100vh;
-  background: white;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  overflow: hidden;
 }
 
-/* Section gauche : Welcome Back */
+/* Section gauche : Bienvenue */
 .welcome-section {
   flex: 1;
-  background: linear-gradient(90deg, #1E3A8A 0%, #3B82F6 100%); /* Dégradé bleu comme dans Home */
+  background-color: #1E3A8A; /* Bleu foncé de BilanPlus */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  position: relative;
   color: white;
+  padding: 40px;
+  text-align: center;
 }
 
-.welcome-section .logo {
-  height: 60px;
-  margin-bottom: 2rem;
+.logo {
+  width: 150px;
+  height: auto;
+  position: absolute;
+  top: 20px;
+  left: 20px;
 }
 
 .welcome-section h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 10px;
+}
+
+.welcome-section p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.signup-button {
+  background-color: #D4AF37; /* Or de BilanPlus */
+  color: white;
+  padding: 10px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+}
+
+.signup-button:hover {
+  background-color: #b8972f;
+}
+
+.illustration {
+  margin-top: 30px;
+}
+
+.illustration img {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
 }
 
 /* Section droite : Formulaire */
@@ -35,180 +71,130 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
-  background: white;
+  background-color: #2a2a2a; /* Gris foncé comme dans l'image */
+  padding: 40px;
 }
 
-/* En-tête du formulaire */
-.login-header {
-  text-align: left;
-  margin-bottom: 2rem;
+.login-container h2 {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 30px;
+  text-align: center;
 }
 
-.login-header h2 {
-  font-size: 2rem;
-  color: #1E3A8A; /* Bleu principal */
-  margin-bottom: 0.5rem;
-}
-
-.login-header p {
-  color: #4a4a4a; /* Gris */
-  font-size: 1rem;
-}
-
-/* Formulaire */
 .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   width: 100%;
   max-width: 400px;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .form-group label {
+  display: block;
   font-weight: 500;
-  color: #1E3A8A; /* Bleu */
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
+  color: white;
 }
 
 .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  background-color: #3a3a3a; /* Fond des champs */
+  border-radius: 5px;
+  padding: 5px 10px;
 }
 
-.form-group input {
+.input-icon {
+  color: #D4AF37; /* Or de BilanPlus */
+  margin-right: 10px;
+}
+
+input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  padding: 12px 15px;
+  border: none;
+  background: transparent;
+  color: white;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input:focus {
+input:focus {
   outline: none;
-  border-color: #1E3A8A;
-  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
-.form-group input.is-invalid {
-  border-color: #dc2626;
+input::placeholder {
+  color: #aaa;
+}
+
+.is-invalid {
+  border: 1px solid #dc3545;
 }
 
 .invalid-feedback {
-  color: #dc2626;
+  color: #dc3545;
   font-size: 0.875rem;
-  margin-top: 0.25rem;
+  margin-top: 5px;
 }
 
-/* Options (Remember Me + Forgot Password) */
 .options-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
 }
 
 .remember-me mat-checkbox {
-  color: #1E3A8A;
+  color: #D4AF37; /* Or de BilanPlus */
 }
 
 .forgot-password {
-  color: #1E3A8A;
-  font-size: 0.875rem;
+  color: #D4AF37; /* Or de BilanPlus */
   text-decoration: none;
+  font-size: 0.9rem;
 }
 
 .forgot-password:hover {
-  color: #D4AF37; /* Or */
+  text-decoration: underline;
 }
 
-/* Bouton de soumission */
 .submit-button {
-  background: #1E3A8A !important; /* Bleu */
-  color: white !important;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-weight: 500;
   width: 100%;
+  padding: 12px;
+  background-color: #1E3A8A; /* Bleu de BilanPlus */
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .submit-button:hover {
-  background: #3B82F6 !important; /* Bleu plus clair */
+  background-color: #16307a;
 }
 
-.submit-button:disabled {
-  background: #9ca3af !important;
-  cursor: not-allowed;
-}
-
-.submit-button mat-spinner {
-  margin-right: 0.5rem;
-}
-
-/* Lien d'inscription */
-.signup-link {
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
-.signup-link p {
-  color: #4a4a4a; /* Gris */
-  font-size: 0.875rem;
-}
-
-.signup-link a {
-  color: #1E3A8A;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.signup-link a:hover {
-  color: #D4AF37; /* Or */
-}
-
-/* Message d'erreur */
 .alert {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #fee2e2;
-  color: #dc2626;
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .alert mat-icon {
-  font-size: 1rem;
-  height: 1rem;
-  width: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .login-page {
-    flex-direction: column;
-  }
-
-  .welcome-section {
-    padding: 3rem 1rem;
-    min-height: 40vh;
-  }
-
-  .welcome-section h1 {
-    font-size: 2rem;
-  }
-
-  .login-container {
-    padding: 1rem;
-  }
+  margin-right: 10px;
 }

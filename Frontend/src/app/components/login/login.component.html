@@ -1,28 +1,30 @@
 <div class="login-page">
-  <!-- Section gauche : Welcome Back -->
+  <!-- Section gauche : Bienvenue -->
   <div class="welcome-section">
     <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
-    <h1 style="color: white;">Welcome Back!</h1>
+    <h1>Hello! Welcome to BilanPlus</h1>
+    <p>Don't have an account yet?</p>
+    <button mat-raised-button class="signup-button" routerLink="/signup">Sign Up</button>
+    <!-- Illustration (facultative) -->
+    <div class="illustration">
+      <img src="assets/images/login-illustration.png" alt="Illustration">
+    </div>
   </div>
 
-  <!-- Section droite : Formulaire de connexion -->
+  <!-- Section droite : Formulaire -->
   <div class="login-container" @fadeIn>
-    <div class="login-header">
-      <h2>Login</h2>
-      <p>Welcome back! Please login to your account.</p>
-    </div>
-
-    <!-- Formulaire -->
+    <h2>Sign In</h2>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <!-- Email -->
       <div class="form-group">
-        <label for="email">User Name</label>
+        <label for="email">Login or email</label>
         <div class="input-wrapper">
+          <mat-icon class="input-icon">person</mat-icon>
           <input
             type="email"
             id="email"
             formControlName="email"
-            placeholder="user.name@gmail.com"
+            placeholder="Enter your login email"
             [ngClass]="{'is-invalid': submitted && loginForm.get('email')?.errors}"
           >
         </div>
@@ -36,11 +38,12 @@
       <div class="form-group">
         <label for="password">Password</label>
         <div class="input-wrapper">
+          <mat-icon class="input-icon">lock</mat-icon>
           <input
             type="password"
             id="password"
             formControlName="password"
-            placeholder="********"
+            placeholder="Must contain at least 8 symbols"
             [ngClass]="{'is-invalid': submitted && loginForm.get('password')?.errors}"
           >
         </div>
@@ -52,7 +55,7 @@
       <!-- Options -->
       <div class="options-row">
         <div class="remember-me">
-          <mat-checkbox formControlName="rememberMe" color="accent">Remember Me</mat-checkbox>
+          <mat-checkbox formControlName="rememberMe" color="accent">Click to verify</mat-checkbox>
         </div>
         <a class="forgot-password" routerLink="/forgot-password">Forgot Password?</a>
       </div>
@@ -68,15 +71,10 @@
         (mousedown)="buttonState = 'clicked'"
         (mouseup)="buttonState = 'normal'"
       >
-        <span *ngIf="!loading">Login</span>
+        <span *ngIf="!loading">Sign In</span>
         <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
       </button>
     </form>
-
-    <!-- Lien d'inscription -->
-    <div class="signup-link">
-      <p>New user? <a routerLink="/signup">Signup</a></p>
-    </div>
 
     <!-- Message d'erreur -->
     <div class="alert alert-danger" *ngIf="errorMessage" [@fadeInOut]>
