@@ -1,96 +1,91 @@
-const Utilisateur = require("../Models/Utilisateur");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
+const Utilisateur = require('../Models/Utilisateur');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const config = require('../Config/db.json');
+const mongoose = require('mongoose');
+const csv = require('fast-csv');
+const fs = require('fs');
+const createTransporter = require('../emailConfig'); // Importer la fonction au lieu de transporter directement
 
-// Configuration du transporteur email
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'votre-email@gmail.com',
-    pass: process.env.EMAIL_PASS || 'votre-mot-de-passe'
-  }
-});
-
-// Obtenir tous les utilisateurs
 exports.getAllUsers = async (req, res) => {
   try {
-    const utilisateurs = await Utilisateur.find()
-      .select("-password")
-      .populate("role", "nom description permissions");
-
-    res.status(200).json(utilisateurs);
+    const utilisateurs = await Utilisateur.find().select('-password').populate('role');
+    res.status(200).json({ utilisateurs });
   } catch (err) {
-    console.error("Erreur getAllUsers:", err);
-    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Obtenir un utilisateur par son ID
 exports.getUserById = async (req, res) => {
   try {
-    const utilisateur = await Utilisateur.findById(req.params.id)
-      .select("-password")
-      .populate("role", "nom description permissions");
-
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    res.status(200).json(utilisateur);
+    const utilisateur = await Utilisateur.findById(req.params.id).select('-password').populate('role');
+    if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
+    res.status(200).json({ utilisateur });
   } catch (err) {
-    console.error("Erreur getUserById:", err);
-    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Login
 exports.login = async (req, res) => {
   try {
+    console.log('Login: Received request with body:', req.body);
     const { email, password } = req.body;
+    console.log('Login: Email:', email, 'Password:', password);
 
-    // Vérifier si l'email et le mot de passe sont fournis
     if (!email || !password) {
+      console.log('Login: Missing email or password');
       return res.status(400).json({ message: "Email et mot de passe requis" });
     }
 
-    // Rechercher l'utilisateur par email
+    console.log('Login: Searching for user with email:', email);
     const utilisateur = await Utilisateur.findOne({ email }).populate("role");
-    
     if (!utilisateur) {
-      return res.status(401).json({ message: "Identifiants invalides" });
+      console.log('Login: User not found for email:', email);
+      return res.status(401).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Vérifier si le compte est actif
+    console.log('Login: User found:', utilisateur.email, 'Actif:', utilisateur.actif);
     if (!utilisateur.actif) {
+      console.log('Login: User account is inactive:', email);
       return res.status(403).json({ message: "Compte désactivé. Contactez l'administrateur" });
     }
 
-    // Vérifier le mot de passe
-    const isValidPassword = await bcrypt.compare(password, utilisateur.password);
-    
-    if (!isValidPassword) {
-      // Incrémenter le compteur de tentatives de connexion
-      utilisateur.tentativesConnexion += 1;
-      
-      // Désactiver le compte après 5 tentatives
-      if (utilisateur.tentativesConnexion >= 5) {
-        utilisateur.actif = false;
-      }
-      
+    console.log('Login: Checking for motDePasse field (temporary fix)...');
+    let passwordToCompare = utilisateur.password;
+    if (!passwordToCompare && utilisateur.motDePasse) {
+      console.log('Login: Found motDePasse instead of password, converting...');
+      passwordToCompare = await bcrypt.hash(utilisateur.motDePasse, 10);
+      utilisateur.password = passwordToCompare;
+      utilisateur.motDePasse = undefined;
       await utilisateur.save();
-      
-      return res.status(401).json({ message: "Identifiants invalides" });
+      console.log('Login: Converted motDePasse to password for user:', email);
     }
 
-    // Réinitialiser le compteur de tentatives de connexion
+    if (!passwordToCompare) {
+      console.log('Login: No password field found for user:', email);
+      return res.status(500).json({ message: "Erreur: champ mot de passe manquant" });
+    }
+
+    console.log('Login: Comparing password for user:', email);
+    const isValidPassword = await bcrypt.compare(password, passwordToCompare);
+    console.log('Login: Password comparison result:', isValidPassword);
+    if (!isValidPassword) {
+      utilisateur.tentativesConnexion += 1;
+      console.log('Login: Incrementing tentativesConnexion to:', utilisateur.tentativesConnexion);
+      if (utilisateur.tentativesConnexion >= 5) {
+        utilisateur.actif = false;
+        console.log('Login: Deactivating account due to too many attempts:', email);
+      }
+      await utilisateur.save();
+      console.log('Login: Updated user after failed login attempt:', utilisateur);
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
+
     utilisateur.tentativesConnexion = 0;
     utilisateur.dernierConnexion = new Date();
     await utilisateur.save();
 
-    // Générer le token JWT
+    console.log('Login: Signing token with jwtSecret:', config.jwtSecret);
     const token = jwt.sign(
       { 
         id: utilisateur._id,
@@ -99,342 +94,264 @@ exports.login = async (req, res) => {
         prenom: utilisateur.prenom,
         role: utilisateur.role
       },
-      process.env.JWT_SECRET,
+      config.jwtSecret,
       { expiresIn: '8h' }
     );
+    console.log('Login: Generated token:', token);
 
-    // Renvoyer les informations de l'utilisateur sans le mot de passe
     const userWithoutPassword = { ...utilisateur.toObject() };
     delete userWithoutPassword.password;
-
     res.status(200).json({
       message: "Connexion réussie",
       token,
       user: userWithoutPassword
     });
   } catch (err) {
-    console.error("Erreur login:", err);
-    res.status(500).json({ message: "Erreur serveur lors de la connexion" });
+    console.error("Erreur login détaillée:", err.message, err.stack);
+    res.status(500).json({ message: "Erreur serveur lors de la connexion", error: err.message });
   }
 };
 
-// Création d'utilisateur
 exports.createUser = async (req, res) => {
   try {
     const { nom, prenom, email, password, role, telephone, adresse } = req.body;
-
-    // Validation des données
     if (!nom || !prenom || !email || !password || !role) {
-      return res.status(400).json({ 
-        message: "Veuillez fournir tous les champs obligatoires (nom, prénom, email, mot de passe, rôle)" 
-      });
+      return res.status(400).json({ message: "Champs obligatoires manquants" });
     }
 
-    // Vérifier si l'email existe déjà
-    const utilisateurExistant = await Utilisateur.findOne({ email });
-    if (utilisateurExistant) {
-      return res.status(400).json({ message: "Cet email est déjà utilisé" });
+    const existingUser = await Utilisateur.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email déjà utilisé" });
     }
 
-    // Hasher le mot de passe
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Créer le nouvel utilisateur
-    const newUser = new Utilisateur({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const utilisateur = new Utilisateur({
       nom,
       prenom,
       email,
       password: hashedPassword,
       role,
       telephone,
-      adresse
+      adresse,
+      actif: true,
+      tentativesConnexion: 0,
+      preferences: { theme: 'light', langue: 'fr', notificationsEmail: true },
+      dateCreation: new Date()
     });
 
-    // Sauvegarder l'utilisateur
-    const savedUser = await newUser.save();
-
-    // Retourner l'utilisateur sans le mot de passe
-    const userWithoutPassword = { ...savedUser.toObject() };
+    await utilisateur.save();
+    const userWithoutPassword = { ...utilisateur.toObject() };
     delete userWithoutPassword.password;
-
-    res.status(201).json({
-      message: "Utilisateur créé avec succès",
-      user: userWithoutPassword
-    });
+    res.status(201).json({ message: "Utilisateur créé", utilisateur: userWithoutPassword });
   } catch (err) {
-    console.error("Erreur création utilisateur:", err);
-    res.status(500).json({ message: "Erreur serveur lors de la création de l'utilisateur" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Mise à jour d'un utilisateur
 exports.updateUser = async (req, res) => {
   try {
+    const utilisateur = await Utilisateur.findById(req.params.id);
+    if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
     const { nom, prenom, email, role, telephone, adresse, actif } = req.body;
-    const userId = req.params.id;
-
-    // Vérifier si l'utilisateur existe
-    const utilisateur = await Utilisateur.findById(userId);
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Vérifier si l'email est déjà utilisé par un autre utilisateur
-    if (email && email !== utilisateur.email) {
-      const emailExistant = await Utilisateur.findOne({ email });
-      if (emailExistant) {
-        return res.status(400).json({ message: "Cet email est déjà utilisé" });
-      }
-    }
-
-    // Mettre à jour les champs
     if (nom) utilisateur.nom = nom;
     if (prenom) utilisateur.prenom = prenom;
     if (email) utilisateur.email = email;
     if (role) utilisateur.role = role;
-    if (telephone !== undefined) utilisateur.telephone = telephone;
-    if (adresse !== undefined) utilisateur.adresse = adresse;
+    if (telephone) utilisateur.telephone = telephone;
+    if (adresse) utilisateur.adresse = adresse;
     if (actif !== undefined) utilisateur.actif = actif;
 
-    // Sauvegarder les modifications
-    const updatedUser = await utilisateur.save();
-
-    // Retourner l'utilisateur sans le mot de passe
-    const userWithoutPassword = { ...updatedUser.toObject() };
+    await utilisateur.save();
+    const userWithoutPassword = { ...utilisateur.toObject() };
     delete userWithoutPassword.password;
-
-    res.status(200).json({
-      message: "Utilisateur mis à jour avec succès",
-      user: userWithoutPassword
-    });
+    res.status(200).json({ message: "Utilisateur mis à jour", utilisateur: userWithoutPassword });
   } catch (err) {
-    console.error("Erreur updateUser:", err);
-    res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Suppression d'un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
-    const userId = req.params.id;
-
-    // Vérifier si l'utilisateur existe
-    const utilisateur = await Utilisateur.findById(userId);
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Supprimer l'utilisateur
-    await Utilisateur.findByIdAndDelete(userId);
-
-    res.status(200).json({
-      message: "Utilisateur supprimé avec succès"
-    });
+    const utilisateur = await Utilisateur.findByIdAndDelete(req.params.id);
+    if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
+    res.status(200).json({ message: "Utilisateur supprimé" });
   } catch (err) {
-    console.error("Erreur deleteUser:", err);
-    res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Réinitialisation des tentatives de connexion
 exports.resetLoginAttempts = async (req, res) => {
   try {
-    const userId = req.params.id;
-
-    // Vérifier si l'utilisateur existe
-    const utilisateur = await Utilisateur.findById(userId);
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Réinitialiser les tentatives et réactiver le compte
+    const utilisateur = await Utilisateur.findById(req.params.id);
+    if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
     utilisateur.tentativesConnexion = 0;
     utilisateur.actif = true;
     await utilisateur.save();
-
-    res.status(200).json({
-      message: "Tentatives de connexion réinitialisées avec succès"
-    });
+    res.status(200).json({ message: "Tentatives de connexion réinitialisées et compte réactivé" });
   } catch (err) {
-    console.error("Erreur resetLoginAttempts:", err);
-    res.status(500).json({ message: "Erreur lors de la réinitialisation des tentatives de connexion" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Mise à jour du mot de passe
 exports.updatePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
-    const userId = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+    const utilisateur = await Utilisateur.findById(req.params.id);
+    if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-    // Validation des données
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: "Mot de passe actuel et nouveau mot de passe requis" });
-    }
+    const isValidPassword = await bcrypt.compare(oldPassword, utilisateur.password);
+    if (!isValidPassword) return res.status(401).json({ message: "Ancien mot de passe incorrect" });
 
-    // Vérifier si l'utilisateur existe
-    const utilisateur = await Utilisateur.findById(userId);
-    if (!utilisateur) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-
-    // Vérifier que l'utilisateur connecté est bien le propriétaire du compte ou un admin
-    if (req.user.id !== userId && !req.user.role.permissions.parametresSysteme) {
-      return res.status(403).json({ message: "Non autorisé à modifier ce mot de passe" });
-    }
-
-    // Vérifier le mot de passe actuel
-    const isValidPassword = await bcrypt.compare(currentPassword, utilisateur.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: "Mot de passe actuel incorrect" });
-    }
-
-    // Hasher le nouveau mot de passe
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // Mettre à jour le mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     utilisateur.password = hashedPassword;
     await utilisateur.save();
-
-    res.status(200).json({
-      message: "Mot de passe mis à jour avec succès"
-    });
+    res.status(200).json({ message: "Mot de passe mis à jour" });
   } catch (err) {
-    console.error("Erreur updatePassword:", err);
-    res.status(500).json({ message: "Erreur lors de la mise à jour du mot de passe" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
 exports.requestPasswordReset = async (req, res) => {
   try {
-    console.log('RequestPasswordReset: Received request with body:', req.body);
-    
     const { email } = req.body;
-    console.log('RequestPasswordReset: Email provided:', email);
-    
-    if (!email) {
-      console.log('RequestPasswordReset: Email is missing');
-      return res.status(400).json({ message: "L'email est requis" });
-    }
-    
-    console.log('RequestPasswordReset: Searching for user with email:', email);
     const utilisateur = await Utilisateur.findOne({ email });
-    if (!utilisateur) {
-      console.log('RequestPasswordReset: User not found for email:', email);
-      return res.status(200).json({ 
-        message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé" 
-      });
-    }
-    
-    console.log('RequestPasswordReset: User found:', utilisateur.email);
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = Date.now() + 3600000;
-    console.log('RequestPasswordReset: Generated token:', resetToken);
-    
+    if (!utilisateur) return res.status(200).json({ message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé" });
+
+    const resetToken = jwt.sign({ id: utilisateur._id }, config.jwtSecret, { expiresIn: '1h' });
     utilisateur.resetPasswordToken = resetToken;
-    utilisateur.resetPasswordExpires = resetTokenExpiry;
-    console.log('RequestPasswordReset: Saving user with new token');
+    utilisateur.resetPasswordExpires = Date.now() + 3600000; // 1 heure
     await utilisateur.save();
-    
-    console.log('RequestPasswordReset: Constructing reset URL');
-    const resetUrl = `${req.protocol || 'http'}://${req.get('host') || 'localhost:3000'}/reset-password/${resetToken}`;
-    console.log('RequestPasswordReset: Reset URL:', resetUrl);
-    
-    // Email sending skipped to avoid SMTP errors
-    console.log('RequestPasswordReset: Email sending skipped for testing');
-    
-    res.status(200).json({
-      message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé"
-    });
+
+    // Créer le lien de réinitialisation
+    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+
+    // Créer le transporter au moment de l'envoi
+    const transporter = createTransporter();
+
+    // Configurer l'email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: utilisateur.email,
+      subject: 'Réinitialisation de votre mot de passe - BilanPlus',
+      html: `
+        <h2>Réinitialisation de mot de passe</h2>
+        <p>Vous avez demandé une réinitialisation de mot de passe pour votre compte BilanPlus.</p>
+        <p>Cliquez sur le lien suivant pour réinitialiser votre mot de passe :</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>Ce lien est valide pendant 1 heure.</p>
+        <p>Si vous n'avez pas fait cette demande, ignorez cet email.</p>
+      `,
+    };
+
+    // Envoyer l'email
+    await transporter.sendMail(mailOptions);
+    console.log(`Email de réinitialisation envoyé à ${utilisateur.email}`);
+
+    res.status(200).json({ message: "Lien de réinitialisation envoyé par email" });
   } catch (err) {
-    console.error("Erreur requestPasswordReset détaillée:", err.message, err.stack);
-    res.status(500).json({ message: "Erreur lors de la demande de réinitialisation du mot de passe", error: err.message });
+    console.error('Erreur lors de l\'envoi de l\'email:', err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Réinitialisation du mot de passe
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    
-    if (!token || !newPassword) {
-      return res.status(400).json({ message: "Token et nouveau mot de passe requis" });
-    }
-    
-    // Rechercher l'utilisateur avec le token valide
+    const decoded = jwt.verify(token, config.jwtSecret);
     const utilisateur = await Utilisateur.findOne({
+      _id: decoded.id,
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
     });
-    
-    if (!utilisateur) {
-      return res.status(400).json({ message: "Token invalide ou expiré" });
-    }
-    
-    // Vérifier la complexité du mot de passe
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "Le mot de passe doit contenir au moins 6 caractères" });
-    }
-    
-    // Hasher le nouveau mot de passe
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    
-    // Mettre à jour l'utilisateur
+
+    if (!utilisateur) return res.status(400).json({ message: "Token invalide ou expiré" });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     utilisateur.password = hashedPassword;
     utilisateur.resetPasswordToken = undefined;
     utilisateur.resetPasswordExpires = undefined;
-    
     await utilisateur.save();
-    
+
     res.status(200).json({ message: "Mot de passe réinitialisé avec succès" });
   } catch (err) {
-    console.error("Erreur resetPassword:", err);
-    res.status(500).json({ message: "Erreur lors de la réinitialisation du mot de passe" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Analyse de l'activité des utilisateurs
 exports.analyserActiviteUtilisateurs = async (req, res) => {
   try {
-    const derniereMois = new Date();
-    derniereMois.setMonth(derniereMois.getMonth() - 1);
-    
-    const stats = {
-      totalUtilisateurs: await Utilisateur.countDocuments(),
-      actifs: await Utilisateur.countDocuments({ actif: true }),
-      inactifs: await Utilisateur.countDocuments({ actif: false }),
-      nouveaux: await Utilisateur.countDocuments({ dateCreation: { $gte: derniereMois } }),
-      connexionsRecentes: await Utilisateur.countDocuments({ dernierConnexion: { $gte: derniereMois } })
-    };
-    
-    res.status(200).json(stats);
+    const totalUtilisateurs = await Utilisateur.countDocuments();
+    const utilisateursActifs = await Utilisateur.countDocuments({ actif: true });
+    const utilisateursInactifs = totalUtilisateurs - utilisateursActifs;
+    const nouveauxUtilisateurs = await Utilisateur.countDocuments({
+      dateCreation: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+    });
+
+    const activiteParRole = await Utilisateur.aggregate([
+      { $group: { _id: '$role', count: { $sum: 1 } } },
+      { $lookup: { from: 'roles', localField: '_id', foreignField: '_id', as: 'roleInfo' } },
+      { $unwind: '$roleInfo' },
+      { $project: { nomRole: '$roleInfo.nom', count: 1 } }
+    ]);
+
+    res.status(200).json({
+      totalUtilisateurs,
+      utilisateursActifs,
+      utilisateursInactifs,
+      nouveauxUtilisateurs,
+      activiteParRole
+    });
   } catch (err) {
-    console.error("Erreur analyserActiviteUtilisateurs:", err);
-    res.status(500).json({ message: "Erreur lors de l'analyse de l'activité des utilisateurs" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
-// Export des utilisateurs au format CSV
 exports.exportUsersToCSV = async (req, res) => {
   try {
-    const utilisateurs = await Utilisateur.find()
-      .select("-password")
-      .populate("role", "nom");
-    
-    let csv = "ID,Nom,Prénom,Email,Rôle,Actif,Date Création\n";
-    
+    const utilisateurs = await Utilisateur.find().populate('role');
+    const csvStream = csv.format({ headers: true });
+    const writableStream = fs.createWriteStream('utilisateurs_export.csv');
+
+    csvStream.pipe(writableStream);
     utilisateurs.forEach(user => {
-      csv += `${user._id},${user.nom},${user.prenom},${user.email},${user.role ? user.role.nom : 'N/A'},${user.actif},${user.dateCreation}\n`;
+      csvStream.write({
+        Nom: user.nom,
+        Prenom: user.prenom || '',
+        Email: user.email,
+        Role: user.role ? user.role.nom : 'N/A',
+        Actif: user.actif,
+        DateCreation: user.dateCreation
+      });
     });
-    
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=utilisateurs.csv');
-    res.status(200).send(csv);
+    csvStream.end();
+
+    writableStream.on('finish', () => {
+      res.status(200).json({ message: "Exportation terminée", file: 'utilisateurs_export.csv' });
+    });
   } catch (err) {
-    console.error("Erreur exportUsersToCSV:", err);
-    res.status(500).json({ message: "Erreur lors de l'export des utilisateurs en CSV" });
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
+
+  router.get('/analyse-activite', authenticateToken, async (req, res) => {
+    try {
+      // Mock analysis data
+      const analysis = { totalLogins: 100, activeUsers: 50 };
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de l\'analyse de l\'activité' });
+    }
+  });
+  
+  router.get('/export-csv', authenticateToken, async (req, res) => {
+    try {
+      const users = await Utilisateur.find().populate('role');
+      const csv = users.map(user => `${user.nom},${user.prenom},${user.email}`).join('\n');
+      res.header('Content-Type', 'text/csv');
+      res.attachment('utilisateurs_export.csv');
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de l\'exportation en CSV' });
+    }
+  });
 };

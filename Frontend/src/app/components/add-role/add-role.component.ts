@@ -1,34 +1,51 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Role } from '../../Models/Role';
 import { RoleService } from '../../services/role.service';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-add-role',
   templateUrl: './add-role.component.html',
-  styleUrls: ['./add-role.component.css']
+  styleUrls: ['./add-role.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('1000ms ease-in', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(50px)' }),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('buttonClick', [
+      state('normal', style({ transform: 'scale(1)' })),
+      state('clicked', style({ transform: 'scale(0.95)' })),
+      transition('normal => clicked', animate('200ms ease-in')),
+      transition('clicked => normal', animate('200ms ease-out'))
+    ])
+  ]
 })
 export class AddRoleComponent implements OnInit {
   roleForm: FormGroup;
-  loading = false;
   submitted = false;
+  loading = false;
   error = '';
-  errorMessage = ''; // Ajout de la propriété manquante
   isEditMode = false;
-  roleId = '';
-  permissionsList: (keyof Role['permissions'])[] = [
-    'gestionUtilisateurs',
-    'gestionRoles',
-    'gestionClients',
-    'gestionFournisseurs',
-    'gestionFactures',
-    'gestionComptabilite',
-    'gestionBilans',
-    'gestionDeclarations',
-    'rapportsAvances',
-    'parametresSysteme'
-  ];
+  roleId: string | null = null;
+  buttonState = 'normal';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -36,72 +53,34 @@ export class AddRoleComponent implements OnInit {
     private router: Router,
     private roleService: RoleService
   ) {
-    this.roleForm = this.createForm();
-  }
-
-  ngOnInit(): void {
-    this.roleId = this.route.snapshot.params['id'] || '';
-    this.isEditMode = !!this.roleId;
-
-    if (this.isEditMode) {
-      this.loadRoleData();
-    }
-  }
-
-  createForm(): FormGroup {
-    const permissionsGroup: { [key: string]: [boolean] } = {};
-    this.permissionsList.forEach(perm => {
-      permissionsGroup[perm] = [false];
-    });
-
-    return this.formBuilder.group({
-      nom: ['', [Validators.required]],
+    this.roleForm = this.formBuilder.group({
+      nom: ['', Validators.required],
       description: [''],
-      permissions: this.formBuilder.group(permissionsGroup),
       actif: [true]
     });
   }
 
-  loadRoleData(): void {
+  ngOnInit(): void {
+    this.roleId = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = !!this.roleId;
+
+    if (this.isEditMode && this.roleId) {
+      this.loadRole(this.roleId);
+    }
+  }
+
+  loadRole(id: string): void {
     this.loading = true;
-    this.roleService.getRoleById(this.roleId).subscribe({
-      next: (role: Role | null) => {
-        if (role) {
-          this.roleForm.patchValue({
-            nom: role.nom,
-            description: role.description || '',
-            permissions: role.permissions,
-            actif: role.actif
-          });
-        } else {
-          this.error = 'Rôle non trouvé';
-          this.errorMessage = 'Rôle non trouvé'; // Mise à jour de errorMessage
-        }
+    this.roleService.getRoleById(id).subscribe({
+      next: (role) => {
+        this.roleForm.patchValue(role);
         this.loading = false;
       },
-      error: (err: Error) => {
-        this.error = err.message || 'Erreur lors du chargement des données du rôle';
-        this.errorMessage = err.message || 'Erreur lors du chargement des données du rôle'; // Mise à jour de errorMessage
+      error: (err) => {
+        this.error = err?.message || 'Erreur lors du chargement du rôle.';
         this.loading = false;
       }
     });
-  }
-
-  // Ajout de la méthode manquante getPermissionLabel
-  getPermissionLabel(permission: string): string {
-    const labels: { [key: string]: string } = {
-      'gestionUtilisateurs': 'Gestion des utilisateurs',
-      'gestionRoles': 'Gestion des rôles',
-      'gestionClients': 'Gestion des clients',
-      'gestionFournisseurs': 'Gestion des fournisseurs',
-      'gestionFactures': 'Gestion des factures',
-      'gestionComptabilite': 'Gestion de la comptabilité',
-      'gestionBilans': 'Gestion des bilans',
-      'gestionDeclarations': 'Gestion des déclarations',
-      'rapportsAvances': 'Rapports avancés',
-      'parametresSysteme': 'Paramètres système'
-    };
-    return labels[permission] || permission;
   }
 
   onSubmit(): void {
@@ -112,16 +91,15 @@ export class AddRoleComponent implements OnInit {
     }
 
     this.loading = true;
-    const roleData: Role = this.roleForm.value;
+    const roleData = this.roleForm.value;
 
-    if (this.isEditMode) {
+    if (this.isEditMode && this.roleId) {
       this.roleService.updateRole(this.roleId, roleData).subscribe({
         next: () => {
           this.router.navigate(['/roles']);
         },
-        error: (err: Error) => {
-          this.error = err.message || 'Erreur lors de la mise à jour';
-          this.errorMessage = err.message || 'Erreur lors de la mise à jour'; // Mise à jour de errorMessage
+        error: (err) => {
+          this.error = err?.message || 'Erreur lors de la mise à jour du rôle.';
           this.loading = false;
         }
       });
@@ -130,16 +108,15 @@ export class AddRoleComponent implements OnInit {
         next: () => {
           this.router.navigate(['/roles']);
         },
-        error: (err: Error) => {
-          this.error = err.message || 'Erreur lors de la création';
-          this.errorMessage = err.message || 'Erreur lors de la création'; // Mise à jour de errorMessage
+        error: (err) => {
+          this.error = err?.message || 'Erreur lors de la création du rôle.';
           this.loading = false;
         }
       });
     }
   }
 
-  goBack(): void {
+  cancel(): void {
     this.router.navigate(['/roles']);
   }
 }

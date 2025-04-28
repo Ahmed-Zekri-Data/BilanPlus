@@ -1,76 +1,65 @@
+// auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { LoginRequest, LoginResponse, PasswordResetRequest, PasswordReset } from '../Models/Auth';
-import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/user';
-  private currentUserSubject = new BehaviorSubject<any>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-  
-  constructor(private http: HttpClient, private router: Router) {
-    this.loadUserFromStorage();
+  private apiUrl = environment.apiUrl; // URL de base : http://localhost:3000
+  private currentUserSubject: BehaviorSubject<any>;
+  public currentUser: Observable<any>;
+
+  constructor(private http: HttpClient) {
+    this.currentUserSubject = new BehaviorSubject<any>(JSON.parse(localStorage.getItem('currentUser') || 'null'));
+    this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  private loadUserFromStorage(): void {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('currentUser');
-    
-    if (token && user) {
-      this.currentUserSubject.next(JSON.parse(user));
-    }
+  // Récupère l'utilisateur courant
+  getCurrentUser(): Observable<any> {
+    return this.currentUser;
   }
 
-  login(credentials: {email: string, password: string}): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        tap(response => {
-          console.log('Login successful', response);
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('currentUser', JSON.stringify(response.utilisateur));
-          this.currentUserSubject.next(response.utilisateur);
-        }),
-        catchError(error => {
-          console.error('Login error', error);
-          return throwError(() => error.error?.message || 'Erreur de connexion');
-        })
-      );
+  // Vérifie si l'utilisateur est connecté
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
+  // Récupère le token JWT depuis localStorage
+  getToken(): string | null {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    return currentUser?.token || null;
+  }
+
+  // Connexion
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
+      map(response => {
+        localStorage.setItem('currentUser', JSON.stringify(response));
+        this.currentUserSubject.next(response.user);
+        return response;
+      })
+    );
+  }
+
+  // Déconnexion
   logout(): void {
-    localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+  // Demande de réinitialisation de mot de passe
+  requestPasswordReset(email: string): Observable<any> {
+    const payload: PasswordResetRequest = { email };
+    return this.http.post(`${this.apiUrl}/user/request-password-reset`, payload); // Changement de /auth à /user
   }
 
-  getToken(): string {
-    return localStorage.getItem('token') || '';
-  }
-  isAdmin(): boolean {
-    const user = this.currentUserSubject.value;
-    return user && user.role === 'admin';
-  }
-
-  hasPermission(permission: string): boolean {
-    const user = this.currentUserSubject.value;
-    return user && user.permissions && user.permissions[permission];
-  }
-
-  requestPasswordReset(email: PasswordResetRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/request-reset-password`, email);
-  }
-
-  resetPassword(resetData: PasswordReset): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, resetData);
+  // Réinitialisation du mot de passe
+  resetPassword(data: PasswordReset): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user/reset-password`, data); // Changement de /auth à /user
   }
 }

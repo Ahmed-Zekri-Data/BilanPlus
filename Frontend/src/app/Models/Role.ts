@@ -1,5 +1,6 @@
 export interface Role {
-  id?: string; // Ajout de l'ID comme propriété optionnelle
+  id?: string;
+  _id?: string; // Ajouté pour compatibilité MongoDB
   nom: string;
   description?: string;
   permissions: {
@@ -14,6 +15,6 @@ export interface Role {
     rapportsAvances: boolean;
     parametresSysteme: boolean;
   };
-  dateCreation?: Date;
+  dateCreation?: Date | string;
   actif: boolean;
 }

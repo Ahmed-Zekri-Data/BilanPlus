@@ -1,42 +1,32 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Utilisateur } from '../Models/Utilisateur';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilisateurService {
-  private apiUrl = 'http://localhost:3000/user'; // URL temporaire
+  private apiUrl = 'http://localhost:3000/user';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllUsers(): Observable<Utilisateur[]> {
-    return this.http.get<Utilisateur[]>(this.apiUrl);
+  getUtilisateurs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/users`);
   }
 
-  getUserById(id: string): Observable<Utilisateur> {
-    return this.http.get<Utilisateur>(`${this.apiUrl}/${id}`);
+  getUtilisateurById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/users/${id}`);
   }
 
-  createUser(utilisateur: Utilisateur): Observable<any> {
-    return this.http.post(this.apiUrl, utilisateur);
+  createUtilisateur(utilisateur: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register`, utilisateur);
   }
 
-  updateUser(id: string, utilisateur: Partial<Utilisateur>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, utilisateur);
+  updateUtilisateur(id: string, utilisateur: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/users/${id}`, utilisateur);
   }
 
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
-
-  analyserActiviteUtilisateurs(jours: number = 30): Observable<any> {
-    const params = new HttpParams().set('jours', jours.toString());
-    return this.http.get(`${this.apiUrl}/activite`, { params });
-  }
-
-  exporterUtilisateursCSV(): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/export-csv`, { responseType: 'blob' });
+  deleteUtilisateur(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/users/${id}`);
   }
 }

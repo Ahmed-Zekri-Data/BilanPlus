@@ -1,26 +1,26 @@
-import { Component } from '@angular/core';
+// home.component.ts
+import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router'; // Ajout de Router
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   animations: [
-    // Animation pour la hero section (fade-in)
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
         animate('1000ms ease-in', style({ opacity: 1 }))
       ])
     ]),
-    // Animation pour les cartes (slide-in et fade-in)
     trigger('slideIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(50px)' }),
         animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ]),
-    // Animation pour les boutons (scale on click)
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
@@ -29,10 +29,37 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     ])
   ]
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   buttonState = 'normal';
+  currentUser: any = null;
+  userRole: string = '';
+
+  constructor(
+    private authService: AuthService,
+    private router: Router // Injection de Router
+  ) {}
+
+  ngOnInit(): void {
+    this.authService.getCurrentUser().subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        if (typeof user.role === 'string') {
+          this.userRole = user.role;
+        } else if (user.role && user.role.nom) {
+          this.userRole = user.role.nom;
+        } else {
+          this.userRole = 'Utilisateur';
+        }
+      }
+    });
+  }
 
   onButtonClick() {
     this.buttonState = this.buttonState === 'normal' ? 'clicked' : 'normal';
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

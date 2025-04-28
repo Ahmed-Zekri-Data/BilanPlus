@@ -5,11 +5,41 @@ import { Utilisateur } from '../../Models/Utilisateur';
 import { Role } from '../../Models/Role';
 import { UtilisateurService } from '../../services/utilisateur.service';
 import { RoleService } from '../../services/role.service';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-user-form',
   templateUrl: './add-utilisateur.component.html',
-  styleUrls: ['./add-utilisateur.component.css']
+  styleUrls: ['./add-utilisateur.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('1000ms ease-in', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(50px)' }),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('buttonClick', [
+      state('normal', style({ transform: 'scale(1)' })),
+      state('clicked', style({ transform: 'scale(0.95)' })),
+      transition('normal => clicked', animate('200ms ease-in')),
+      transition('clicked => normal', animate('200ms ease-out'))
+    ])
+  ]
 })
 export class AddUtilisateurComponent implements OnInit {
   userForm: FormGroup;
@@ -19,6 +49,7 @@ export class AddUtilisateurComponent implements OnInit {
   isEditMode = false;
   userId = '';
   roles: Role[] = [];
+  buttonState = 'normal';  // Ensure buttonState is defined
 
   constructor(
     private formBuilder: FormBuilder,
@@ -60,7 +91,7 @@ export class AddUtilisateurComponent implements OnInit {
   }
   
   loadRoles(): void {
-    this.roleService.getAllRoles().subscribe({
+    this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
         this.roles = data.filter(role => role.actif);
       },
@@ -72,10 +103,9 @@ export class AddUtilisateurComponent implements OnInit {
   
   loadUserData(): void {
     this.loading = true;
-    this.utilisateurService.getUserById(this.userId).subscribe({
+    this.utilisateurService.getUtilisateurById(this.userId).subscribe({
       next: (user: Utilisateur | null) => {
         if (user) {
-          // Supprimer le champ password pour l'édition
           const userData = { ...user };
           delete userData.password;
           
@@ -115,13 +145,12 @@ export class AddUtilisateurComponent implements OnInit {
     this.loading = true;
     const userData = this.userForm.value;
     
-    // Si aucun mot de passe n'est fourni en mode édition, on le supprime
     if (this.isEditMode && !userData.password) {
       delete userData.password;
     }
     
     if (this.isEditMode) {
-      this.utilisateurService.updateUser(this.userId, userData).subscribe({
+      this.utilisateurService.updateUtilisateur(this.userId, userData).subscribe({
         next: () => {
           this.router.navigate(['/users']);
         },
@@ -131,7 +160,7 @@ export class AddUtilisateurComponent implements OnInit {
         }
       });
     } else {
-      this.utilisateurService.createUser(userData).subscribe({
+      this.utilisateurService.createUtilisateur(userData).subscribe({
         next: () => {
           this.router.navigate(['/users']);
         },

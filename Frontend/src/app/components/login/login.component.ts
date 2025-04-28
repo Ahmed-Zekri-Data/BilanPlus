@@ -1,59 +1,81 @@
+// login.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('600ms ease-in', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('buttonClick', [
+      state('normal', style({ transform: 'scale(1)' })),
+      state('clicked', style({ transform: 'scale(0.95)' })),
+      transition('normal => clicked', animate('200ms ease-in')),
+      transition('clicked => normal', animate('200ms ease-out'))
+    ])
+  ]
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
-  error = '';
-  returnUrl: string;
+  errorMessage = '';
+  buttonState = 'normal';
 
   constructor(
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [false]
     });
-    
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   ngOnInit(): void {
-    // Se déconnecter automatiquement si déjà connecté
     if (this.authService.isLoggedIn()) {
-      this.authService.logout();
+      this.router.navigate(['/home']);
     }
   }
 
   onSubmit(): void {
     this.submitted = true;
+    this.errorMessage = '';
 
-    // Ne rien faire si le formulaire est invalide
     if (this.loginForm.invalid) {
       return;
     }
 
     this.loading = true;
-    this.authService.login({
-      email: this.loginForm.controls['email'].value,
-      password: this.loginForm.controls['password'].value
-    }).subscribe({
+    const credentials = this.loginForm.value;
+
+    this.authService.login(credentials).subscribe({
       next: () => {
-        this.router.navigate([this.returnUrl]);
+        this.loading = false;
+        this.router.navigate(['/home']);
       },
-      error: error => {
-        this.error = error;
+      error: (err: any) => {
+        this.errorMessage = err?.message || 'Email ou mot de passe invalide';
         this.loading = false;
       }
     });

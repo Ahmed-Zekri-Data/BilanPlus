@@ -1,69 +1,53 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Role } from '../Models/Role';
-import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
+
+interface RoleStats {
+  roleId: string;
+  roleName: string;
+  nombreUtilisateurs: number;
+  actifs: number;
+  inactifs: number;
+}
+
+interface PermissionsUsage {
+  [key: string]: any; // Adjust based on actual response structure
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoleService {
-  private apiUrl = 'http://localhost:3000/role'; // URL temporaire
+  private apiUrl = 'http://localhost:3000/role';
 
-  constructor( private http: HttpClient, 
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  private handleError(error: HttpErrorResponse) {
-    console.error('API Error:', error);
-    
-    if (error.status === 401 || error.status === 403) {
-      // Si erreur d'authentification, rediriger vers la page de connexion
-      this.authService.logout();
-      this.router.navigate(['/login']);
-      return throwError(() => 'Session expirée ou non autorisé. Veuillez vous reconnecter.');
-    }
-    
-    return throwError(() => error.error?.message || 'Une erreur est survenue');
-  }
-
-  getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(this.apiUrl).pipe(
-      map(roles => {
-        // Normaliser les IDs
-        return roles.map(role => {
-          role.id = role.id || role.id;
-          return role;
-        });
-      }),
-      catchError(this.handleError.bind(this))
-    );
+  getRoles(): Observable<Role[]> {
+    return this.http.get<Role[]>(`${this.apiUrl}/roles`);
   }
 
   getRoleById(id: string): Observable<Role> {
-    return this.http.get<Role>(`${this.apiUrl}/${id}`);
+    return this.http.get<Role>(`${this.apiUrl}/roles/${id}`);
   }
 
-  createRole(role: Role): Observable<{ message: string, role: Role }> {
-    return this.http.post<{ message: string, role: Role }>(this.apiUrl, role);
+  createRole(role: Role): Observable<Role> {
+    return this.http.post<Role>(`${this.apiUrl}/roles`, role);
   }
 
-  updateRole(id: string, role: Partial<Role>): Observable<{ message: string, role: Role }> {
-    return this.http.put<{ message: string, role: Role }>(`${this.apiUrl}/${id}`, role);
+  updateRole(id: string, role: Role): Observable<Role> {
+    return this.http.put<Role>(`${this.apiUrl}/roles/${id}`, role);
   }
 
-  deleteRole(id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  deleteRole(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/roles/${id}`);
   }
 
-  getUsersPerRole(): Observable<{ stats: { roleId: string, roleName: string, nombreUtilisateurs: number, actifs: number, inactifs: number }[] }> {
-    return this.http.get<{ stats: { roleId: string, roleName: string, nombreUtilisateurs: number, actifs: number, inactifs: number }[] }>(`${this.apiUrl}/stats`);
+  getUsersPerRole(): Observable<{ stats: RoleStats[] }> {
+    return this.http.get<{ stats: RoleStats[] }>(`${this.apiUrl}/users-per-role`);
   }
 
-  analysePermissionsUsage(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/permissions`);
+  analysePermissionsUsage(): Observable<PermissionsUsage> {
+    return this.http.get<PermissionsUsage>(`${this.apiUrl}/permissions-usage`);
   }
 }

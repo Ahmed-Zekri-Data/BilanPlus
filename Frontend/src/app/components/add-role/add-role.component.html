@@ -1,27 +1,30 @@
 <div class="role-form-container">
-  <div class="card">
+  <div class="card" @fadeIn>
     <div class="card-header">
       <h2>{{ isEditMode ? 'Modifier' : 'Créer' }} un rôle</h2>
     </div>
     
     <div class="card-body">
       <div *ngIf="loading" class="text-center mb-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Chargement...</span>
-        </div>
+        <mat-spinner diameter="40"></mat-spinner>
       </div>
       
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div class="alert alert-danger" *ngIf="error" @fadeInOut>
+        <mat-icon>error</mat-icon> {{ error }}
+      </div>
       
-      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" @slideIn>
         <div class="mb-3">
-          <label for="nom" class="form-label">Nom du rôle*</label>
-          <input 
-            type="text" 
-            formControlName="nom" 
-            class="form-control" 
-            [ngClass]="{ 'is-invalid': submitted && roleForm.controls['nom'].errors }" 
-          />
+          <label for="nom" class="form-label">Nom*</label>
+          <div class="input-wrapper">
+            <mat-icon class="input-icon">label</mat-icon>
+            <input 
+              type="text" 
+              formControlName="nom" 
+              class="form-control" 
+              [ngClass]="{ 'is-invalid': submitted && roleForm.controls['nom'].errors }" 
+            />
+          </div>
           <div *ngIf="submitted && roleForm.controls['nom'].errors" class="invalid-feedback">
             <div *ngIf="roleForm.controls['nom'].errors['required']">Le nom est requis</div>
           </div>
@@ -29,48 +32,45 @@
         
         <div class="mb-3">
           <label for="description" class="form-label">Description</label>
-          <textarea 
-            formControlName="description" 
-            class="form-control" 
-            rows="3"
-          ></textarea>
-        </div>
-        
-        <div class="mb-3">
-          <h4>Permissions</h4>
-          <div class="row">
-            <div class="col-md-4" *ngFor="let perm of permissionsList">
-              <div class="form-check">
-                <input 
-                  type="checkbox" 
-                  class="form-check-input" 
-                  [id]="perm" 
-                  [formControlName]="perm"
-                >
-                <label class="form-check-label" [for]="perm">
-                  {{ getPermissionLabel(perm) }}
-                </label>
-              </div>
-            </div>
+          <div class="input-wrapper">
+            <mat-icon class="input-icon">description</mat-icon>
+            <textarea 
+              formControlName="description" 
+              class="form-control" 
+              rows="3"
+            ></textarea>
           </div>
         </div>
         
-        <div *ngIf="isEditMode" class="mb-3 form-check">
-          <input 
-            type="checkbox" 
-            formControlName="actif" 
-            class="form-check-input" 
-            id="actif"
-          >
-          <label class="form-check-label" for="actif">Rôle actif</label>
+        <div class="mb-3 form-check">
+          <input type="checkbox" formControlName="actif" class="form-check-input" id="actif">
+          <label class="form-check-label" for="actif">Actif</label>
         </div>
         
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
-            {{ isEditMode ? 'Mettre à jour' : 'Créer' }} le rôle
+          <button 
+            type="submit" 
+            mat-raised-button 
+            color="primary" 
+            [disabled]="loading"
+            [@buttonClick]="buttonState"
+            (mousedown)="buttonState = 'clicked'"
+            (mouseup)="buttonState = 'normal'"
+          >
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }} le rôle</span>
           </button>
-          <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+          <button 
+            type="button" 
+            mat-raised-button 
+            color="warn" 
+            (click)="cancel()"
+            [@buttonClick]="buttonState"
+            (mousedown)="buttonState = 'clicked'"
+            (mouseup)="buttonState = 'normal'"
+          >
+            Annuler
+          </button>
         </div>
       </form>
     </div>

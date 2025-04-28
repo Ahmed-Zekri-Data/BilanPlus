@@ -1,16 +1,14 @@
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const config = require("../Config/db.json"); // Import db.json for jwtSecret
 const Utilisateur = require("../Models/Utilisateur");
 const Role = require("../Models/Role");
-
-console.log('Auth.js: Loaded JWT_SECRET:', process.env.JWT_SECRET); // Debug
 
 const verifierToken = async (req, res, next) => {
   try {
     console.log('VerifierToken: Checking headers:', req.headers);
     const authHeader = req.headers.authorization || req.headers.Authorization;
     console.log('VerifierToken: Authorization header:', authHeader);
-    
+
     if (!authHeader) {
       return res.status(401).json({ message: "Accès refusé, en-tête Authorization manquant" });
     }
@@ -22,21 +20,17 @@ const verifierToken = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ message: "Accès refusé, token manquant" });
     }
-    
-    console.log('VerifierToken: Verifying token with JWT_SECRET:', process.env.JWT_SECRET);
+
+    console.log('VerifierToken: Verifying token with jwtSecret:', config.jwtSecret);
     let decoded;
     try {
-      const secret = process.env.JWT_SECRET || 'default-secret-for-debugging'; // Fallback for debugging
-      if (!process.env.JWT_SECRET) {
-        console.error('VerifierToken: JWT_SECRET is undefined, using fallback');
-      }
-      decoded = jwt.verify(token, secret);
+      decoded = jwt.verify(token, config.jwtSecret);
       console.log('VerifierToken: Token decoded successfully:', decoded);
     } catch (verifyErr) {
       console.error('VerifierToken: Token verification failed:', verifyErr.message, verifyErr.stack);
       throw verifyErr;
     }
-    
+
     const utilisateur = await Utilisateur.findById(decoded.id).populate('role');
     if (!utilisateur) {
       return res.status(401).json({ message: "Utilisateur non trouvé ou supprimé" });
@@ -44,7 +38,7 @@ const verifierToken = async (req, res, next) => {
     if (!utilisateur.actif) {
       return res.status(403).json({ message: "Compte désactivé. Contactez l'administrateur" });
     }
-    
+
     req.user = utilisateur;
     next();
   } catch (error) {

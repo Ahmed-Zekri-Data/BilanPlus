@@ -1,31 +1,29 @@
 <div class="container mt-4">
-  <h1>Détails du rôle</h1>
-  <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
-  <div class="card" *ngIf="role">
+  <div class="card" *ngIf="!loading && role">
+    <div class="card-header">
+      <h2>Détails du Rôle</h2>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">{{ role.nom }}</h5>
-      <div class="card-text">
-        <p><strong>Description :</strong> {{ role.description || 'Aucune description' }}</p>
-        <p><strong>ID :</strong> {{ role.id }}</p>
-        <p><strong>Date de création :</strong> {{ role.dateCreation | date:'medium' }}</p>
-        <p><strong>Actif :</strong> {{ role.actif ? 'Oui' : 'Non' }}</p>
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
       </div>
-      <div class="mt-4">
-        <h6>Permissions</h6>
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let perm of permissionsList">
-            {{ perm }}
-            <i [class]="role.permissions[perm] ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle-fill text-danger'"></i>
-          </li>
-        </ul>
+      <div *ngIf="loading" class="text-center">
+        <mat-spinner diameter="40"></mat-spinner>
       </div>
-      <div class="mt-3">
-        <button class="btn btn-primary me-2" (click)="editRole()">Modifier</button>
-        <button class="btn btn-secondary" (click)="goBack()">Retour</button>
+      <div *ngIf="role">
+        <p><strong>Nom:</strong> {{ role.nom }}</p>
+        <p><strong>Description:</strong> {{ role.description || 'Aucune description' }}</p>
+        <p>
+          <strong>Statut:</strong>
+          <span class="badge" [ngClass]="role.actif ? 'bg-success' : 'bg-danger'">
+            {{ role.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </p>
+        <p><strong>Date de création:</strong> {{ role.dateCreation | date:'dd/MM/yyyy' }}</p>
       </div>
     </div>
-  </div>
-  <div class="alert alert-info mt-3" *ngIf="!role && !errorMessage">
-    Chargement des détails en cours...
+    <div class="card-footer">
+      <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+    </div>
   </div>
 </div>

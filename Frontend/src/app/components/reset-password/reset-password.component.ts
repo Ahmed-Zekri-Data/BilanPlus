@@ -1,3 +1,4 @@
+// reset-password.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,8 +32,7 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.params['token'];
-    
+    this.token = this.route.snapshot.queryParams['token'] || '';
     if (!this.token) {
       this.router.navigate(['/login']);
     }
@@ -74,8 +74,8 @@ export class ResetPasswordComponent implements OnInit {
           this.router.navigate(['/login']);
         }, 3000);
       },
-      error: error => {
-        this.error = error.error.message || 'Une erreur est survenue';
+      error: (err: any) => { // Ajout du type 'any'
+        this.error = err?.message || 'Une erreur est survenue';
         this.loading = false;
       }
     });

@@ -1,21 +1,87 @@
-<div class="container">
-  <h2>Liste des Utilisateurs</h2>
-  <div class="mb-3">
-    <button class="btn btn-success" (click)="goToAddUser()">Ajouter Utilisateur</button>
+<div class="users-container">
+  <div class="users-header" @fadeIn>
+    <h1>Liste des Utilisateurs</h1>
+    <div class="action-buttons">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="goToAddUser()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>add</mat-icon> Ajouter Utilisateur
+      </button>
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="analyseUserActivity()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>analytics</mat-icon> Analyser Activité
+      </button>
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="exportToCSV()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>file_download</mat-icon> Exporter en CSV
+      </button>
+    </div>
   </div>
-  <div class="row">
-    <div class="col-md-4" *ngFor="let user of User">
-      <div class="card text-blue mb-3" style="max-width: 18rem;">
-        <div class="card-header">Utilisateur</div>
-        <div class="card-body">
-          <h5 class="card-title">Nom: {{ user.nom }}</h5>
-          <p class="card-text">Email: {{ user.email }}</p>
-          <p class="card-text">Rôle: {{ getRoleName(user) }}</p>
-          <button *ngIf="user._id" class="btn btn-sm btn-info me-1" (click)="viewUser(user._id)">Détails</button>
-          <button *ngIf="user._id" class="btn btn-sm btn-primary me-1" (click)="editUser(user._id)">Modifier</button>
-          <button *ngIf="user._id" class="btn btn-sm btn-danger" (click)="deleteUser(user._id)">Supprimer</button>
-        </div>
+
+  <!-- Message d'erreur -->
+  <div class="alert alert-danger" *ngIf="errorMessage" @fadeInOut>
+    <mat-icon>error</mat-icon> {{ errorMessage }}
+  </div>
+
+  <!-- Liste des utilisateurs -->
+  <div class="users-grid" *ngIf="utilisateurs.length > 0; else noUsers" @slideIn>
+    <div class="user-card" *ngFor="let user of utilisateurs">
+      <div class="card-content">
+        <h5>{{ user.nom }} {{ user.prenom }}</h5>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Rôle:</strong> {{ getRoleName(user) }}</p>
+        <p><strong>Statut:</strong> 
+          <span class="badge" [ngClass]="user.actif ? 'bg-success' : 'bg-danger'">
+            {{ user.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </p>
+      </div>
+      <div class="card-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="viewUser(user._id!)"
+          [@buttonClick]="buttonState"
+          (mousedown)="buttonState = 'clicked'"
+          (mouseup)="buttonState = 'normal'"
+        >
+          <mat-icon>visibility</mat-icon> Détails
+        </button>
+        <button 
+          mat-raised-button 
+          color="warn" 
+          (click)="deleteUser(user._id!)"
+          [@buttonClick]="buttonState"
+          (mousedown)="buttonState = 'clicked'"
+          (mouseup)="buttonState = 'normal'"
+        >
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Message si aucun utilisateur -->
+  <ng-template #noUsers>
+    <div class="alert alert-info" *ngIf="!errorMessage" @fadeInOut>
+      Aucun utilisateur disponible pour le moment.
+    </div>
+  </ng-template>
 </div>

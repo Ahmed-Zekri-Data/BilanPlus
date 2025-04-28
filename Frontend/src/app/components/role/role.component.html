@@ -1,112 +1,156 @@
 <div class="roles-container">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Gestion des Rôles</h2>
-      <div>
-        <button class="btn btn-info me-2" (click)="loadRoleStats()">
-          <i class="bi bi-bar-chart"></i> Statistiques
-        </button>
-        <button class="btn btn-success" routerLink="/roles/create">
-          <i class="bi bi-plus-circle"></i> Nouveau Rôle
-        </button>
-      </div>
+  <div class="roles-header" @fadeIn>
+    <h1>Gestion des Rôles</h1>
+    <div class="action-buttons">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        routerLink="/roles/create"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>add</mat-icon> Nouveau Rôle
+      </button>
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="loadRoleStats()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>bar_chart</mat-icon> Statistiques
+      </button>
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="analysePermissionsUsage()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>security</mat-icon> Analyser Permissions
+      </button>
     </div>
+  </div>
 
-    <div class="card-body">
-      <div *ngIf="statsVisible" class="stats-container mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3>Statistiques des utilisateurs par rôle</h3>
-          <button class="btn btn-sm btn-outline-secondary" (click)="hideStats()">
-            <i class="bi bi-x"></i> Fermer
-          </button>
-        </div>
-        
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Rôle</th>
-                <th>Nombre d'utilisateurs</th>
-                <th>Actifs</th>
-                <th>Inactifs</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let stat of roleStats">
-                <td>{{ stat.roleName }}</td>
-                <td>{{ stat.nombreUtilisateurs }}</td>
-                <td>{{ stat.actifs }}</td>
-                <td>{{ stat.inactifs }}</td>
-              </tr>
-              <tr *ngIf="roleStats && roleStats.length === 0">
-                <td colspan="4" class="text-center">Aucune donnée disponible</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <!-- Statistiques -->
+  <div *ngIf="statsVisible" class="stats-container" @fadeInOut>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Statistiques des utilisateurs par rôle</h3>
+      <button 
+        mat-raised-button 
+        color="warn" 
+        (click)="hideStats()"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>close</mat-icon> Fermer
+      </button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Rôle</th>
+            <th>Nombre d'utilisateurs</th>
+            <th>Actifs</th>
+            <th>Inactifs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stat of roleStats">
+            <td>{{ stat.roleName }}</td>
+            <td>{{ stat.nombreUtilisateurs }}</td>
+            <td>{{ stat.actifs }}</td>
+            <td>{{ stat.inactifs }}</td>
+          </tr>
+          <tr *ngIf="roleStats && roleStats.length === 0">
+            <td colspan="4" class="text-center">Aucune donnée disponible</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Filtre de recherche -->
+  <div class="form-group" @fadeIn>
+    <div class="input-group mb-3">
+      <span class="input-group-text"><mat-icon>search</mat-icon></span>
+      <input 
+        type="text" 
+        class="form-control" 
+        placeholder="Rechercher un rôle..." 
+        [(ngModel)]="searchTerm"
+        (keyup)="applyFilter()"
+      >
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="text-center">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="alert alert-danger" *ngIf="error" @fadeInOut>
+    <mat-icon>error</mat-icon> {{ error }}
+  </div>
+
+  <!-- Liste des rôles -->
+  <div class="roles-grid" *ngIf="filteredRoles.length > 0; else noRoles" @slideIn>
+    <div class="role-card" *ngFor="let role of filteredRoles">
+      <div class="card-content">
+        <h5>{{ role.nom }}</h5>
+        <p><strong>Description:</strong> {{ role.description || 'Aucune description' }}</p>
+        <p><strong>Statut:</strong> 
+          <span class="badge" [ngClass]="role.actif ? 'bg-success' : 'bg-danger'">
+            {{ role.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </p>
+        <p><strong>Date de création:</strong> {{ role.dateCreation | date:'dd/MM/yyyy' }}</p>
       </div>
-
-      <div class="form-group">
-        <div class="input-group mb-3">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input 
-            type="text" 
-            class="form-control" 
-            placeholder="Rechercher un rôle..." 
-            [(ngModel)]="searchTerm"
-            (keyup)="applyFilter()"
-          >
-        </div>
-      </div>
-
-      <div *ngIf="loading" class="text-center">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Chargement...</span>
-        </div>
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Description</th>
-              <th>Statut</th>
-              <th>Date de création</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let role of filteredRoles">
-              <td>{{ role.nom }}</td>
-              <td>{{ role.description || 'Aucune description' }}</td>
-              <td>
-                <span class="badge" [ngClass]="role.actif ? 'bg-success' : 'bg-danger'">
-                  {{ role.actif ? 'Actif' : 'Inactif' }}
-                </span>
-              </td>
-              <td>{{ role.dateCreation | date:'dd/MM/yyyy' }}</td>
-              <td>
-                <button *ngIf="role.id" class="btn btn-sm btn-info me-1" (click)="viewRole(role.id)">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button *ngIf="role.id" class="btn btn-sm btn-primary me-1" (click)="editRole(role.id)">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button *ngIf="role.id" class="btn btn-sm btn-danger" (click)="deleteRole(role.id)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div *ngIf="!loading && filteredRoles.length === 0" class="text-center p-3">
-        <p>Aucun rôle trouvé</p>
+      <div class="card-actions">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="viewRole(role.id!)"
+          [@buttonClick]="buttonState"
+          (mousedown)="buttonState = 'clicked'"
+          (mouseup)="buttonState = 'normal'"
+        >
+          <mat-icon>visibility</mat-icon> Détails
+        </button>
+        <button 
+          mat-raised-button 
+          color="accent" 
+          (click)="editRole(role.id!)"
+          [@buttonClick]="buttonState"
+          (mousedown)="buttonState = 'clicked'"
+          (mouseup)="buttonState = 'normal'"
+        >
+          <mat-icon>edit</mat-icon> Modifier
+        </button>
+        <button 
+          mat-raised-button 
+          color="warn" 
+          (click)="deleteRole(role.id!)"
+          [@buttonClick]="buttonState"
+          (mousedown)="buttonState = 'clicked'"
+          (mouseup)="buttonState = 'normal'"
+        >
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Message si aucun rôle -->
+  <ng-template #noRoles>
+    <div class="alert alert-info" *ngIf="!loading && !error" @fadeInOut>
+      Aucun rôle trouvé.
+    </div>
+  </ng-template>
 </div>

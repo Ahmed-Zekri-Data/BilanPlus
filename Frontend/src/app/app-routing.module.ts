@@ -1,65 +1,39 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
-// Imports from Gestion_de_stock branch
-import { MSComponent } from './components/ms/ms.component';
-import { ProduitComponent } from './components/produit.component';
-
-// Imports from main/feature branches
 import { HomeComponent } from './home/home.component';
-import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
-import { CompteListComponent } from './components/compte-list/compte-list.component';
-import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { ProduitsComponent } from './components/produits/produits.component';
+import { LoginComponent } from './components/login/login.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
-import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
-import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { ListDFComponent } from './components/list-df/list-df.component';
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
-import { DFDetailComponent } from './components/df-detail/df-detail.component';
-// Assuming these components exist based on the routes
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { DFFormComponent } from './components/df-form/df-form.component';
+import { AuthGuard } from './guards/auth.guards';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { CompteListComponent } from './components/compte-list/compte-list.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent }, // Using HomeComponent as default
-  {
-    path: 'gestion-comptable',
-    component: GestionComptableComponent,
-    children: [
-      { path: 'comptes', component: CompteListComponent },
-      { path: 'ecritures', component: EcritureListComponent },
-      { path: '', redirectTo: 'comptes', pathMatch: 'full' }
-    ]
-  },
-  { path: 'produits', component: ProduitsComponent }, // From main
-  { path: 'produit', component: ProduitComponent },   // From Gestion_de_stock (renamed to avoid conflict)
-  { path: 'stock-movements', component: MSComponent },
-  { path: 'commandes', component: CommandesComponent },
-  { path: 'fournisseurs', component: FournisseursComponent },
-  { path: 'TVA', component: ListTVAComponent },
-  { path: 'getTVA/:id', component: TvaDetailComponent },
-  { path: 'updatetva/:id', component: TvaFormComponent },
-  { path: 'addtva', component: TvaFormComponent },
-  { path: 'DF', component: ListDFComponent },
-  { path: 'addDF', component: DFFormComponent },
-  { path: 'UpdateDF/:id', component: DFFormComponent },
-  { path: 'getDF/:id', component: DFDetailComponent },
-  { path: 'utilisateurs', component: UtilisateurComponent },
-  { path: 'utilisateur/add', component: AddUtilisateurComponent },
-  { path: 'utilisateur/edit/:id', component: AddUtilisateurComponent },
-  { path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent },
-  { path: 'roles', component: RoleComponent },
-  { path: 'role/add', component: AddRoleComponent },
-  { path: 'role/edit/:id', component: AddRoleComponent },
-  { path: 'role/details/:id', component: RoleDetailsComponent },
-  { path: '**', redirectTo: '' } // Wildcard route
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'utilisateurs', component: UtilisateurComponent, canActivate: [AuthGuard] },
+  { path: 'utilisateur/add', component: AddUtilisateurComponent, canActivate: [AuthGuard] },
+  { path: 'utilisateur/edit/:id', component: AddUtilisateurComponent, canActivate: [AuthGuard] },
+  { path: 'utilisateur/details/:id', component: UtilisateurDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'roles', component: RoleComponent, canActivate: [AuthGuard] },
+  { path: 'roles/create', component: AddRoleComponent, canActivate: [AuthGuard] },
+  { path: 'roles/edit/:id', component: AddRoleComponent, canActivate: [AuthGuard] },
+  { path: 'roles/view/:id', component: RoleDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'comptes', component: CompteListComponent, canActivate: [AuthGuard] },
+  { path: 'facturation', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'fournisseurs', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'stocks', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'gestion-comptable', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'declarations', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '/home' }
 ];
 
 @NgModule({

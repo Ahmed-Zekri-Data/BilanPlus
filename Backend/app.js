@@ -1,3 +1,10 @@
+require("dotenv").config();
+console.log('app.js: Loaded JWT_SECRET:', process.env.JWT_SECRET);
+console.log('app.js: Loaded EMAIL_HOST:', process.env.EMAIL_HOST);
+console.log('app.js: Loaded EMAIL_PORT:', process.env.EMAIL_PORT);
+console.log('app.js: Loaded EMAIL_USER:', process.env.EMAIL_USER);
+console.log('app.js: Loaded EMAIL_PASS:', process.env.EMAIL_PASS);
+
 const express = require("express");
 const http = require("http");
 const bodyParser = require("body-parser");
@@ -6,7 +13,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 const Utilisateur = require('./Models/Utilisateur');
-const Role = require('./Models/Role'); // Ensure this is included
+const Role = require('./Models/Role');
 const TVArouter = require("./Routes/TVAroute");
 const Userrouter = require("./Routes/UtilisateurRoute");
 const Rolerouter = require("./Routes/RolesRoute");
@@ -17,63 +24,70 @@ const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-const authRoutes = require("./Routes/AuthRoutes");
-require("dotenv").config();
-console.log('app.js: Loaded JWT_SECRET:', process.env.JWT_SECRET);
 const { errorHandlers } = require("./MiddleWare/errorHandler");
 
-// async function createAdmin() {
-//   try {
-//     let adminRole = await Role.findOne({ nom: 'Administrateur' });
-//     if (!adminRole) {
-//       adminRole = new Role({
-//         nom: 'Administrateur',
-//         description: 'Accès complet au système',
-//         permissions: {
-//           gestionUtilisateurs: true,
-//           gestionRoles: true,
-//           gestionClients: true,
-//           gestionFournisseurs: true,
-//           gestionFactures: true,
-//           gestionComptabilite: true,
-//           gestionBilans: true,
-//           gestionDeclarations: true,
-//           rapportsAvances: true,
-//           parametresSysteme: true
-//         }
-//       });
-//       await adminRole.save();
-//       console.log('Rôle Administrateur créé');
-//     }
-
-//     const adminUser = await Utilisateur.findOne({ email: 'admin@bilanplus.com' });
-//     if (!adminUser) {
-//       const hashedPassword = await bcrypt.hash('admin123', 10);
-//       const admin = new Utilisateur({
-//         nom: 'Admin',
-//         prenom: 'Super',
-//         email: 'admin@bilanplus.com',
-//         password: hashedPassword,
-//         role: adminRole._id,
-//         actif: true
-//       });
-//       await admin.save();
-//       console.log('Utilisateur admin créé');
-//     } else {
-//       console.log('Utilisateur admin existe déjà');
-//     }
-//   } catch (err) {
-//     console.error('Erreur lors de la création de l\'admin:', err);
-//   }
-// }
+const port = process.env.PORT || 3000;
 
 mongoose
   .connect(process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/BilanPlus')
   .then(async () => {
     console.log("Database connected");
-    //await createAdmin();
+    await createAdmin();
   })
   .catch((err) => console.error("Database not connected:", err));
+
+async function createAdmin() {
+  try {
+    console.log('Début de createAdmin()');
+    let adminRole = await Role.findOne({ nom: 'Administrateur' });
+    if (!adminRole) {
+      console.log('Rôle Administrateur non trouvé, création...');
+      adminRole = new Role({
+        nom: 'Administrateur',
+        description: 'Accès complet au système',
+        permissions: {
+          gestionUtilisateurs: true,
+          gestionRoles: true,
+          gestionClients: true,
+          gestionFournisseurs: true,
+          gestionFactures: true,
+          gestionComptabilite: true,
+          gestionBilans: true,
+          gestionDeclarations: true,
+          rapportsAvances: true,
+          parametresSysteme: true
+        },
+        dateCreation: new Date(),
+        actif: true
+      });
+      await adminRole.save();
+      console.log('Rôle Administrateur créé:', adminRole._id);
+    } else {
+      console.log('Rôle Administrateur trouvé:', adminRole._id);
+    }
+
+    // Forcer la recréation de admin@bilanplus.com
+    await Utilisateur.deleteOne({ email: 'admin@bilanplus.com' });
+    console.log('Ancien utilisateur admin@bilanplus.com supprimé (s\'il existait)');
+
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const admin = new Utilisateur({
+      nom: 'Admin',
+      prenom: 'Super',
+      email: 'admin@bilanplus.com',
+      password: hashedPassword,
+      role: adminRole._id,
+      actif: true,
+      tentativesConnexion: 0,
+      dateCreation: new Date(),
+      preferences: { theme: 'light', langue: 'fr', notificationsEmail: true }
+    });
+    await admin.save();
+    console.log('Utilisateur admin@bilanplus.com créé avec succès');
+  } catch (err) {
+    console.error('Erreur lors de la création de l\'admin:', err);
+  }
+}
 
 const app = express();
 
@@ -97,7 +111,6 @@ app.use("/MS", MSrouter);
 app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
-app.use("/auth", authRoutes);
 
 app.use(errorHandlers);
 

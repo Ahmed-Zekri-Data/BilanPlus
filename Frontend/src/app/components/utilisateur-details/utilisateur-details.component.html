@@ -1,47 +1,18 @@
 <div class="container mt-4">
-  <h1>Détails de l'utilisateur</h1>
-  <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
-  <div class="card" *ngIf="utilisateur">
+  <div class="card" *ngIf="!loading && utilisateur">
     <div class="card-body">
       <h5 class="card-title">{{ utilisateur.nom }}</h5>
-      <div class="card-text">
-        <p><strong>Email :</strong> {{ utilisateur.email }}</p>
-        <p><strong>Rôle :</strong> 
-          <span class="info-value">{{ getRoleName() }}</span>
-        </p>
-        <p><strong>ID :</strong> {{ utilisateur._id }}</p>
-      </div>
-      <div class="mt-3">
+      <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+      <p><strong>ID :</strong> {{ utilisateur._id }}</p>
+      <div class="preferences">
         <h6>Préférences</h6>
-        <p>
-          <strong>Thème :</strong>
-          <span class="info-value">{{ utilisateur.preferences?.theme === 'light' ? 'Clair' : 'Sombre' }}</span>
-        </p>
-        <p>
-          <strong>Langue :</strong>
-          <span class="info-value">{{ utilisateur.preferences?.langue === 'fr' ? 'Français' : 'Anglais' }}</span>
-        </p>
-        <p>
-          <strong>Notifications par email :</strong>
-          <span class="info-value">{{ utilisateur.preferences?.notificationsEmail ? 'Activées' : 'Désactivées' }}</span>
-        </p>
-      </div>
-      <div class="mt-4" *ngIf="hasRolePermissions()">
-        <h6>Permissions du rôle</h6>
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let perm of permissionsList">
-            {{ perm }}
-            <i [class]="hasPermission(perm) ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle-fill text-danger'"></i>
-          </li>
-        </ul>
-      </div>
-      <div class="mt-3">
-        <button class="btn btn-primary me-2" (click)="editUser()">Modifier</button>
-        <button class="btn btn-secondary" (click)="goBack()">Retour</button>
+        <p><strong>Thème :</strong> <span class="info-value">{{ utilisateur.preferences?.theme === 'light' ? 'Clair' : 'Sombre' }}</span></p>
+        <p><strong>Langue :</strong> <span class="info-value">{{ utilisateur.preferences?.langue === 'fr' ? 'Français' : 'Anglais' }}</span></p>
+        <p><strong>Notifications Email :</strong> <span class="info-value">{{ utilisateur.preferences?.notificationsEmail ? 'Activées' : 'Désactivées' }}</span></p>
       </div>
     </div>
-  </div>
-  <div class="alert alert-info mt-3" *ngIf="!utilisateur && !errorMessage">
-    Chargement des détails en cours...
+    <div class="card-footer">
+      <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+    </div>
   </div>
 </div>

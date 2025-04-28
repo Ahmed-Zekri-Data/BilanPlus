@@ -4,15 +4,13 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  message: string;
   token: string;
-  utilisateur: {
+  user: {
     id: string;
-    nom: string;
-    prenom: string;
     email: string;
-    role: string;
-  } | null;
+    nom: string;
+    role: string | any; // Ajustez selon votre modèle
+  };
 }
 
 export interface PasswordResetRequest {

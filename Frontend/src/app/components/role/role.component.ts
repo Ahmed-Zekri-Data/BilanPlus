@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Role } from '../../Models/Role';
 import { RoleService } from '../../services/role.service';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 interface RoleStats {
   roleId: string;
@@ -11,10 +12,43 @@ interface RoleStats {
   inactifs: number;
 }
 
+interface PermissionsUsage {
+  [key: string]: any; // Adjust based on actual response structure
+}
+
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
-  styleUrls: ['./role.component.css']
+  styleUrls: ['./role.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('1000ms ease-in', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(50px)' }),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('buttonClick', [
+      state('normal', style({ transform: 'scale(1)' })),
+      state('clicked', style({ transform: 'scale(0.95)' })),
+      transition('normal => clicked', animate('200ms ease-in')),
+      transition('clicked => normal', animate('200ms ease-out'))
+    ])
+  ]
 })
 export class RoleComponent implements OnInit {
   roles: Role[] = [];
@@ -24,6 +58,7 @@ export class RoleComponent implements OnInit {
   filteredRoles: Role[] = [];
   statsVisible = false;
   roleStats: RoleStats[] = [];
+  buttonState = 'normal';
 
   constructor(
     private roleService: RoleService,
@@ -36,7 +71,7 @@ export class RoleComponent implements OnInit {
 
   loadRoles(): void {
     this.loading = true;
-    this.roleService.getAllRoles().subscribe({
+    this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
         this.roles = data;
         this.filteredRoles = [...this.roles];
@@ -105,5 +140,20 @@ export class RoleComponent implements OnInit {
 
   hideStats(): void {
     this.statsVisible = false;
+  }
+
+  analysePermissionsUsage(): void {
+    this.loading = true;
+    this.roleService.analysePermissionsUsage().subscribe({
+      next: (data: PermissionsUsage) => {
+        console.log('Analyse des permissions:', data);
+        alert('Analyse des permissions terminée. Vérifiez la console pour les détails.');
+        this.loading = false;
+      },
+      error: (error: Error) => {
+        this.error = error.message || 'Erreur lors de l\'analyse des permissions';
+        this.loading = false;
+      }
+    });
   }
 }

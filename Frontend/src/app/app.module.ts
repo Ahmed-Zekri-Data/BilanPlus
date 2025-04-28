@@ -1,102 +1,84 @@
+// app.module.ts
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule  , ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { CommonModule} from '@angular/common';
-import { AppRoutingModule } from './app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TokenInterceptorService } from './services/token-interceptor.service';
-
-
-// Importation des composants
 import { HomeComponent } from './home/home.component';
-import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { ProduitComponent } from './components/produit.component';
-import { CompteListComponent } from './components/compte-list/compte-list.component';
-import { CompteFormComponent } from './components/compte-form/compte-form.component';
-import { EcritureListComponent } from './components/ecriture-list/ecriture-list.component';
-import { EcritureFormComponent } from './components/ecriture-form/ecriture-form.component';
-import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { ProduitsComponent } from './components/produits/produits.component';
-import { ListDFComponent } from './components/list-df/list-df.component';
-import { DFFormComponent } from './components/df-form/df-form.component';
-import { MSComponent } from './components/ms/ms.component';
+import { LoginComponent } from './components/login/login.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
-import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
-import { RoleDetailsComponent } from './components/role-details/role-details.component';
-import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
-import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { AddRoleComponent } from './components/add-role/add-role.component';
+import { RoleDetailsComponent } from './components/role-details/role-details.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
-import { LoginComponent } from './components/login/login.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { CompteListComponent } from './components/compte-list/compte-list.component';
+import { CompteFormComponent } from './components/compte-form/compte-form.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
+import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+
+import { AuthGuard } from './guards/auth.guards';
+import { TokenInterceptorService } from './services/token-interceptor.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    ListTVAComponent,
-    TvaDetailComponent,
-    TvaFormComponent,
-    ProduitComponent,
-    CompteListComponent,
-    CompteFormComponent,
-    EcritureListComponent,
-    EcritureFormComponent,
-    GestionComptableComponent,
-    FournisseursComponent,
-    CommandesComponent,
-    ProduitsComponent,
-    ListDFComponent,
-    DFFormComponent,
-    MSComponent,
+    LoginComponent,
     UtilisateurComponent,
     AddUtilisateurComponent,
-    UtilisateurDetailsComponent,
-    RoleDetailsComponent,
-    AddRoleComponent,
     RoleComponent,
-    DFDetailComponent,
+    AddRoleComponent,
+    RoleDetailsComponent,
     ForgotPasswordComponent,
-    LoginComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    CompteListComponent,
+    CompteFormComponent,
+    TvaFormComponent,
+    UtilisateurDetailsComponent
   ],
   imports: [
     BrowserModule,
-    CommonModule,
     AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
     HttpClientModule,
+    ReactiveFormsModule,
+    FormsModule,
     BrowserAnimationsModule,
+    CommonModule,
     MatToolbarModule,
+    MatIconModule,
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
-    MatIconModule,
     MatListModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCheckboxModule,
     MatSelectModule,
-    MatSnackBarModule
+    MatTableModule,
+    MatProgressSpinnerModule
   ],
   providers: [
+    AuthGuard,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptorService,
