@@ -42,6 +42,20 @@
           </div>
         </div>
         
+        <div class="mb-3">
+          <label class="form-label">Permissions</label>
+          <div class="permissions-list">
+            <div *ngFor="let permission of availablePermissions">
+              <mat-checkbox
+                [checked]="roleForm.value.permissions.includes(permission)"
+                (change)="togglePermission(permission)"
+              >
+                {{ permission }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+        
         <div class="mb-3 form-check">
           <input type="checkbox" formControlName="actif" class="form-check-input" id="actif">
           <label class="form-check-label" for="actif">Actif</label>

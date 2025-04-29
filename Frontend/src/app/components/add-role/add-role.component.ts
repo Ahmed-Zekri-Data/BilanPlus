@@ -46,6 +46,14 @@ export class AddRoleComponent implements OnInit {
   isEditMode = false;
   roleId: string | null = null;
   buttonState = 'normal';
+  availablePermissions = [
+    'users:view', 'users:manage',
+    'invoices:view', 'invoices:manage',
+    'suppliers:view', 'suppliers:manage',
+    'stocks:view', 'stocks:manage',
+    'accounting:view', 'accounting:manage',
+    'declarations:view', 'declarations:manage'
+  ];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -56,7 +64,8 @@ export class AddRoleComponent implements OnInit {
     this.roleForm = this.formBuilder.group({
       nom: ['', Validators.required],
       description: [''],
-      actif: [true]
+      actif: [true],
+      permissions: [[]] // Add permissions field
     });
   }
 
@@ -73,7 +82,12 @@ export class AddRoleComponent implements OnInit {
     this.loading = true;
     this.roleService.getRoleById(id).subscribe({
       next: (role) => {
-        this.roleForm.patchValue(role);
+        this.roleForm.patchValue({
+          nom: role.nom,
+          description: role.description || '',
+          actif: role.actif,
+          permissions: role.permissions || []
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -81,6 +95,14 @@ export class AddRoleComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  togglePermission(permission: string): void {
+    const permissions = this.roleForm.get('permissions')?.value || [];
+    const updatedPermissions = permissions.includes(permission)
+      ? permissions.filter((perm: string) => perm !== permission)
+      : [...permissions, permission];
+    this.roleForm.get('permissions')?.setValue(updatedPermissions);
   }
 
   onSubmit(): void {

@@ -1,4 +1,3 @@
-// utilisateur.component.ts
 import { Component, OnInit } from '@angular/core';
 import { UtilisateurService } from '../../services/utilisateur.service';
 import { Router } from '@angular/router';
@@ -61,10 +60,15 @@ export class UtilisateurComponent implements OnInit {
   loadUtilisateurs(): void {
     this.utilisateurService.getUtilisateurs().subscribe({
       next: (utilisateurs) => {
+        console.log('Utilisateurs reçus:', utilisateurs); // Debugging
         this.utilisateurs = utilisateurs;
+        if (!utilisateurs || utilisateurs.length === 0) {
+          this.errorMessage = 'Aucun utilisateur trouvé.';
+        }
       },
       error: (err: any) => {
-        this.errorMessage = err?.message || 'Erreur lors du chargement des utilisateurs.';
+        console.error('Erreur lors de la récupération des utilisateurs:', err);
+        this.errorMessage = err?.message || 'Erreur lors du chargement des utilisateurs. Vérifiez votre connexion ou l\'état du serveur.';
       }
     });
   }
@@ -72,6 +76,7 @@ export class UtilisateurComponent implements OnInit {
   loadRoles(): void {
     this.roleService.getRoles().subscribe({
       next: (roles) => {
+        console.log('Rôles reçus:', roles); // Debugging
         this.roles = roles;
       },
       error: (err: any) => {

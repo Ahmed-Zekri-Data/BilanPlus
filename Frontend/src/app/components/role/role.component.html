@@ -32,6 +32,16 @@
       >
         <mat-icon>security</mat-icon> Analyser Permissions
       </button>
+      <button 
+        mat-raised-button 
+        color="warn" 
+        routerLink="/home"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>arrow_back</mat-icon> Retour
+      </button>
     </div>
   </div>
 
@@ -111,6 +121,17 @@
           </span>
         </p>
         <p><strong>Date de création:</strong> {{ role.dateCreation | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Permissions:</strong></p>
+        <div class="permissions-list">
+          <div *ngFor="let permission of availablePermissions">
+            <mat-checkbox
+              [checked]="role.permissions?.includes(permission) || false"
+              (change)="togglePermission(role, permission)"
+            >
+              {{ permission }}
+            </mat-checkbox>
+          </div>
+        </div>
       </div>
       <div class="card-actions">
         <button 

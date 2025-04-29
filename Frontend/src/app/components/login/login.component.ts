@@ -1,4 +1,3 @@
-// login.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -39,6 +38,37 @@ export class LoginComponent implements OnInit {
   submitted = false;
   errorMessage = '';
   buttonState = 'normal';
+  currentLanguage = 'fr'; // Langue par défaut : français
+
+  // Traductions
+  translations: { [key: string]: { [key: string]: string } } = {
+    fr: {
+      welcome: 'Bonjour ! Bienvenue sur BilanPlus',
+      noAccount: 'Vous n\'avez pas encore de compte ?',
+      signUp: 'S\'inscrire',
+      signIn: 'Se connecter',
+      loginLabel: 'Identifiant ou email',
+      loginPlaceholder: 'Entrez votre email ou identifiant',
+      passwordLabel: 'Mot de passe',
+      passwordPlaceholder: 'Doit contenir au moins 8 caractères',
+      verify: 'Cliquez pour vérifier',
+      forgotPassword: 'Mot de passe oublié ?',
+      languageToggle: 'Passer à l\'anglais'
+    },
+    en: {
+      welcome: 'Hello! Welcome to BilanPlus',
+      noAccount: 'Don\'t have an account yet?',
+      signUp: 'Sign Up',
+      signIn: 'Sign In',
+      loginLabel: 'Login or email',
+      loginPlaceholder: 'Enter your login email',
+      passwordLabel: 'Password',
+      passwordPlaceholder: 'Must contain at least 8 symbols',
+      verify: 'Click to verify',
+      forgotPassword: 'Forgot Password?',
+      languageToggle: 'Switch to French'
+    }
+  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -58,6 +88,16 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  // Méthode pour basculer la langue
+  toggleLanguage(): void {
+    this.currentLanguage = this.currentLanguage === 'fr' ? 'en' : 'fr';
+  }
+
+  // Méthode pour obtenir le texte traduit
+  getTranslation(key: string): string {
+    return this.translations[this.currentLanguage][key];
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessage = '';
@@ -75,7 +115,14 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/home']);
       },
       error: (err: any) => {
-        this.errorMessage = err?.message || 'Email ou mot de passe invalide';
+        console.error('Erreur de connexion:', err);
+        if (err.status === 401) {
+          this.errorMessage = 'Email ou mot de passe incorrect.';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Impossible de se connecter au serveur. Vérifiez votre connexion ou l\'état du serveur.';
+        } else {
+          this.errorMessage = err?.message || 'Une erreur est survenue lors de la connexion.';
+        }
         this.loading = false;
       }
     });

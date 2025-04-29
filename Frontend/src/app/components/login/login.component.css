@@ -10,7 +10,11 @@
 /* Section gauche : Bienvenue */
 .welcome-section {
   flex: 1;
-  background-color: #1E3A8A; /* Bleu foncé de BilanPlus */
+  background-image: url('/assets/images/login-background.png'); /* Illustration comme arrière-plan */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1E3A8A; /* Bleu de BilanPlus comme couleur de fond */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -21,12 +25,17 @@
   text-align: center;
 }
 
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .logo {
   width: 150px;
   height: auto;
-  position: absolute;
-  top: 20px;
-  left: 20px;
+  margin-bottom: 20px;
+  background: none; /* Pas de fond pour le logo */
 }
 
 .welcome-section h1 {
@@ -52,16 +61,6 @@
 
 .signup-button:hover {
   background-color: #b8972f;
-}
-
-.illustration {
-  margin-top: 30px;
-}
-
-.illustration img {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
 }
 
 /* Section droite : Formulaire */
@@ -197,4 +196,22 @@ input::placeholder {
 
 .alert mat-icon {
   margin-right: 10px;
+}
+
+/* Bouton de traduction */
+.language-toggle {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.language-toggle button {
+  color: #D4AF37; /* Or de BilanPlus */
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.language-toggle button:hover {
+  color: #b8972f;
 }

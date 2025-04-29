@@ -32,6 +32,16 @@
       >
         <mat-icon>file_download</mat-icon> Exporter en CSV
       </button>
+      <button 
+        mat-raised-button 
+        color="warn" 
+        routerLink="/home"
+        [@buttonClick]="buttonState"
+        (mousedown)="buttonState = 'clicked'"
+        (mouseup)="buttonState = 'normal'"
+      >
+        <mat-icon>arrow_back</mat-icon> Retour
+      </button>
     </div>
   </div>
 

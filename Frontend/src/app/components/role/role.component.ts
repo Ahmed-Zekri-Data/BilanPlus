@@ -13,7 +13,7 @@ interface RoleStats {
 }
 
 interface PermissionsUsage {
-  [key: string]: any; // Adjust based on actual response structure
+  [key: string]: any;
 }
 
 @Component({
@@ -59,6 +59,14 @@ export class RoleComponent implements OnInit {
   statsVisible = false;
   roleStats: RoleStats[] = [];
   buttonState = 'normal';
+  availablePermissions = [
+    'users:view', 'users:manage',
+    'invoices:view', 'invoices:manage',
+    'suppliers:view', 'suppliers:manage',
+    'stocks:view', 'stocks:manage',
+    'accounting:view', 'accounting:manage',
+    'declarations:view', 'declarations:manage'
+  ];
 
   constructor(
     private roleService: RoleService,
@@ -73,7 +81,10 @@ export class RoleComponent implements OnInit {
     this.loading = true;
     this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
-        this.roles = data;
+        this.roles = data.map(role => ({
+          ...role,
+          permissions: role.permissions || [] // Ensure permissions array exists
+        }));
         this.filteredRoles = [...this.roles];
         this.loading = false;
       },
@@ -121,6 +132,39 @@ export class RoleComponent implements OnInit {
         }
       });
     }
+  }
+
+  updatePermissions(role: Role): void {
+    this.loading = true;
+    const roleId = role.id || role._id;
+    if (!roleId) {
+      this.error = 'ID du rôle manquant.';
+      this.loading = false;
+      return;
+    }
+    this.roleService.updateRole(roleId, role).subscribe({
+      next: () => {
+        this.loading = false;
+        this.loadRoles(); // Refresh the list to ensure consistency
+      },
+      error: (error: Error) => {
+        this.error = error.message || 'Erreur lors de la mise à jour des permissions';
+        this.loading = false;
+      }
+    });
+  }
+
+  togglePermission(role: Role, permission: string): void {
+    if (!role.permissions) {
+      role.permissions = [];
+    }
+    const index = role.permissions.indexOf(permission);
+    if (index === -1) {
+      role.permissions.push(permission);
+    } else {
+      role.permissions.splice(index, 1);
+    }
+    this.updatePermissions(role);
   }
 
   loadRoleStats(): void {

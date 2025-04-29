@@ -19,6 +19,15 @@
             {{ role.actif ? 'Actif' : 'Inactif' }}
           </span>
         </p>
+        <p><strong>Permissions:</strong></p>
+        <ul>
+          <li *ngFor="let permission of role.permissions">
+            {{ permission }}
+          </li>
+          <li *ngIf="!role.permissions || role.permissions.length === 0">
+            Aucune permission assignée.
+          </li>
+        </ul>
         <p><strong>Date de création:</strong> {{ role.dateCreation | date:'dd/MM/yyyy' }}</p>
       </div>
     </div>
