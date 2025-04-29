@@ -1,8 +1,7 @@
-import { Role } from './Role';
-
+import {Role} from "./Role"
 export interface Utilisateur {
   id?: string;
-  _id?: string; // Ajouté pour compatibilité MongoDB
+  _id?: string;
   nom: string;
   prenom?: string;
   email: string;
@@ -22,4 +21,8 @@ export interface Utilisateur {
   };
   resetPasswordToken?: string;
   resetPasswordExpires?: Date | string;
+}
+
+export interface UtilisateurResponse {
+  utilisateurs: Utilisateur[];
 }

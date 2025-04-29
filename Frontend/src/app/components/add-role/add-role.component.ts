@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { RoleService } from '../../services/role.service';
+import { Role } from '../../Models/Role';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
@@ -9,100 +10,89 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   templateUrl: './add-role.component.html',
   styleUrls: ['./add-role.component.css'],
   animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('1000ms ease-in', style({ opacity: 1 }))
-      ])
-    ]),
     trigger('slideIn', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(50px)' }),
-        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ]),
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('300ms ease-in', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-out', style({ opacity: 0 }))
+        style({ transform: 'translateY(20px)', opacity: 0 }),
+        animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
       ])
     ]),
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
-      transition('normal => clicked', animate('200ms ease-in')),
-      transition('clicked => normal', animate('200ms ease-out'))
+      transition('normal <=> clicked', animate('100ms ease-in'))
     ])
   ]
 })
 export class AddRoleComponent implements OnInit {
+  role: Partial<Role> = {
+    nom: '',
+    description: '',
+    actif: true,
+    permissions: [],
+    dateCreation: new Date()
+  };
   roleForm: FormGroup;
-  submitted = false;
-  loading = false;
-  error = '';
-  isEditMode = false;
+  error: string | null = null;
+  isEditMode: boolean = false;
   roleId: string | null = null;
-  buttonState = 'normal';
-  availablePermissions = [
+  submitted: boolean = false;
+  loading: boolean = false;
+  buttonState: string = 'normal';
+  availablePermissions: string[] = [
     'users:view', 'users:manage',
-    'invoices:view', 'invoices:manage',
+    'roles:view', 'roles:manage',
+    'clients:view', 'clients:manage',
     'suppliers:view', 'suppliers:manage',
-    'stocks:view', 'stocks:manage',
+    'invoices:view', 'invoices:manage',
     'accounting:view', 'accounting:manage',
-    'declarations:view', 'declarations:manage'
+    'reports:view', 'reports:manage',
+    'declarations:view', 'declarations:manage',
+    'advancedReports:view',
+    'system:manage'
   ];
 
   constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
+    private roleService: RoleService,
     private router: Router,
-    private roleService: RoleService
+    private fb: FormBuilder
   ) {
-    this.roleForm = this.formBuilder.group({
+    this.roleForm = this.fb.group({
       nom: ['', Validators.required],
       description: [''],
       actif: [true],
-      permissions: [[]] // Add permissions field
+      permissions: [[]]
     });
   }
 
   ngOnInit(): void {
-    this.roleId = this.route.snapshot.paramMap.get('id');
-    this.isEditMode = !!this.roleId;
-
-    if (this.isEditMode && this.roleId) {
-      this.loadRole(this.roleId);
+    const urlSegments = this.router.url.split('/');
+    if (urlSegments.includes('edit') && urlSegments.length > 3) {
+      this.isEditMode = true;
+      this.roleId = urlSegments[urlSegments.length - 1];
+      this.loadRole();
     }
   }
 
-  loadRole(id: string): void {
-    this.loading = true;
-    this.roleService.getRoleById(id).subscribe({
-      next: (role) => {
-        this.roleForm.patchValue({
-          nom: role.nom,
-          description: role.description || '',
-          actif: role.actif,
-          permissions: role.permissions || []
-        });
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err?.message || 'Erreur lors du chargement du rôle.';
-        this.loading = false;
-      }
-    });
-  }
-
-  togglePermission(permission: string): void {
-    const permissions = this.roleForm.get('permissions')?.value || [];
-    const updatedPermissions = permissions.includes(permission)
-      ? permissions.filter((perm: string) => perm !== permission)
-      : [...permissions, permission];
-    this.roleForm.get('permissions')?.setValue(updatedPermissions);
+  loadRole(): void {
+    if (this.roleId) {
+      this.loading = true;
+      this.roleService.getRoleById(this.roleId).subscribe({
+        next: (role: Role) => {
+          this.role = { ...role };
+          this.roleForm.patchValue({
+            nom: role.nom,
+            description: role.description,
+            actif: role.actif,
+            permissions: role.permissions || []
+          });
+          this.loading = false;
+        },
+        error: (err: any) => {
+          this.error = err.message || 'Erreur lors du chargement du rôle.';
+          this.loading = false;
+        }
+      });
+    }
   }
 
   onSubmit(): void {
@@ -112,29 +102,46 @@ export class AddRoleComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    const roleData = this.roleForm.value;
+    const formValue = this.roleForm.value;
+    const roleToSubmit: Partial<Role> = {
+      nom: formValue.nom,
+      description: formValue.description,
+      actif: formValue.actif,
+      permissions: formValue.permissions
+    };
 
+    this.loading = true;
     if (this.isEditMode && this.roleId) {
-      this.roleService.updateRole(this.roleId, roleData).subscribe({
+      this.roleService.updateRole(this.roleId, roleToSubmit).subscribe({
         next: () => {
+          this.loading = false;
           this.router.navigate(['/roles']);
         },
-        error: (err) => {
-          this.error = err?.message || 'Erreur lors de la mise à jour du rôle.';
+        error: (err: any) => {
+          this.error = err.message || 'Erreur lors de la mise à jour du rôle.';
           this.loading = false;
         }
       });
     } else {
-      this.roleService.createRole(roleData).subscribe({
+      this.roleService.createRole(roleToSubmit).subscribe({
         next: () => {
+          this.loading = false;
           this.router.navigate(['/roles']);
         },
-        error: (err) => {
-          this.error = err?.message || 'Erreur lors de la création du rôle.';
+        error: (err: any) => {
+          this.error = err.message || 'Erreur lors de la création du rôle.';
           this.loading = false;
         }
       });
+    }
+  }
+
+  togglePermission(permission: string): void {
+    const permissions = this.roleForm.get('permissions')?.value || [];
+    if (permissions.includes(permission)) {
+      this.roleForm.get('permissions')?.setValue(permissions.filter((p: string) => p !== permission));
+    } else {
+      this.roleForm.get('permissions')?.setValue([...permissions, permission]);
     }
   }
 

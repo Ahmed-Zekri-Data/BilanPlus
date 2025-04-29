@@ -1,20 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Role } from '../../Models/Role';
 import { RoleService } from '../../services/role.service';
+import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-
-interface RoleStats {
-  roleId: string;
-  roleName: string;
-  nombreUtilisateurs: number;
-  actifs: number;
-  inactifs: number;
-}
-
-interface PermissionsUsage {
-  [key: string]: any;
-}
+import { Role } from '../../Models/Role';
 
 @Component({
   selector: 'app-role',
@@ -24,13 +12,7 @@ interface PermissionsUsage {
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
-        animate('1000ms ease-in', style({ opacity: 1 }))
-      ])
-    ]),
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(50px)' }),
-        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        animate('300ms ease-in', style({ opacity: 1 }))
       ])
     ]),
     trigger('fadeInOut', [
@@ -42,36 +24,45 @@ interface PermissionsUsage {
         animate('300ms ease-out', style({ opacity: 0 }))
       ])
     ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateY(20px)', opacity: 0 }),
+        animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ]),
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
-      transition('normal => clicked', animate('200ms ease-in')),
-      transition('clicked => normal', animate('200ms ease-out'))
+      transition('normal <=> clicked', animate('100ms ease-in'))
     ])
   ]
 })
 export class RoleComponent implements OnInit {
   roles: Role[] = [];
-  loading = false;
-  error = '';
-  searchTerm = '';
   filteredRoles: Role[] = [];
-  statsVisible = false;
-  roleStats: RoleStats[] = [];
-  buttonState = 'normal';
-  availablePermissions = [
+  searchTerm: string = '';
+  loading: boolean = false;
+  error: string | null = null;
+  buttonState: string = 'normal';
+  statsVisible: boolean = false;
+  roleStats: any[] = [];
+  availablePermissions: string[] = [
     'users:view', 'users:manage',
-    'invoices:view', 'invoices:manage',
+    'roles:view', 'roles:manage',
+    'clients:view', 'clients:manage',
     'suppliers:view', 'suppliers:manage',
-    'stocks:view', 'stocks:manage',
+    'invoices:view', 'invoices:manage',
     'accounting:view', 'accounting:manage',
-    'declarations:view', 'declarations:manage'
+    'reports:view', 'reports:manage',
+    'declarations:view', 'declarations:manage',
+    'advancedReports:view',
+    'system:manage'
   ];
 
   constructor(
     private roleService: RoleService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadRoles();
@@ -81,122 +72,98 @@ export class RoleComponent implements OnInit {
     this.loading = true;
     this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
-        this.roles = data.map(role => ({
-          ...role,
-          permissions: role.permissions || [] // Ensure permissions array exists
-        }));
+        this.roles = data;
         this.filteredRoles = [...this.roles];
         this.loading = false;
+        this.error = null;
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Une erreur est survenue';
+      error: (err: any) => {
+        this.error = err.message || 'Erreur lors du chargement des rôles.';
         this.loading = false;
+        this.roles = [];
+        this.filteredRoles = [];
       }
     });
   }
 
   applyFilter(): void {
-    if (!this.searchTerm.trim()) {
+    if (!this.searchTerm) {
       this.filteredRoles = [...this.roles];
-      return;
-    }
-    
-    const searchTermLower = this.searchTerm.toLowerCase();
-    this.filteredRoles = this.roles.filter(role => 
-      role.nom.toLowerCase().includes(searchTermLower) ||
-      (role.description && role.description.toLowerCase().includes(searchTermLower))
-    );
-  }
-
-  editRole(id: string): void {
-    if (id) {
-      this.router.navigate(['/roles/edit', id]);
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredRoles = this.roles.filter(role =>
+        role.nom.toLowerCase().includes(term) ||
+        (role.description && role.description.toLowerCase().includes(term))
+      );
     }
   }
 
   viewRole(id: string): void {
-    if (id) {
-      this.router.navigate(['/roles/view', id]);
-    }
+    this.router.navigate([`/roles/view/${id}`]);
+  }
+
+  editRole(id: string): void {
+    this.router.navigate([`/roles/edit/${id}`]);
   }
 
   deleteRole(id: string): void {
-    if (!id) return;
-    if (confirm('Êtes-vous sûr de vouloir désactiver ce rôle ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')) {
       this.roleService.deleteRole(id).subscribe({
         next: () => {
           this.loadRoles();
         },
-        error: (error: Error) => {
-          this.error = error.message || 'Une erreur est survenue lors de la désactivation';
+        error: (err: any) => {
+          this.error = err.message || 'Erreur lors de la suppression du rôle.';
         }
       });
     }
   }
 
-  updatePermissions(role: Role): void {
-    this.loading = true;
-    const roleId = role.id || role._id;
-    if (!roleId) {
-      this.error = 'ID du rôle manquant.';
-      this.loading = false;
-      return;
+  togglePermission(role: Role, permission: string): void {
+    const permissions = role.permissions || [];
+    const permissionExists = permissions.includes(permission);
+    let updatedPermissions: string[];
+
+    if (permissionExists) {
+      updatedPermissions = permissions.filter(p => p !== permission);
+    } else {
+      updatedPermissions = [...permissions, permission];
     }
-    this.roleService.updateRole(roleId, role).subscribe({
+
+    this.roleService.updateRole(role._id || role.id || '', { permissions: updatedPermissions }).subscribe({
       next: () => {
-        this.loading = false;
-        this.loadRoles(); // Refresh the list to ensure consistency
+        this.loadRoles();
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Erreur lors de la mise à jour des permissions';
-        this.loading = false;
+      error: (err: any) => {
+        this.error = err.message || 'Erreur lors de la mise à jour des permissions.';
       }
     });
   }
 
-  togglePermission(role: Role, permission: string): void {
-    if (!role.permissions) {
-      role.permissions = [];
-    }
-    const index = role.permissions.indexOf(permission);
-    if (index === -1) {
-      role.permissions.push(permission);
-    } else {
-      role.permissions.splice(index, 1);
-    }
-    this.updatePermissions(role);
-  }
-
   loadRoleStats(): void {
-    this.loading = true;
     this.roleService.getUsersPerRole().subscribe({
-      next: (data: { stats: RoleStats[] }) => {
-        this.roleStats = data.stats;
+      next: (data: any[]) => {
+        this.roleStats = data;
         this.statsVisible = true;
-        this.loading = false;
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Erreur lors du chargement des statistiques';
-        this.loading = false;
+      error: (err: any) => {
+        this.error = err.message || 'Erreur lors du chargement des statistiques.';
       }
     });
   }
 
   hideStats(): void {
     this.statsVisible = false;
+    this.roleStats = [];
   }
 
   analysePermissionsUsage(): void {
-    this.loading = true;
     this.roleService.analysePermissionsUsage().subscribe({
-      next: (data: PermissionsUsage) => {
+      next: (data: any) => {
         console.log('Analyse des permissions:', data);
-        alert('Analyse des permissions terminée. Vérifiez la console pour les détails.');
-        this.loading = false;
       },
-      error: (error: Error) => {
-        this.error = error.message || 'Erreur lors de l\'analyse des permissions';
-        this.loading = false;
+      error: (err: any) => {
+        this.error = err.message || 'Erreur lors de l\'analyse des permissions.';
       }
     });
   }
