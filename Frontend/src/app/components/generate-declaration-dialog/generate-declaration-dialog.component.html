@@ -1,0 +1,148 @@
+<div mat-dialog-title>{{ isViewMode ? 'Détails de la Déclaration Fiscale' : 'Générer une Nouvelle Déclaration Fiscale' }}</div>
+<mat-dialog-content>
+  <form [formGroup]="declarationForm" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date de Début</mat-label>
+        <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut" [readonly]="isViewMode">
+        <mat-datepicker-toggle matSuffix [for]="pickerDebut" *ngIf="!isViewMode"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDebut></mat-datepicker>
+        <mat-error *ngIf="declarationForm.get('dateDebut')?.hasError('required')">
+          La date de début est obligatoire
+        </mat-error>
+        <mat-error *ngIf="declarationForm.get('dateDebut')?.hasError('dateRange')">
+          La date de début doit être antérieure à la date de fin
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date de Fin</mat-label>
+        <input matInput [matDatepicker]="pickerFin" formControlName="dateFin" [readonly]="isViewMode">
+        <mat-datepicker-toggle matSuffix [for]="pickerFin" *ngIf="!isViewMode"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFin></mat-datepicker>
+        <mat-error *ngIf="declarationForm.get('dateFin')?.hasError('required')">
+          La date de fin est obligatoire
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Type de Déclaration</mat-label>
+        <mat-select formControlName="type" [disabled]="isViewMode">
+          <mat-option value="mensuelle">Mensuelle</mat-option>
+          <mat-option value="trimestrielle">Trimestrielle</mat-option>
+          <mat-option value="annuelle">Annuelle</mat-option>
+        </mat-select>
+        <mat-error *ngIf="declarationForm.get('type')?.hasError('required')">
+          Le type de déclaration est obligatoire
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Compte Comptable</mat-label>
+        <mat-select formControlName="compteComptable" [disabled]="isViewMode">
+          <mat-option *ngFor="let compte of comptesComptables" [value]="compte._id">
+            {{ compte.numeroCompte }} - {{ compte.nom }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="declarationForm.get('compteComptable')?.hasError('required')">
+          Le compte comptable est obligatoire
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="errors.length > 0" class="error-container">
+      <h4>Erreur(s) :</h4>
+      <ul>
+        <li *ngFor="let error of errors">{{ error }}</li>
+      </ul>
+    </div>
+  </form>
+
+  <div *ngIf="generatedDeclaration" class="official-declaration-preview">
+    <div class="official-header">
+      <img src="assets/images/tunisian-logo.png.jpg" alt="Logo République Tunisienne" class="logo">
+      <h3>RÉPUBLIQUE TUNISIENNE</h3>
+      <h4>Ministère des Finances - Direction Générale des Impôts</h4>
+      <h2>DÉCLARATION FISCALE</h2>
+    </div>
+
+    <div class="section general-info">
+      <h4>Informations Générales</h4>
+      <table class="info-table">
+        <tr>
+          <td><strong>Période :</strong></td>
+          <td>{{ formatPeriode(generatedDeclaration.periode) }}</td>
+        </tr>
+        <tr *ngIf="generatedDeclaration.type">
+          <td><strong>Type :</strong></td>
+          <td>{{ generatedDeclaration.type | titlecase }}</td>
+        </tr>
+        <tr>
+          <td><strong>Statut :</strong></td>
+          <td>{{ generatedDeclaration.statut | titlecase }}</td>
+        </tr>
+        <tr>
+          <td><strong>Compte Comptable :</strong></td>
+          <td>{{ getCompteComptableNom(generatedDeclaration.compteComptable) }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section calculations" *ngIf="generatedDeclaration.detailsCalcul">
+      <h4>Détails des Calculs</h4>
+      <table class="calculation-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Montant (TND)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="generatedDeclaration.detailsCalcul.tva">
+            <td>TVA Collectée</td>
+            <td>{{ generatedDeclaration.detailsCalcul.tva.totalTVACollectee | number:'1.2-2' }} TND</td>
+          </tr>
+          <tr *ngIf="generatedDeclaration.detailsCalcul.tva">
+            <td>TVA Déductible</td>
+            <td>{{ generatedDeclaration.detailsCalcul.tva.totalTVADeductible | number:'1.2-2' }} TND</td>
+          </tr>
+          <tr *ngIf="generatedDeclaration.detailsCalcul.tva">
+            <td>Solde TVA</td>
+            <td>{{ generatedDeclaration.detailsCalcul.tva.soldeTVA | number:'1.2-2' }} TND</td>
+          </tr>
+          <tr *ngIf="generatedDeclaration.detailsCalcul.tcl">
+            <td>TCL (Taxe sur le Chiffre d'Affaires)</td>
+            <td>{{ generatedDeclaration.detailsCalcul.tcl.montantTCL | number:'1.2-2' }} TND</td>
+          </tr>
+          <tr *ngIf="generatedDeclaration.detailsCalcul.droitTimbre">
+            <td>Droit de Timbre</td>
+            <td>{{ generatedDeclaration.detailsCalcul.droitTimbre.totalDroitTimbre | number:'1.2-2' }} TND</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section total">
+      <h4>Montant Total</h4>
+      <div class="total-amount">
+        <strong>Montant Total à Payer :</strong> {{ generatedDeclaration.montantTotal | number:'1.2-2' }} TND
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Annuler</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="declarationForm.invalid || isSubmitting" *ngIf="!isViewMode">
+    Générer
+  </button>
+  <button mat-raised-button color="accent" (click)="exportToPDF()" *ngIf="generatedDeclaration">
+    Exporter en PDF
+  </button>
+</mat-dialog-actions>

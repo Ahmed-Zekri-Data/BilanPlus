@@ -9,28 +9,23 @@ import { TVA } from '../Models/TVA';
   providedIn: 'root'
 })
 export class DeclarationFiscaleTVAService {
-  private DFApiUrl = 'http://localhost:3000/DF'; 
-  private tvaApiUrl = 'http://localhost:3000/TVA'; 
+  private DFApiUrl = 'http://localhost:3000/df';
+  private tvaApiUrl = 'http://localhost:3000/tva';
 
   constructor(private http: HttpClient) { }
 
-  // Gestion des erreurs HTTP
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessages: string[] = [];
     if (error.status === 400 && error.error.errors) {
-      // Erreurs de validation renvoyées par le backend
       errorMessages = error.error.errors;
     } else {
-      // Autres erreurs (serveur, réseau, etc.)
       errorMessages = ['Une erreur est survenue : ' + error.message];
     }
     return throwError(() => errorMessages);
   }
 
-  // --- DeclarationFiscale Methods ---
-
   getDeclarations(): Observable<DeclarationFiscale[]> {
-    return this.http.get<DeclarationFiscale[]>(`${this.DFApiUrl}/getalldf`)
+    return this.http.get<DeclarationFiscale[]>(`${this.DFApiUrl}/getallDF`)
       .pipe(catchError(this.handleError));
   }
 
@@ -54,7 +49,25 @@ export class DeclarationFiscaleTVAService {
       .pipe(catchError(this.handleError));
   }
 
-  // --- TVA Methods ---
+  genererDeclarationFiscale(data: { dateDebut: string; dateFin: string; type: string; compteComptable: string }): Observable<any> {
+    return this.http.post<any>(`${this.DFApiUrl}/declaration/generer`, data)
+      .pipe(catchError(this.handleError));
+  }
+
+  verifierDelaisDeclaration(type: string, finPeriode: Date): Observable<any> {
+    return this.http.post<any>(`${this.DFApiUrl}/declaration/verification-delais`, { type, finPeriode })
+      .pipe(catchError(this.handleError));
+  }
+
+  soumettreDeclaration(declarationId: string): Observable<any> {
+    return this.http.put<any>(`${this.DFApiUrl}/declaration/soumettre/${declarationId}`, {})
+      .pipe(catchError(this.handleError));
+  }
+
+  genererFormulaireOfficiel(declarationId: string): Observable<any> {
+    return this.http.get<any>(`${this.DFApiUrl}/declaration/formulaire/${declarationId}`)
+      .pipe(catchError(this.handleError));
+  }
 
   getAllTVA(): Observable<TVA[]> {
     return this.http.get<TVA[]>(`${this.tvaApiUrl}/getallTVA`)

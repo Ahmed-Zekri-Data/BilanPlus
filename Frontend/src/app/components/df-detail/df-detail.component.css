@@ -1,0 +1,85 @@
+/* Conteneur principal avec fond texturé */
+.details-container {
+    padding: 40px;
+    min-height: 100vh;
+    background-image: url('https://www.transparenttextures.com/patterns/white-tiles.png'); /* Texture de carrelage blanc */
+    background-size: cover;
+    background-position: center;
+    font-family: 'Roboto', Arial, sans-serif;
+  }
+  
+  /* Titre */
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  
+  /* Conteneur des détails */
+  .details-content {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.9); /* Fond blanc semi-transparent pour contraste */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Chaque élément de détail (clé-valeur) */
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Étiquette (clé) */
+  .detail-item .label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #555;
+    text-transform: uppercase;
+  }
+  
+  /* Valeur */
+  .detail-item .value {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: right;
+  }
+  
+  /* Conteneur des actions (boutons) */
+  .actions {
+    max-width: 800px;
+    margin: 30px auto;
+    text-align: center;
+  }
+  
+  /* Boutons */
+  .actions button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s ease-in-out;
+  }
+  
+  .actions button:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Message d'erreur ou de chargement */
+  .loading, .no-data {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin: 20px 0;
+  }

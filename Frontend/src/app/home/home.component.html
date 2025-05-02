@@ -23,7 +23,7 @@
         <button mat-raised-button color="accent" routerLink="/fournisseurs">Fournisseurs</button>
         <button mat-raised-button color="accent" routerLink="/stocks">Stocks</button>
         <button mat-raised-button color="accent" routerLink="/gestion-comptable">Gestion Comptable</button>
-        <button mat-raised-button color="accent" routerLink="/declarations">Déclarations</button>
+        <button mat-raised-button color="accent" routerLink="/list-declarations">Déclarations</button>
       </div>
     </mat-toolbar>
 
@@ -103,7 +103,7 @@
             Calcul automatique de la TVA, génération des déclarations, alertes pour les délais.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/declarations" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Déclarations</button>
+            <button mat-button color="primary" routerLink="/list-declarations" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Déclarations</button>
           </mat-card-actions>
         </mat-card>
       </div>

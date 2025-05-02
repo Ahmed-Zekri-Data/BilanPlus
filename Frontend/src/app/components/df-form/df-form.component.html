@@ -1,16 +1,24 @@
-<div *ngIf="isEditMode && !declaration._id ? loading : true">
-  <h2>{{ isEditMode ? 'Edit Declaration Fiscale' : 'Add New Declaration Fiscale' }}</h2>
+<div *ngIf="isEditMode && !declaration._id && isLoading ? loading : true">
+  <h2>
+    {{ isGenerateMode ? 'Generate Declaration Fiscale' : (isEditMode ? 'Edit Declaration Fiscale' : 'Add New Declaration Fiscale') }}
+  </h2>
 
   <form (ngSubmit)="saveDeclaration()">
     <div class="form-group">
-      <label for="periode">Periode:</label>
-      <input
-        type="text"
-        id="periode"
-        name="periode"
-        [(ngModel)]="declaration.periode"
-        required
-      />
+      <label for="periode">Période:</label>
+      <mat-form-field appearance="fill">
+        <mat-label>Choisir une période (année-mois)</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [(ngModel)]="selectedMonth"
+          name="periode"
+          required
+          [matDatepickerFilter]="monthPickerFilter"
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker startView="year" (monthSelected)="onMonthSelected($event, picker)"></mat-datepicker>
+      </mat-form-field>
       <p *ngIf="fieldErrors.periode" class="error">{{ fieldErrors.periode }}</p>
     </div>
 
@@ -62,7 +70,7 @@
 
     <div class="actions">
       <button mat-raised-button color="primary" type="submit">
-        {{ isEditMode ? 'Update Declaration' : 'Add Declaration' }}
+        {{ isGenerateMode ? 'Generate Declaration' : (isEditMode ? 'Update Declaration' : 'Add Declaration') }}
       </button>
       <button mat-raised-button (click)="goBack()">Cancel</button>
     </div>

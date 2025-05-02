@@ -27,6 +27,7 @@ import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -74,6 +75,7 @@ const routes: Routes = [
   { path: 'add-declaration', component: DFFormComponent },
   { path: 'edit-declaration/:id', component: DFFormComponent },
   { path: 'get-declaration/:id', component: DFDetailComponent },
+  {path:'generer-df', component: GenerateDeclarationDialogComponent},
 
   // Fallback
   { path: '**', redirectTo: '' }

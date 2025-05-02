@@ -1,223 +1,228 @@
-// Frontend/src/app/components/declaration-fiscale-form/declaration-fiscale-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FiscalService } from '../../services/fiscal.service.service';
+import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
+import { CompteComptableService } from '../../compte-comptable.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-declaration-fiscale',
   templateUrl: './declaration-fiscale.component.html',
-  styleUrls: ['./declaration-fiscale.component.scss']
+  styleUrls: ['./declaration-fiscale.component.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('600ms', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateY(50px)', opacity: 0 }),
+        animate('600ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ])
+  ]
 })
-export class DeclarationFiscaleFormComponent implements OnInit {
+export class DeclarationFiscaleComponent implements OnInit {
   declarationForm: FormGroup;
-  isLoading: boolean = false;
-  isEditing: boolean = false;
+  comptesComptables: any[] = [];
+  isEditMode: boolean = false;
+  isSubmitting: boolean = false;
+  showPreview: boolean = false;
   declarationId: string | null = null;
-  previewData: any = null;
-  delaisInfo: any = null;
-  
-  typesDeclaration = [
-    { value: 'mensuelle', label: 'Mensuelle' },
-    { value: 'trimestrielle', label: 'Trimestrielle' },
-    { value: 'annuelle', label: 'Annuelle' }
-  ];
+  errors: string[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private fiscalService: FiscalService,
     private route: ActivatedRoute,
     private router: Router,
+    private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
+    private compteComptableService: CompteComptableService,
     private snackBar: MatSnackBar
   ) {
     this.declarationForm = this.fb.group({
-      type: ['mensuelle', Validators.required],
-      periodeDebut: [null, Validators.required],
-      periodeFin: [null, Validators.required]
+      periode: ['', Validators.required],
+      montantTotal: [0, [Validators.required, Validators.min(0)]],
+      statut: ['en préparation', Validators.required],
+      compteComptable: ['', Validators.required],
+      tva: this.fb.group({
+        taux: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+        montant: [0, [Validators.required, Validators.min(0)]]
+      })
     });
   }
 
   ngOnInit(): void {
-    this.declarationId = this.route.snapshot.paramMap.get('id');
+    this.loadComptesComptables();
     
-    if (this.declarationId) {
-      this.isEditing = true;
-      this.chargerDeclaration();
-    } else {
-      // Si création, initialiser avec le mois/trimestre en cours
-      const aujourdhui = new Date();
-      const debutMois = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 1);
-      const finMois = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth() + 1, 0);
-      
-      this.declarationForm.patchValue({
-        periodeDebut: debutMois,
-        periodeFin: finMois
-      });
-    }
-  }
-
-  chargerDeclaration(): void {
-    // Normalement vous auriez un endpoint pour récupérer une déclaration existante
-    // Pour cet exemple, nous simulons avec les données de prévisualisation
-    this.isLoading = true;
-    
-    // Simuler un appel API
-    setTimeout(() => {
-      // Données fictives pour l'exemple
-      const declaration = {
-        type: 'mensuelle',
-        periode: {
-          debut: new Date(2024, 2, 1),
-          fin: new Date(2024, 2, 31)
-        },
-        // Autres détails...
-      };
-      
-      this.declarationForm.patchValue({
-        type: declaration.type,
-        periodeDebut: declaration.periode.debut,
-        periodeFin: declaration.periode.fin
-      });
-      
-      this.isLoading = false;
-    }, 800);
-  }
-
-  onTypeChange(): void {
-    // Ajuster automatiquement la période en fonction du type
-    const type = this.declarationForm.get('type')?.value;
-    const aujourdhui = new Date();
-    let periodeDebut: Date;
-    let periodeFin: Date;
-    
-    switch (type) {
-      case 'mensuelle':
-        periodeDebut = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 1);
-        periodeFin = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth() + 1, 0);
-        break;
-        
-      case 'trimestrielle':
-        const trimestre = Math.floor(aujourdhui.getMonth() / 3);
-        periodeDebut = new Date(aujourdhui.getFullYear(), trimestre * 3, 1);
-        periodeFin = new Date(aujourdhui.getFullYear(), (trimestre + 1) * 3, 0);
-        break;
-        
-      case 'annuelle':
-        periodeDebut = new Date(aujourdhui.getFullYear(), 0, 1);
-        periodeFin = new Date(aujourdhui.getFullYear(), 11, 31);
-        break;
-        
-      default:
-        return;
-    }
-    
-    this.declarationForm.patchValue({
-      periodeDebut,
-      periodeFin
-    });
-    
-    // Effacer la prévisualisation lors du changement de type
-    this.previewData = null;
-  }
-
-  genererPrevisualisation(): void {
-    if (this.declarationForm.invalid) {
-      this.snackBar.open('Veuillez remplir correctement tous les champs requis', 'Fermer', {
-        duration: 5000
-      });
-      return;
-    }
-    
-    this.isLoading = true;
-    const values = this.declarationForm.value;
-    
-    this.fiscalService.verifierDelaisDeclaration(
-      values.type,
-      values.periodeFin
-    ).subscribe({
-      next: (delaisResponse) => {
-        this.delaisInfo = delaisResponse.data;
-        
-        // Générer la déclaration
-        this.fiscalService.genererDeclarationFiscale(
-          values.periodeDebut,
-          values.periodeFin,
-          values.type
-        ).subscribe({
-          next: (response) => {
-            this.previewData = response.data;
-            this.isLoading = false;
-          },
-          error: (error) => {
-            this.snackBar.open('Erreur lors de la génération de la déclaration: ' + error.message, 'Fermer', {
-              duration: 5000
-            });
-            this.isLoading = false;
-          }
-        });
-      },
-      error: (error) => {
-        this.snackBar.open('Erreur lors de la vérification des délais: ' + error.message, 'Fermer', {
-          duration: 5000
-        });
-        this.isLoading = false;
+    // Vérifier s'il s'agit d'une édition
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode = true;
+        this.declarationId = id;
+        this.loadDeclaration(id);
       }
     });
   }
 
-  soumettreDeclaration(): void {
-    if (!this.previewData) {
-      this.snackBar.open('Veuillez d\'abord générer une prévisualisation', 'Fermer', {
-        duration: 5000
-      });
-      return;
-    }
+  loadComptesComptables(): void {
+    this.compteComptableService.getAllComptes().subscribe({
+      next: (comptes) => {
+        this.comptesComptables = comptes;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des comptes comptables:', error);
+        this.errors.push('Impossible de charger les comptes comptables');
+      }
+    });
+  }
+
+  loadDeclaration(id: string): void {
+    this.declarationFiscaleTVAService.getDeclarationById(id).subscribe({
+      next: (declaration) => {
+        // Charger la TVA associée à cette déclaration
+        this.declarationFiscaleTVAService.getTVAByDeclaration(id).subscribe({
+          next: (tva) => {
+            this.declarationForm.patchValue({
+              periode: declaration.periode,
+              montantTotal: declaration.montantTotal,
+              statut: declaration.statut,
+              compteComptable: declaration.compteComptable._id || declaration.compteComptable,
+              tva: {
+                taux: tva && tva.length > 0 ? tva[0].taux : 20,
+                montant: tva && tva.length > 0 ? tva[0].montant : 0
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Erreur lors du chargement de la TVA:', error);
+            this.errors.push('Impossible de charger les informations de TVA');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de la déclaration:', error);
+        this.errors.push('Impossible de charger la déclaration fiscale');
+        this.router.navigate(['/declarations']);
+      }
+    });
+  }
+
+  onSubmit(): void {
+    if (this.declarationForm.invalid) return;
     
-    this.isLoading = true;
+    this.isSubmitting = true;
+    this.errors = [];
     
-    // Si c'est une édition, mettre à jour la déclaration
-    if (this.isEditing && this.declarationId) {
-      this.fiscalService.soumettreDeclaration(this.declarationId).subscribe({
-        next: (response) => {
-          this.snackBar.open('Déclaration soumise avec succès!', 'Fermer', {
-            duration: 5000
+    const formData = this.declarationForm.value;
+    
+    // Préparer l'objet de déclaration fiscale
+    const declaration = {
+      periode: formData.periode,
+      montantTotal: formData.montantTotal,
+      statut: formData.statut,
+      compteComptable: formData.compteComptable
+    };
+    
+    // Préparer l'objet TVA
+    const tva = {
+      taux: formData.tva.taux,
+      montant: formData.tva.montant,
+      declaration: this.declarationId || '' // Sera remplacé par l'ID de la nouvelle déclaration si c'est une création
+    };
+    
+    if (this.isEditMode && this.declarationId) {
+      // Mise à jour d'une déclaration existante
+      this.declarationFiscaleTVAService.updateDeclaration(this.declarationId, declaration).subscribe({
+        next: (updatedDeclaration) => {
+          // Mettre à jour la TVA associée
+          this.declarationFiscaleTVAService.getTVAByDeclaration(this.declarationId!).subscribe({
+            next: (existingTVA) => {
+              if (existingTVA && existingTVA.length > 0) {
+                // Mettre à jour la TVA existante
+                this.declarationFiscaleTVAService.updateTVA(existingTVA[0]._id, {
+                  ...tva,
+                  declaration: this.declarationId
+                }).subscribe({
+                  next: () => this.handleSuccess('Déclaration et TVA mises à jour avec succès'),
+                  error: (error) => this.handleError(error, 'Erreur lors de la mise à jour de la TVA')
+                });
+              } else {
+                // Créer une nouvelle TVA
+                this.declarationFiscaleTVAService.createTVA({
+                  ...tva,
+                  declaration: this.declarationId
+                }).subscribe({
+                  next: () => this.handleSuccess('Déclaration mise à jour et TVA créée avec succès'),
+                  error: (error) => this.handleError(error, 'Erreur lors de la création de la TVA')
+                });
+              }
+            },
+            error: (error) => this.handleError(error, 'Erreur lors de la recherche de la TVA existante')
           });
-          this.router.navigate(['/fiscalite/declaration', this.declarationId]);
-          this.isLoading = false;
         },
-        error: (error) => {
-          this.snackBar.open('Erreur lors de la soumission: ' + error.message, 'Fermer', {
-            duration: 5000
-          });
-          this.isLoading = false;
-        }
+        error: (error) => this.handleError(error, 'Erreur lors de la mise à jour de la déclaration')
       });
-    } 
-    // Sinon, créer une nouvelle déclaration
-    else {
-      // Pour l'exemple, nous supposons que previewData contient l'ID de la déclaration créée
-      const declarationId = this.previewData.declaration._id;
-      
-      this.fiscalService.soumettreDeclaration(declarationId).subscribe({
-        next: (response) => {
-          this.snackBar.open('Déclaration créée et soumise avec succès!', 'Fermer', {
-            duration: 5000
+    } else {
+      // Création d'une nouvelle déclaration
+      this.declarationFiscaleTVAService.createDeclaration(declaration).subscribe({
+        next: (newDeclaration) => {
+          // Créer la TVA associée
+          this.declarationFiscaleTVAService.createTVA({
+            ...tva,
+            declaration: newDeclaration._id
+          }).subscribe({
+            next: () => this.handleSuccess('Déclaration et TVA créées avec succès'),
+            error: (error) => this.handleError(error, 'Erreur lors de la création de la TVA')
           });
-          this.router.navigate(['/fiscalite/declaration', declarationId]);
-          this.isLoading = false;
         },
-        error: (error) => {
-          this.snackBar.open('Erreur lors de la soumission: ' + error.message, 'Fermer', {
-            duration: 5000
-          });
-          this.isLoading = false;
-        }
+        error: (error) => this.handleError(error, 'Erreur lors de la création de la déclaration')
       });
     }
   }
 
-  annuler(): void {
-    this.router.navigate(['/fiscalite']);
+  onCancel(): void {
+    this.router.navigate(['/declarations']);
+  }
+
+  togglePreview(): void {
+    this.showPreview = !this.showPreview;
+  }
+
+  getCompteComptableNom(compteId: string): string {
+    const compte = this.comptesComptables.find(c => c._id === compteId);
+    return compte ? `${compte.numeroCompte} - ${compte.nom}` : 'Non trouvé';
+  }
+
+  private handleSuccess(message: string): void {
+    this.isSubmitting = false;
+    this.snackBar.open(message, 'Fermer', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+    this.router.navigate(['/declarations']);
+  }
+
+  private handleError(error: any, defaultMessage: string): void {
+    this.isSubmitting = false;
+    console.error(defaultMessage, error);
+    
+    if (error.error && error.error.errors) {
+      this.errors = error.error.errors;
+    } else if (error.error && error.error.message) {
+      this.errors.push(error.error.message);
+    } else {
+      this.errors.push(defaultMessage);
+    }
+    
+    this.snackBar.open('Erreur lors de l\'enregistrement', 'Fermer', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
 }

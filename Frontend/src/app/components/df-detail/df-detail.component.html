@@ -1,42 +1,46 @@
-<div *ngIf="!isLoading; else loading">
+<div class="details-container">
+  <h2>DÉTAILS DE LA DÉCLARATION FISCALE</h2>
+
+  <div class="details-content" *ngIf="!isLoading; else loading">
     <div *ngIf="declaration; else noData">
-      <h2>Détails de la Déclaration Fiscale</h2>
-  
-      <div class="detail-container">
-        <p><strong>ID :</strong> {{ declaration._id || 'Non défini' }}</p>
-        <p><strong>Période :</strong> {{ declaration.periode }}</p>
-        <p><strong>Montant Total :</strong> {{ declaration.montantTotal | number:'1.2-2' }} €</p>
-        <p><strong>Statut :</strong> {{ declaration.statut }}</p>
-        <p>
-          <strong>Compte Comptable :</strong>
-          <span *ngIf="compteComptable; else compteLoading">
-            {{ compteComptable.numeroCompte }} - {{ compteComptable.nom }} ({{ compteComptable.type }}) 
-            - Solde : {{ compteComptable.solde | number:'1.2-2' }} €
-            <span *ngIf="compteComptable.createdAt">, Créé le : {{ compteComptable.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-            <span *ngIf="compteComptable.updatedAt">, Mis à jour le : {{ compteComptable.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-          </span>
-          <ng-template #compteLoading>
-            <span>Chargement des détails du compte comptable...</span>
-          </ng-template>
-        </p>
+     
+      <div class="detail-item">
+        <span class="label">Période :</span>
+        <span class="value">{{ formatPeriode(declaration.periode) }}</span>
       </div>
-  
-      <div class="actions">
-        <button mat-raised-button color="primary" (click)="editDeclaration()">Modifier</button>
-        <button mat-raised-button (click)="goBack()">Retour à la liste</button>
+      <div class="detail-item">
+        <span class="label">Montant Total :</span>
+        <span class="value">{{ declaration.montantTotal | number:'1.2-2' }} TND</span> <!-- Changé de € à TND -->
       </div>
-  
-      <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+      <div class="detail-item">
+        <span class="label">Statut :</span>
+        <span class="value">{{ declaration.statut }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Compte Comptable :</span>
+        <span class="value" *ngIf="compteComptable; else compteLoading">
+          {{ getCompteComptableName(compteComptable) }} <!-- Afficher uniquement le nom -->
+        </span>
+        <ng-template #compteLoading>
+          <span>Chargement des détails du compte comptable...</span>
+        </ng-template>
+      </div>
     </div>
-  
+
     <ng-template #noData>
-      <p>Aucune donnée disponible pour cette déclaration.</p>
+      <p class="no-data">Aucune donnée disponible pour cette déclaration.</p>
     </ng-template>
   </div>
-  
+
   <ng-template #loading>
-    <p *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
+    <p class="loading" *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
     <ng-template #spinner>
-      <p>Chargement des détails de la déclaration...</p>
+      <p class="loading">Chargement des détails de la déclaration...</p>
     </ng-template>
   </ng-template>
+
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="editDeclaration()">MODIFIER</button>
+    <button mat-raised-button color="primary" (click)="goBack()">RETOUR À LA LISTE</button>
+  </div>
+</div>

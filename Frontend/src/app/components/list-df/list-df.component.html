@@ -1,10 +1,12 @@
 <div>
   <h2>Liste des Déclarations Fiscales</h2>
-  <button mat-raised-button color="primary" (click)="addNewDeclaration()">Ajouter une Nouvelle Déclaration</button>
+  <button mat-raised-button color="primary" (click)="openGenerateDialog()">
+    <mat-icon>auto_awesome</mat-icon> Générer une Déclaration
+  </button>
+  
   <table *ngIf="declarations.length > 0; else noDeclarations" class="declaration-table">
     <thead>
       <tr>
-        <th>ID</th>
         <th>Période</th>
         <th>Montant Total</th>
         <th>Statut</th>
@@ -14,22 +16,31 @@
     </thead>
     <tbody>
       <tr *ngFor="let declaration of declarations">
-        <td>{{ declaration._id }}</td>
-        <td>{{ declaration.periode }}</td>
+        <td>{{ formatPeriode(declaration.periode) }}</td>
         <td>{{ declaration.montantTotal }}</td>
         <td>{{ declaration.statut }}</td>
-        <td>{{ declaration.compteComptable }}</td>
         <td>
-          <button mat-raised-button color="primary" (click)="editDeclaration(declaration._id!)">Modifier</button>
-          <button mat-raised-button color="accent" (click)="viewDetails(declaration._id!)">Détails</button>
-          <button mat-raised-button color="warn" (click)="deleteDeclaration(declaration._id!)">Supprimer</button>
+          {{ getCompteComptableName(declaration.compteComptable) }}
+        </td>
+        <td>
+          <button mat-icon-button color="primary" (click)="editDeclaration(declaration._id!)" aria-label="Modifier la déclaration">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="viewDetails(declaration._id!)" aria-label="Voir les détails">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteDeclaration(declaration._id!)" aria-label="Supprimer la déclaration">
+            <mat-icon>delete</mat-icon>
+          </button>
         </td>
       </tr>
     </tbody>
   </table>
+  
   <ng-template #noDeclarations>
     <p>Aucune déclaration disponible.</p>
   </ng-template>
+  
   <div *ngIf="errors.length > 0" class="error-container">
     <p class="error-title">Erreur(s) :</p>
     <ul>
@@ -37,4 +48,3 @@
     </ul>
   </div>
 </div>
-

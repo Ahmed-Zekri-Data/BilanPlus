@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FiscalService {
-  private apiUrl =  'http://localhost:3000/fiscalité';
+  private apiUrl = 'http://localhost:3000/fiscalite';
 
   constructor(private http: HttpClient) { }
 
@@ -24,60 +24,30 @@ export class FiscalService {
     return this.http.post(`${this.apiUrl}/tva/reconciliation`, { dateDebut, dateFin });
   }
 
-  verifierRegimeForfaitaire(entreprise: any, chiffreAffairesAnnuel: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/tva/regime-forfaitaire`, { entreprise, chiffreAffairesAnnuel });
-  }
-
   // Services TCL
   calculerTCL(dateDebut: Date, dateFin: Date, tauxTCL?: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/tcl/calculer`, { dateDebut, dateFin, tauxTCL });
   }
 
   calculerTCLParCommune(dateDebut: Date, dateFin: Date): Observable<any> {
-    return this.http.post(`${this.apiUrl}/tcl/par-commune`, { dateDebut, dateFin });
-  }
-
-  verifierExonerationTCL(secteurActivite: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/tcl/exoneration`, { secteurActivite });
+    return this.http.post(`${this.apiUrl}/tcl/calculer-par-commune`, { dateDebut, dateFin });
   }
 
   // Services Droit de Timbre
   calculerDroitTimbreFacture(factureId: string, valeurTimbre?: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/droit-timbre/facture/${factureId}`, {
-      params: valeurTimbre ? { valeurTimbre: valeurTimbre.toString() } : {}
-    });
+    return this.http.post(`${this.apiUrl}/droit-timbre/facture/${factureId}`, { valeurTimbre });
   }
 
   calculerDroitTimbrePeriode(dateDebut: Date, dateFin: Date): Observable<any> {
     return this.http.post(`${this.apiUrl}/droit-timbre/periode`, { dateDebut, dateFin });
   }
 
-  genererRapportDroitTimbre(dateDebut: Date, dateFin: Date): Observable<any> {
-    return this.http.post(`${this.apiUrl}/droit-timbre/rapport`, { dateDebut, dateFin });
-  }
-
-  // Services Déclaration Fiscale
-  genererDeclarationFiscale(dateDebut: Date, dateFin: Date, type: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/declaration/generer`, { dateDebut, dateFin, type });
-  }
-
-  genererFormulaireOfficiel(declarationId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/declaration/formulaire/${declarationId}`);
-  }
-
-  verifierDelaisDeclaration(type: string, finPeriode: Date): Observable<any> {
-    return this.http.post(`${this.apiUrl}/declaration/verification-delais`, { type, finPeriode });
-  }
-
-  soumettreDeclaration(declarationId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/declaration/soumettre/${declarationId}`, {});
-  }
-
-  // Services Dashboard et Simulation
+  // Services Dashboard Fiscal
   getDashboardFiscal(annee: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/dashboard/${annee}`);
   }
 
+  // Services Simulation Fiscale
   simulerChangementVolumeActivite(parametres: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/simulation/volume-activite`, parametres);
   }
@@ -88,5 +58,10 @@ export class FiscalService {
 
   simulerImpactInvestissement(parametres: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/simulation/investissement`, parametres);
+  }
+
+  // Services de génération de déclarations fiscales
+  genererDeclarationFiscale(dateDebut: Date, dateFin: Date, type: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/declarations/generer`, { dateDebut, dateFin, type });
   }
 }

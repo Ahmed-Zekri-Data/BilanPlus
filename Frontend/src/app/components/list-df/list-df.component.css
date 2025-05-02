@@ -1,0 +1,33 @@
+app-list-df .declaration-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+  }
+  
+  app-list-df .declaration-table th {
+    background-color: #f4f4f4 !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    padding: 12px 15px !important;
+    text-align: left !important;
+  }
+  
+  app-list-df .declaration-table td {
+    padding: 12px 15px !important;
+    text-align: left !important;
+  }
+  
+  app-list-df .declaration-table tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+  }
+  
+  app-list-df .declaration-table tr:hover {
+    background-color: #f1f1f1 !important;
+  }
+  mat-icon-button {
+    margin-right: 5px;
+  }
+  button[mat-raised-button] {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+  }

@@ -1,1 +1,278 @@
-<p>simulateur-fiscal works!</p>
+<div class="simulateur-container" @fadeIn>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Simulateur Fiscal</mat-card-title>
+        <mat-card-subtitle>Testez l'impact de différents scénarios sur votre fiscalité</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <mat-tab-group animationDuration="300ms" (selectedTabChange)="onTabChange($event)">
+          
+          <!-- Onglet 1: Simulation variation du volume d'activité -->
+          <mat-tab label="Volume d'activité">
+            <div class="tab-content" @slideIn>
+              <form [formGroup]="volumeActivityForm" (ngSubmit)="simulerVolumeActivite()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Chiffre d'affaires actuel (€)</mat-label>
+                    <input matInput type="number" formControlName="chiffreAffairesActuel">
+                    <mat-error *ngIf="volumeActivityForm.get('chiffreAffairesActuel')?.hasError('required')">
+                      Ce champ est obligatoire
+                    </mat-error>
+                    <mat-error *ngIf="volumeActivityForm.get('chiffreAffairesActuel')?.hasError('min')">
+                      La valeur doit être positive
+                    </mat-error>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taux de croissance (%)</mat-label>
+                    <input matInput type="number" formControlName="tauxCroissance">
+                    <mat-hint>Utilisez des valeurs négatives pour une décroissance</mat-hint>
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taux TVA moyen (%)</mat-label>
+                    <input matInput type="number" formControlName="tauxTVAMoyen">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taux TVA déductible moyen (%)</mat-label>
+                    <input matInput type="number" formControlName="tauxTVADeductibleMoyen">
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Proportion des achats (% du CA)</mat-label>
+                    <input matInput type="number" formControlName="proportionAchats">
+                    <mat-hint>Pourcentage du chiffre d'affaires représenté par les achats</mat-hint>
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="volumeActivityForm.invalid || isLoading">
+                    <mat-icon>calculate</mat-icon> Simuler
+                  </button>
+                  <button mat-button type="reset" [disabled]="isLoading">Réinitialiser</button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+          
+          <!-- Onglet 2: Simulation changement de régime d'imposition -->
+          <mat-tab label="Régime d'imposition">
+            <div class="tab-content" @slideIn>
+              <form [formGroup]="regimeImpositionForm" (ngSubmit)="simulerRegimeImposition()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Régime actuel</mat-label>
+                    <mat-select formControlName="regimeActuel">
+                      <mat-option *ngFor="let option of regimeOptions" [value]="option.value">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Chiffre d'affaires annuel (€)</mat-label>
+                    <input matInput type="number" formControlName="chiffreAffairesAnnuel">
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Bénéfice net actuel (€)</mat-label>
+                    <input matInput type="number" formControlName="beneficeNetActuel">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Pourcentage de charges (% du CA)</mat-label>
+                    <input matInput type="number" formControlName="pourcentageCharges">
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="regimeImpositionForm.invalid || isLoading">
+                    <mat-icon>calculate</mat-icon> Simuler
+                  </button>
+                  <button mat-button type="reset" [disabled]="isLoading">Réinitialiser</button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+          
+          <!-- Onglet 3: Simulation impact investissement -->
+          <mat-tab label="Investissement">
+            <div class="tab-content" @slideIn>
+              <form [formGroup]="investissementForm" (ngSubmit)="simulerInvestissement()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Montant de l'investissement (€)</mat-label>
+                    <input matInput type="number" formControlName="montantInvestissement">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Type d'investissement</mat-label>
+                    <mat-select formControlName="typeInvestissement">
+                      <mat-option value="materiel">Matériel / Équipement</mat-option>
+                      <mat-option value="immobilier">Immobilier</mat-option>
+                      <mat-option value="incorporel">Incorporel (brevets, licences...)</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Durée d'amortissement (années)</mat-label>
+                    <input matInput type="number" formControlName="dureeAmortissement">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taux d'imposition actuel (%)</mat-label>
+                    <input matInput type="number" formControlName="tauxImposition">
+                  </mat-form-field>
+                </div>
+                
+                <div class="form-row">
+                  <mat-checkbox formControlName="eligibleCreditImpot">Éligible à un crédit d'impôt</mat-checkbox>
+                </div>
+                
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="investissementForm.invalid || isLoading">
+                    <mat-icon>calculate</mat-icon> Simuler
+                  </button>
+                  <button mat-button type="reset" [disabled]="isLoading">Réinitialiser</button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+        
+        <!-- Affichage des résultats -->
+        <div *ngIf="isLoading" class="loading-indicator">
+          <mat-spinner [diameter]="40"></mat-spinner>
+          <p>Calcul en cours...</p>
+        </div>
+        
+        <div *ngIf="resultatSimulation && !isLoading" class="results-container" @fadeIn>
+          <mat-divider></mat-divider>
+          <h3>Résultats de la simulation</h3>
+          
+          <div class="results-grid">
+            <ng-container *ngIf="selectedSimulation === 'volume-activite'">
+              <div class="result-card">
+                <div class="result-title">Chiffre d'affaires</div>
+                <div class="result-row">
+                  <span>Actuel:</span>
+                  <span>{{ resultatSimulation.chiffreAffairesActuel | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>Nouveau:</span>
+                  <span>{{ resultatSimulation.nouveauChiffreAffaires | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>Différence:</span>
+                  <span [ngClass]="{'positive': resultatSimulation.differenceCA > 0, 'negative': resultatSimulation.differenceCA < 0}">
+                    {{ resultatSimulation.differenceCA | number:'1.2-2' }} €
+                  </span>
+                </div>
+              </div>
+              
+              <div class="result-card">
+                <div class="result-title">TVA</div>
+                <div class="result-row">
+                  <span>TVA Collectée Actuelle:</span>
+                  <span>{{ resultatSimulation.tvaCollecteeActuelle | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>Nouvelle TVA Collectée:</span>
+                  <span>{{ resultatSimulation.nouvelleTVACollectee | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>TVA Déductible Actuelle:</span>
+                  <span>{{ resultatSimulation.tvaDeductibleActuelle | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>Nouvelle TVA Déductible:</span>
+                  <span>{{ resultatSimulation.nouvelleTVADeductible | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row total">
+                  <span>Impact sur solde TVA:</span>
+                  <span [ngClass]="{'positive': resultatSimulation.impactSoldeTVA < 0, 'negative': resultatSimulation.impactSoldeTVA > 0}">
+                    {{ resultatSimulation.impactSoldeTVA | number:'1.2-2' }} €
+                  </span>
+                </div>
+              </div>
+            </ng-container>
+            
+            <ng-container *ngIf="selectedSimulation === 'regime-imposition'">
+              <!-- Affichage des résultats pour le régime d'imposition -->
+              <div class="result-card">
+                <div class="result-title">Régime actuel: {{ getRegimeLabel(resultatSimulation.regimeActuel) }}</div>
+                <div class="result-row">
+                  <span>Impôt actuel:</span>
+                  <span>{{ resultatSimulation.impotActuel | number:'1.2-2' }} €</span>
+                </div>
+              </div>
+              
+              <div class="result-card">
+                <div class="result-title">Régime alternatif: {{ getRegimeLabel(resultatSimulation.regimeAlternatif) }}</div>
+                <div class="result-row">
+                  <span>Impôt estimé:</span>
+                  <span>{{ resultatSimulation.impotAlternatif | number:'1.2-2' }} €</span>
+                </div>
+              </div>
+              
+              <div class="result-card full-width">
+                <div class="result-title">Comparaison</div>
+                <div class="result-row total">
+                  <span>Différence d'imposition:</span>
+                  <span [ngClass]="{'positive': resultatSimulation.difference < 0, 'negative': resultatSimulation.difference > 0}">
+                    {{ resultatSimulation.difference | number:'1.2-2' }} €
+                  </span>
+                </div>
+                <div class="result-row">
+                  <span>Recommandation:</span>
+                  <span>{{ resultatSimulation.recommandation }}</span>
+                </div>
+              </div>
+            </ng-container>
+            
+            <ng-container *ngIf="selectedSimulation === 'investissement'">
+              <!-- Affichage des résultats pour l'investissement -->
+              <div class="result-card">
+                <div class="result-title">Impact fiscal sur {{ resultatSimulation.dureeAmortissement }} ans</div>
+                <div class="result-row">
+                  <span>Économie fiscale totale:</span>
+                  <span>{{ resultatSimulation.economieFiscaleTotale | number:'1.2-2' }} €</span>
+                </div>
+                <div class="result-row">
+                  <span>Économie annuelle moyenne:</span>
+                  <span>{{ resultatSimulation.economieAnnuelleMoyenne | number:'1.2-2' }} €</span>
+                </div>
+              </div>
+              
+              <div class="result-card">
+                <div class="result-title">Rentabilité</div>
+                <div class="result-row">
+                  <span>Taux de retour fiscal:</span>
+                  <span>{{ resultatSimulation.tauxRetourFiscal | number:'1.2-2' }} %</span>
+                </div>
+                <div class="result-row">
+                  <span>Temps de retour estimé:</span>
+                  <span>{{ resultatSimulation.tempsRetourEstime }} ans</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          
+          <div class="simulation-note">
+            <mat-icon>info</mat-icon>
+            <span>Cette simulation est donnée à titre indicatif et ne constitue pas un conseil fiscal professionnel.</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>

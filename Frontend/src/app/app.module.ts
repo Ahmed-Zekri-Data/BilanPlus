@@ -16,6 +16,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table'; // Ajout de MatTableModule
 
 // Components from both branches
 import { HomeComponent } from './home/home.component';
@@ -41,35 +45,36 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
 
 @NgModule({
   declarations: [
-  AppComponent,
-  HomeComponent,
-  ListTVAComponent,
-  TvaDetailComponent,
-  TvaFormComponent,
-  ProduitComponent,
-  CompteListComponent,
-  CompteFormComponent,
-  EcritureListComponent,
-  EcritureFormComponent,
-  GestionComptableComponent,
-  FournisseursComponent,
-  CommandesComponent,
-  ProduitsComponent,
-  ListDFComponent,
-  DFFormComponent,
-  DFDetailComponent,
-  MSComponent,
-  UtilisateurComponent,
-  AddUtilisateurComponent,
-  UtilisateurDetailsComponent,
-  RoleComponent,
-  AddRoleComponent,
-  RoleDetailsComponent
-],
-
+    AppComponent,
+    HomeComponent,
+    ListTVAComponent,
+    TvaDetailComponent,
+    TvaFormComponent,
+    ProduitComponent,
+    CompteListComponent,
+    CompteFormComponent,
+    EcritureListComponent,
+    EcritureFormComponent,
+    GestionComptableComponent,
+    FournisseursComponent,
+    CommandesComponent,
+    ProduitsComponent,
+    ListDFComponent,
+    DFFormComponent,
+    DFDetailComponent,
+    MSComponent,
+    UtilisateurComponent,
+    AddUtilisateurComponent,
+    UtilisateurDetailsComponent,
+    RoleComponent,
+    AddRoleComponent,
+    RoleDetailsComponent,
+    GenerateDeclarationDialogComponent
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -86,7 +91,12 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule, 
+    CommonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
