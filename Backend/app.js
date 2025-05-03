@@ -32,38 +32,21 @@ mongoose
   .connect(process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/BilanPlus')
   .then(async () => {
     console.log("Database connected");
-    await createAdmin();
+    await initializeRolesAndAdmin();
   })
   .catch((err) => console.error("Database not connected:", err));
 
-async function createAdmin() {
+async function initializeRolesAndAdmin() {
   try {
-    console.log('Début de createAdmin()');
-    let adminRole = await Role.findOne({ nom: 'Administrateur' });
+    console.log('Début de initializeRolesAndAdmin()');
+    // Créer les rôles par défaut
+    await Role.createDefaultRoles();
+    console.log('Rôles par défaut créés ou vérifiés');
+
+    // Créer l'utilisateur admin
+    let adminRole = await Role.findOne({ nom: 'Administrateur Système' });
     if (!adminRole) {
-      console.log('Rôle Administrateur non trouvé, création...');
-      adminRole = new Role({
-        nom: 'Administrateur',
-        description: 'Accès complet au système',
-        permissions: {
-          gestionUtilisateurs: true,
-          gestionRoles: true,
-          gestionClients: true,
-          gestionFournisseurs: true,
-          gestionFactures: true,
-          gestionComptabilite: true,
-          gestionBilans: true,
-          gestionDeclarations: true,
-          rapportsAvances: true,
-          parametresSysteme: true
-        },
-        dateCreation: new Date(),
-        actif: true
-      });
-      await adminRole.save();
-      console.log('Rôle Administrateur créé:', adminRole._id);
-    } else {
-      console.log('Rôle Administrateur trouvé:', adminRole._id);
+      throw new Error('Rôle Administrateur Système non trouvé après création');
     }
 
     // Forcer la recréation de admin@bilanplus.com
@@ -85,7 +68,7 @@ async function createAdmin() {
     await admin.save();
     console.log('Utilisateur admin@bilanplus.com créé avec succès');
   } catch (err) {
-    console.error('Erreur lors de la création de l\'admin:', err);
+    console.error('Erreur lors de l\'initialisation:', err);
   }
 }
 

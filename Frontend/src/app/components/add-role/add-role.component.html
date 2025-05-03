@@ -1,92 +1,50 @@
-<div class="role-form-container">
-  <div class="card" @fadeIn>
-    <div class="card-header">
-      <h2>{{ isEditMode ? 'Modifier' : 'Créer' }} un rôle</h2>
-    </div>
-    
-    <div class="card-body">
-      <div *ngIf="loading" class="text-center mb-4">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
-      
-      <div class="alert alert-danger" *ngIf="error" @fadeInOut>
-        <mat-icon>error</mat-icon> {{ error }}
-      </div>
-      
-      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" @slideIn>
-        <div class="mb-3">
-          <label for="nom" class="form-label">Nom*</label>
-          <div class="input-wrapper">
-            <mat-icon class="input-icon">label</mat-icon>
-            <input 
-              type="text" 
-              formControlName="nom" 
-              class="form-control" 
-              [ngClass]="{ 'is-invalid': submitted && roleForm.controls['nom'].errors }" 
-            />
-          </div>
-          <div *ngIf="submitted && roleForm.controls['nom'].errors" class="invalid-feedback">
-            <div *ngIf="roleForm.controls['nom'].errors['required']">Le nom est requis</div>
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
-          <div class="input-wrapper">
-            <mat-icon class="input-icon">description</mat-icon>
-            <textarea 
-              formControlName="description" 
-              class="form-control" 
-              rows="3"
-            ></textarea>
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label">Permissions</label>
-          <div class="permissions-list">
-            <div *ngFor="let permission of availablePermissions">
-              <mat-checkbox
-                [checked]="roleForm.value.permissions.includes(permission)"
-                (change)="togglePermission(permission)"
-              >
-                {{ permission }}
-              </mat-checkbox>
-            </div>
-          </div>
-        </div>
-        
-        <div class="mb-3 form-check">
-          <input type="checkbox" formControlName="actif" class="form-check-input" id="actif">
-          <label class="form-check-label" for="actif">Actif</label>
-        </div>
-        
-        <div class="d-flex gap-2">
-          <button 
-            type="submit" 
-            mat-raised-button 
-            color="primary" 
-            [disabled]="loading"
-            [@buttonClick]="buttonState"
-            (mousedown)="buttonState = 'clicked'"
-            (mouseup)="buttonState = 'normal'"
-          >
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-            <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }} le rôle</span>
-          </button>
-          <button 
-            type="button" 
-            mat-raised-button 
-            color="warn" 
-            (click)="cancel()"
-            [@buttonClick]="buttonState"
-            (mousedown)="buttonState = 'clicked'"
-            (mouseup)="buttonState = 'normal'"
-          >
-            Annuler
-          </button>
-        </div>
-      </form>
-    </div>
+<div class="container">
+  <div class="header">
+    <h2 class="mb-0">{{ isEditMode ? 'Modifier un Rôle' : 'Créer un Rôle' }}</h2>
   </div>
+  <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="role-form">
+    <div class="form-group">
+      <label for="nom">Nom du Rôle</label>
+      <input id="nom" formControlName="nom" type="text" placeholder="Entrez le nom du rôle" />
+      <div *ngIf="roleForm.get('nom')?.errors?.['required'] && roleForm.get('nom')?.touched" class="error-message">
+        Le nom du rôle est requis.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" placeholder="Entrez une description"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Permissions</label>
+      <div class="permissions-list">
+        <div *ngFor="let key of permissionKeys" class="permission-item">
+          <input type="checkbox" [checked]="permissions[key]" (change)="togglePermission(key)" />
+          <span>{{ key }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="actif">Actif</label>
+      <input id="actif" formControlName="actif" type="checkbox" />
+    </div>
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="cancel-btn"
+              [@buttonClick]="buttonState"
+              (mousedown)="buttonState = 'clicked'"
+              (mouseup)="buttonState = 'normal'">
+        Annuler
+      </button>
+      <button type="submit" [disabled]="loading || roleForm.invalid" class="submit-btn"
+              [@buttonClick]="buttonState"
+              (mousedown)="buttonState = 'clicked'"
+              (mouseup)="buttonState = 'normal'">
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+    </div>
+    <div *ngIf="loading" class="spinner">
+      <div class="spinner-inner"></div>
+    </div>
+    <div *ngIf="success" class="success-message">{{ success }}</div>
+    <div *ngIf="error" class="error-message">✗ {{ error }}</div>
+  </form>
 </div>

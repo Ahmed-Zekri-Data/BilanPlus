@@ -1,151 +1,173 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { RoleService } from '../../services/role.service';
-import { Role } from '../../Models/Role';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { trigger, state, style, animate, transition } from '@angular/animations';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RoleService } from '../../services/role.service';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+import { Role } from '../../Models/Role';
+import { RoleComponent } from '../role/role.component';
 
 @Component({
   selector: 'app-add-role',
   templateUrl: './add-role.component.html',
   styleUrls: ['./add-role.component.css'],
   animations: [
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ transform: 'translateY(20px)', opacity: 0 }),
-        animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
-      ])
-    ]),
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
-      transition('normal <=> clicked', animate('100ms ease-in'))
+      transition('normal <=> clicked', animate('100ms ease-in-out'))
     ])
   ]
 })
 export class AddRoleComponent implements OnInit {
-  role: Partial<Role> = {
-    nom: '',
-    description: '',
-    actif: true,
-    permissions: [],
-    dateCreation: new Date()
-  };
   roleForm: FormGroup;
-  error: string | null = null;
   isEditMode: boolean = false;
   roleId: string | null = null;
-  submitted: boolean = false;
+  permissions: Role['permissions'] = {
+    gererUtilisateursEtRoles: false,
+    configurerSysteme: false,
+    accesComplet: false,
+    validerEcritures: false,
+    cloturerPeriodes: false,
+    genererEtatsFinanciers: false,
+    superviserComptes: false,
+    saisirEcritures: false,
+    gererFactures: false,
+    suivrePaiements: false,
+    gererTresorerie: false,
+    analyserDepensesRecettes: false,
+    genererRapportsPerformance: false,
+    comparerBudgetRealise: false,
+    saisirNotesFrais: false,
+    consulterBulletinsPaie: false,
+    soumettreRemboursements: false,
+    accesFacturesPaiements: false,
+    telechargerDocuments: false,
+    communiquerComptabilite: false
+  };
   loading: boolean = false;
+  error: string | null = null;
+  success: string | null = null;
   buttonState: string = 'normal';
-  availablePermissions: string[] = [
-    'users:view', 'users:manage',
-    'roles:view', 'roles:manage',
-    'clients:view', 'clients:manage',
-    'suppliers:view', 'suppliers:manage',
-    'invoices:view', 'invoices:manage',
-    'accounting:view', 'accounting:manage',
-    'reports:view', 'reports:manage',
-    'declarations:view', 'declarations:manage',
-    'advancedReports:view',
-    'system:manage'
-  ];
+
+  get permissionKeys(): (keyof Role['permissions'])[] {
+    return Object.keys(this.permissions) as (keyof Role['permissions'])[];
+  }
 
   constructor(
-    private roleService: RoleService,
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
-    private fb: FormBuilder
+    private roleService: RoleService
   ) {
     this.roleForm = this.fb.group({
       nom: ['', Validators.required],
       description: [''],
-      actif: [true],
-      permissions: [[]]
+      actif: [true]
     });
   }
 
   ngOnInit(): void {
-    const urlSegments = this.router.url.split('/');
-    if (urlSegments.includes('edit') && urlSegments.length > 3) {
+    this.roleId = this.route.snapshot.paramMap.get('id');
+    if (this.roleId) {
       this.isEditMode = true;
-      this.roleId = urlSegments[urlSegments.length - 1];
       this.loadRole();
     }
   }
 
   loadRole(): void {
     if (this.roleId) {
-      this.loading = true;
       this.roleService.getRoleById(this.roleId).subscribe({
         next: (role: Role) => {
-          this.role = { ...role };
           this.roleForm.patchValue({
             nom: role.nom,
             description: role.description,
-            actif: role.actif,
-            permissions: role.permissions || []
+            actif: role.actif
           });
-          this.loading = false;
+          this.permissions = { ...role.permissions };
         },
-        error: (err: any) => {
-          this.error = err.message || 'Erreur lors du chargement du rôle.';
-          this.loading = false;
+        error: (err) => {
+          this.error = 'Erreur lors du chargement du rôle.';
+          console.error(err);
         }
       });
     }
   }
 
   onSubmit(): void {
-    this.submitted = true;
-
     if (this.roleForm.invalid) {
       return;
     }
 
-    const formValue = this.roleForm.value;
-    const roleToSubmit: Partial<Role> = {
-      nom: formValue.nom,
-      description: formValue.description,
-      actif: formValue.actif,
-      permissions: formValue.permissions
+    this.loading = true;
+    this.error = null;
+    this.success = null;
+
+    const role: Role = {
+      nom: this.roleForm.value.nom,
+      description: this.roleForm.value.description,
+      permissions: { ...this.permissions },
+      dateCreation: new Date(),
+      actif: this.roleForm.value.actif
     };
 
-    this.loading = true;
     if (this.isEditMode && this.roleId) {
-      this.roleService.updateRole(this.roleId, roleToSubmit).subscribe({
+      role._id = this.roleId;
+      this.roleService.updateRole(this.roleId, role).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/roles']);
+          this.success = 'Rôle mis à jour avec succès.';
+          setTimeout(() => this.router.navigate(['/roles']), 2000);
         },
-        error: (err: any) => {
-          this.error = err.message || 'Erreur lors de la mise à jour du rôle.';
+        error: (err) => {
           this.loading = false;
+          this.error = 'Erreur lors de la mise à jour du rôle.';
+          console.error(err);
         }
       });
     } else {
-      this.roleService.createRole(roleToSubmit).subscribe({
+      this.roleService.createRole(role).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/roles']);
+          this.success = 'Rôle créé avec succès.';
+          this.roleForm.reset();
+          this.permissions = {
+            gererUtilisateursEtRoles: false,
+            configurerSysteme: false,
+            accesComplet: false,
+            validerEcritures: false,
+            cloturerPeriodes: false,
+            genererEtatsFinanciers: false,
+            superviserComptes: false,
+            saisirEcritures: false,
+            gererFactures: false,
+            suivrePaiements: false,
+            gererTresorerie: false,
+            analyserDepensesRecettes: false,
+            genererRapportsPerformance: false,
+            comparerBudgetRealise: false,
+            saisirNotesFrais: false,
+            consulterBulletinsPaie: false,
+            soumettreRemboursements: false,
+            accesFacturesPaiements: false,
+            telechargerDocuments: false,
+            communiquerComptabilite: false
+          };
+          setTimeout(() => this.router.navigate(['/roles']), 2000);
         },
-        error: (err: any) => {
-          this.error = err.message || 'Erreur lors de la création du rôle.';
+        error: (err) => {
           this.loading = false;
+          this.error = 'Erreur lors de la création du rôle.';
+          console.error(err);
         }
       });
-    }
-  }
-
-  togglePermission(permission: string): void {
-    const permissions = this.roleForm.get('permissions')?.value || [];
-    if (permissions.includes(permission)) {
-      this.roleForm.get('permissions')?.setValue(permissions.filter((p: string) => p !== permission));
-    } else {
-      this.roleForm.get('permissions')?.setValue([...permissions, permission]);
     }
   }
 
   cancel(): void {
     this.router.navigate(['/roles']);
+  }
+
+  togglePermission(key: keyof Role['permissions']): void {
+    this.permissions[key] = !this.permissions[key];
   }
 }

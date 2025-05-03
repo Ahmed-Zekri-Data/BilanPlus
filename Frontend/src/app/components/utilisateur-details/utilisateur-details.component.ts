@@ -28,8 +28,8 @@ export class UtilisateurDetailsComponent implements OnInit {
   loadUtilisateur(id: string): void {
     this.loading = true;
     this.utilisateurService.getUtilisateurById(id).subscribe({
-      next: (utilisateur) => {
-        this.utilisateur = utilisateur;
+      next: (response) => {
+        this.utilisateur = response.utilisateur;
         this.loading = false;
       },
       error: (err) => {

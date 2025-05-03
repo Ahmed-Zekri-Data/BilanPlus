@@ -10,7 +10,7 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 import { AuthGuard } from './guards/auth.guards';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
-import { CompteListComponent } from './components/compte-list/compte-list.component';
+//import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
 
 const routes: Routes = [
@@ -27,7 +27,7 @@ const routes: Routes = [
   { path: 'roles/create', component: AddRoleComponent, canActivate: [AuthGuard] },
   { path: 'roles/edit/:id', component: AddRoleComponent, canActivate: [AuthGuard] },
   { path: 'roles/view/:id', component: RoleDetailsComponent, canActivate: [AuthGuard] },
-  { path: 'comptes', component: CompteListComponent, canActivate: [AuthGuard] },
+  //{ path: 'comptes', component: CompteListComponent, canActivate: [AuthGuard] },
   { path: 'facturation', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'fournisseurs', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'stocks', component: HomeComponent, canActivate: [AuthGuard] },

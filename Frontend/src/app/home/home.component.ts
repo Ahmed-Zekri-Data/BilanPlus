@@ -1,8 +1,7 @@
-// home.component.ts
 import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router'; // Ajout de Router
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -33,10 +32,11 @@ export class HomeComponent implements OnInit {
   buttonState = 'normal';
   currentUser: any = null;
   userRole: string = '';
+  sidebarOpen: boolean = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router // Injection de Router
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -61,5 +61,9 @@ export class HomeComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 }

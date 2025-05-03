@@ -5,30 +5,32 @@
       <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
       <h1>{{ getTranslation('welcome') }}</h1>
       <p>{{ getTranslation('noAccount') }}</p>
-      
     </div>
   </div>
 
   <!-- Section droite : Formulaire -->
   <div class="login-container" @fadeIn>
     <h2>{{ getTranslation('signIn') }}</h2>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <form (ngSubmit)="onSubmit()" class="login-form">
       <!-- Email -->
       <div class="form-group">
         <label for="email">{{ getTranslation('loginLabel') }}</label>
         <div class="input-wrapper">
-          <mat-icon class="input-icon">person</mat-icon>
+          <span class="input-icon">👤</span>
           <input
             type="email"
             id="email"
-            formControlName="email"
+            name="email"
             [placeholder]="getTranslation('loginPlaceholder')"
-            [ngClass]="{'is-invalid': submitted && loginForm.get('email')?.errors}"
+            (input)="onInputChange($event, 'email')"
+            [class.is-invalid]="submitted && !credentials.email"
           >
         </div>
-        <div class="invalid-feedback" *ngIf="submitted && loginForm.get('email')?.errors">
-          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
-          <span *ngIf="loginForm.get('email')?.errors?.['email']">Invalid email format</span>
+        <div class="invalid-feedback" *ngIf="submitted && !credentials.email">
+          Email is required
+        </div>
+        <div class="invalid-feedback" *ngIf="submitted && credentials.email && !isValidEmail(credentials.email)">
+          Invalid email format
         </div>
       </div>
 
@@ -36,32 +38,32 @@
       <div class="form-group">
         <label for="password">{{ getTranslation('passwordLabel') }}</label>
         <div class="input-wrapper">
-          <mat-icon class="input-icon">lock</mat-icon>
+          <span class="input-icon">🔒</span>
           <input
             type="password"
             id="password"
-            formControlName="password"
+            name="password"
             [placeholder]="getTranslation('passwordPlaceholder')"
-            [ngClass]="{'is-invalid': submitted && loginForm.get('password')?.errors}"
+            (input)="onInputChange($event, 'password')"
+            [class.is-invalid]="submitted && !credentials.password"
           >
         </div>
-        <div class="invalid-feedback" *ngIf="submitted && loginForm.get('password')?.errors">
-          <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+        <div class="invalid-feedback" *ngIf="submitted && !credentials.password">
+          Password is required
         </div>
       </div>
 
       <!-- Options -->
       <div class="options-row">
         <div class="remember-me">
-          <mat-checkbox formControlName="rememberMe" color="accent">{{ getTranslation('verify') }}</mat-checkbox>
+          <input type="checkbox" id="rememberMe" (change)="onCheckboxChange($event)" />
+          <label for="rememberMe">{{ getTranslation('verify') }}</label>
         </div>
         <a class="forgot-password" routerLink="/forgot-password">{{ getTranslation('forgotPassword') }}</a>
       </div>
 
       <!-- Bouton de soumission -->
       <button
-        mat-raised-button
-        color="primary"
         type="submit"
         class="submit-button"
         [disabled]="loading"
@@ -70,18 +72,18 @@
         (mouseup)="buttonState = 'normal'"
       >
         <span *ngIf="!loading">{{ getTranslation('signIn') }}</span>
-        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        <span *ngIf="loading" class="spinner">⏳</span>
       </button>
     </form>
 
     <!-- Message d'erreur -->
     <div class="alert alert-danger" *ngIf="errorMessage" [@fadeInOut]>
-      <mat-icon>error</mat-icon> {{ errorMessage }}
+      <span>⚠️</span> {{ errorMessage }}
     </div>
 
     <!-- Bouton de traduction -->
     <div class="language-toggle">
-      <button mat-button (click)="toggleLanguage()">{{ getTranslation('languageToggle') }}</button>
+      <button (click)="toggleLanguage()">{{ getTranslation('languageToggle') }}</button>
     </div>
   </div>
 </div>

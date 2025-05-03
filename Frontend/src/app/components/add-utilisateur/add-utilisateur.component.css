@@ -1,20 +1,39 @@
-.user-form-container {
-    padding: 20px;
-  }
-  
-  .card {
-    max-width: 800px;
-    margin: auto;
-  }
-  
-  .form-label {
-    font-weight: bold;
-  }
-  
-  .invalid-feedback {
-    color: #dc3545;
-  }
-  
-  .btn {
-    margin-right: 10px;
-  }
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.registration-card {
+  width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+mat-form-field.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+button[color="primary"] {
+  background-color: #2ecc71;
+  color: white;
+  width: 100%;
+  margin-top: 20px;
+}

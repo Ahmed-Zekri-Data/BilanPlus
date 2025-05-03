@@ -13,7 +13,7 @@ export class UtilisateurService {
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('currentUser') || '{}').token;
     return new HttpHeaders({
       'Authorization': `Bearer ${token || ''}`,
       'Content-Type': 'application/json'
@@ -26,26 +26,38 @@ export class UtilisateurService {
     );
   }
 
-  getUtilisateurById(id: string): Observable<Utilisateur> {
-    return this.http.get<Utilisateur>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+  getUtilisateurById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
-  createUtilisateur(utilisateur: Partial<Utilisateur>): Observable<Utilisateur> {
-    return this.http.post<Utilisateur>(`${this.apiUrl}/add`, utilisateur, { headers: this.getHeaders() }).pipe(
+  createUtilisateur(utilisateur: Partial<Utilisateur>): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/add`, utilisateur, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
-  updateUtilisateur(id: string, utilisateur: Partial<Utilisateur>): Observable<Utilisateur> {
-    return this.http.put<Utilisateur>(`${this.apiUrl}/${id}`, utilisateur, { headers: this.getHeaders() }).pipe(
+  updateUtilisateur(id: string, utilisateur: Partial<Utilisateur>): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, utilisateur, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   deleteUtilisateur(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  analyseUserActivity(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/activite`, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  exportToCSV(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/export-csv`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }

@@ -1,97 +1,50 @@
-<div class="users-container">
-  <div class="users-header" @fadeIn>
-    <h1>Liste des Utilisateurs</h1>
-    <div class="action-buttons">
-      <button 
-        mat-raised-button 
-        color="primary" 
-        (click)="goToAddUser()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>add</mat-icon> Ajouter Utilisateur
-      </button>
-      <button 
-        mat-raised-button 
-        color="accent" 
-        (click)="analyseUserActivity()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>analytics</mat-icon> Analyser Activité
-      </button>
-      <button 
-        mat-raised-button 
-        color="accent" 
-        (click)="exportToCSV()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>file_download</mat-icon> Exporter en CSV
-      </button>
-      <button 
-        mat-raised-button 
-        color="warn" 
-        routerLink="/home"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>arrow_back</mat-icon> Retour
-      </button>
-    </div>
-  </div>
+<mat-card class="search-card">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Rechercher</mat-label>
+    <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+</mat-card>
 
-  <!-- Message d'erreur -->
-  <div class="alert alert-danger" *ngIf="errorMessage" @fadeInOut>
-    <mat-icon>error</mat-icon> {{ errorMessage }}
-  </div>
-
-  <!-- Liste des utilisateurs -->
-  <div class="users-grid" *ngIf="utilisateurs.length > 0; else noUsers" @slideIn>
-    <div class="user-card" *ngFor="let user of utilisateurs">
-      <div class="card-content">
-        <h5>{{ user.nom }} {{ user.prenom }}</h5>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Rôle:</strong> {{ getRoleName(user) }}</p>
-        <p><strong>Statut:</strong> 
-          <span class="badge" [ngClass]="user.actif ? 'bg-success' : 'bg-danger'">
-            {{ user.actif ? 'Actif' : 'Inactif' }}
-          </span>
-        </p>
-      </div>
-      <div class="card-actions">
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="viewUser(user._id!)"
-          [@buttonClick]="buttonState"
-          (mousedown)="buttonState = 'clicked'"
-          (mouseup)="buttonState = 'normal'"
-        >
-          <mat-icon>visibility</mat-icon> Détails
-        </button>
-        <button 
-          mat-raised-button 
-          color="warn" 
-          (click)="deleteUser(user._id!)"
-          [@buttonClick]="buttonState"
-          (mousedown)="buttonState = 'clicked'"
-          (mouseup)="buttonState = 'normal'"
-        >
-          <mat-icon>delete</mat-icon> Supprimer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message si aucun utilisateur -->
-  <ng-template #noUsers>
-    <div class="alert alert-info" *ngIf="!errorMessage" @fadeInOut>
-      Aucun utilisateur disponible pour le moment.
-    </div>
-  </ng-template>
+<div class="header">
+  <h2>VOS UTILISATEURS RÉCENTS</h2>
+  <button mat-flat-button color="primary" (click)="addUtilisateur()">
+    <mat-icon>upload</mat-icon> AJOUTER UN NOUVEL UTILISATEUR
+  </button>
 </div>
+
+<mat-tab-group>
+  <mat-tab label="TOUS">
+    <div class="file-list">
+      <mat-card *ngFor="let user of utilisateurs" class="file-card">
+        <mat-card-content class="file-content">
+          <mat-icon class="file-icon">person</mat-icon>
+          <div class="file-info">
+            <span class="file-name">{{ user.nom }} {{ user.prenom }}</span>
+            <span class="file-details">{{ user.email }} | Rôle: {{ getRoleName(user) }}</span>
+          </div>
+          <div class="file-actions">
+            <button mat-icon-button color="warn" (click)="openShareDialog(user)">
+              <mat-icon>share</mat-icon> PARTAGER
+            </button>
+            <button mat-icon-button color="primary" (click)="editUtilisateur(user)">
+              <mat-icon>edit</mat-icon> MODIFIER
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteUtilisateur(user._id)">
+              <mat-icon>delete</mat-icon> SUPPRIMER
+            </button>
+            <button mat-icon-button color="accent" (click)="showDetails(user)">
+              <mat-icon>info</mat-icon> DÉTAILS
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+</mat-tab-group>
+
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>
+
+<button mat-flat-button color="accent" (click)="exportToCSV()">Exporter en CSV</button>

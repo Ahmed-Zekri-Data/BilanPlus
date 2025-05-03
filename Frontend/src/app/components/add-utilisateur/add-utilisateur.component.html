@@ -1,186 +1,49 @@
-<div class="user-form-container">
-  <div class="card" @fadeIn>
-    <div class="card-header">
-      <h2>{{ isEditMode ? 'Modifier' : 'Créer' }} un utilisateur</h2>
-    </div>
-    
-    <div class="card-body">
-      <div *ngIf="loading" class="text-center mb-4">
-        <mat-spinner diameter="40"></mat-spinner>
+<div class="container">
+  <h2>Ajouter un Utilisateur</h2>
+  <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="nom">Nom</label>
+      <input id="nom" formControlName="nom" type="text" placeholder="Entrez le nom" />
+      <div *ngIf="utilisateurForm.get('nom')?.errors?.['required'] && utilisateurForm.get('nom')?.touched" class="error-message">
+        Le nom est requis.
       </div>
-      
-      <div class="alert alert-danger" *ngIf="error" @fadeInOut>
-        <mat-icon>error</mat-icon> {{ error }}
-      </div>
-      
-      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" @slideIn>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="nom" class="form-label">Nom*</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">person</mat-icon>
-              <input 
-                type="text" 
-                formControlName="nom" 
-                class="form-control" 
-                [ngClass]="{ 'is-invalid': submitted && userForm.controls['nom'].errors }" 
-              />
-            </div>
-            <div *ngIf="submitted && userForm.controls['nom'].errors" class="invalid-feedback">
-              <div *ngIf="userForm.controls['nom'].errors['required']">Le nom est requis</div>
-            </div>
-          </div>
-          
-          <div class="col-md-6 mb-3">
-            <label for="prenom" class="form-label">Prénom*</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">person</mat-icon>
-              <input 
-                type="text" 
-                formControlName="prenom" 
-                class="form-control" 
-                [ngClass]="{ 'is-invalid': submitted && userForm.controls['prenom'].errors }" 
-              />
-            </div>
-            <div *ngIf="submitted && userForm.controls['prenom'].errors" class="invalid-feedback">
-              <div *ngIf="userForm.controls['prenom'].errors['required']">Le prénom est requis</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="email" class="form-label">Email*</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">email</mat-icon>
-              <input 
-                type="email" 
-                formControlName="email" 
-                class="form-control" 
-                [ngClass]="{ 'is-invalid': submitted && userForm.controls['email'].errors }" 
-              />
-            </div>
-            <div *ngIf="submitted && userForm.controls['email'].errors" class="invalid-feedback">
-              <div *ngIf="userForm.controls['email'].errors['required']">L'email est requis</div>
-              <div *ngIf="userForm.controls['email'].errors['email']">Veuillez entrer un email valide</div>
-            </div>
-          </div>
-          
-          <div class="col-md-6 mb-3">
-            <label for="password" class="form-label">{{ isEditMode ? 'Mot de passe (laisser vide pour ne pas modifier)' : 'Mot de passe*' }}</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">lock</mat-icon>
-              <input 
-                type="password" 
-                formControlName="password" 
-                class="form-control" 
-                [ngClass]="{ 'is-invalid': submitted && userForm.controls['password'].errors }" 
-              />
-            </div>
-            <div *ngIf="submitted && userForm.controls['password'].errors" class="invalid-feedback">
-              <div *ngIf="userForm.controls['password'].errors['required']">Le mot de passe est requis</div>
-              <div *ngIf="userForm.controls['password'].errors['minlength']">Le mot de passe doit contenir au moins 8 caractères</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="role" class="form-label">Rôle*</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">admin_panel_settings</mat-icon>
-              <select 
-                formControlName="role" 
-                class="form-select" 
-                [ngClass]="{ 'is-invalid': submitted && userForm.controls['role'].errors }" 
-              >
-                <option value="">Sélectionner un rôle</option>
-                <option *ngFor="let role of roles" [value]="role.id">{{ role.nom }}</option>
-              </select>
-            </div>
-            <div *ngIf="submitted && userForm.controls['role'].errors" class="invalid-feedback">
-              <div *ngIf="userForm.controls['role'].errors['required']">Le rôle est requis</div>
-            </div>
-          </div>
-          
-          <div class="col-md-6 mb-3">
-            <label for="telephone" class="form-label">Téléphone</label>
-            <div class="input-wrapper">
-              <mat-icon class="input-icon">phone</mat-icon>
-              <input type="tel" formControlName="telephone" class="form-control" />
-            </div>
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <label for="adresse" class="form-label">Adresse</label>
-          <div class="input-wrapper">
-            <mat-icon class="input-icon">location_on</mat-icon>
-            <textarea formControlName="adresse" class="form-control" rows="2"></textarea>
-          </div>
-        </div>
-        
-        <div *ngIf="isEditMode" class="mb-3 form-check">
-          <input type="checkbox" formControlName="actif" class="form-check-input" id="actif">
-          <label class="form-check-label" for="actif">Compte actif</label>
-        </div>
-        
-        <div class="mb-3">
-          <h4>Préférences</h4>
-          <div formGroupName="preferences" class="preferences-section">
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="theme" class="form-label">Thème</label>
-                <select formControlName="theme" class="form-select">
-                  <option value="light">Clair</option>
-                  <option value="dark">Sombre</option>
-                </select>
-              </div>
-              
-              <div class="col-md-4 mb-3">
-                <label for="langue" class="form-label">Langue</label>
-                <select formControlName="langue" class="form-select">
-                  <option value="fr">Français</option>
-                  <option value="en">Anglais</option>
-                </select>
-              </div>
-              
-              <div class="col-md-4 mb-3 d-flex align-items-end">
-                <div class="form-check">
-                  <input type="checkbox" formControlName="notificationsEmail" class="form-check-input" id="notificationsEmail">
-                  <label class="form-check-label" for="notificationsEmail">Notifications par email</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="d-flex gap-2">
-          <button 
-            type="submit" 
-            mat-raised-button 
-            color="primary" 
-            [disabled]="loading"
-            [@buttonClick]="buttonState"
-            (mousedown)="buttonState = 'clicked'"
-            (mouseup)="buttonState = 'normal'"
-          >
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-            <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }} l'utilisateur</span>
-          </button>
-          <button 
-            type="button" 
-            mat-raised-button 
-            color="warn" 
-            routerLink="/users"
-            [@buttonClick]="buttonState"
-            (mousedown)="buttonState = 'clicked'"
-            (mouseup)="buttonState = 'normal'"
-          >
-            Annuler
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" formControlName="email" type="email" placeholder="Entrez l'email" />
+      <div *ngIf="utilisateurForm.get('email')?.errors?.['required'] && utilisateurForm.get('email')?.touched" class="error-message">
+        L'email est requis.
+      </div>
+      <div *ngIf="utilisateurForm.get('email')?.errors?.['email'] && utilisateurForm.get('email')?.touched" class="error-message">
+        L'email n'est pas valide.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password">Mot de passe</label>
+      <input id="password" formControlName="password" type="password" placeholder="Entrez le mot de passe" />
+      <div *ngIf="utilisateurForm.get('password')?.errors?.['required'] && utilisateurForm.get('password')?.touched" class="error-message">
+        Le mot de passe est requis.
+      </div>
+      <div *ngIf="utilisateurForm.get('password')?.errors?.['minlength'] && utilisateurForm.get('password')?.touched" class="error-message">
+        Le mot de passe doit contenir au moins 6 caractères.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="role">Rôle</label>
+      <input id="role" formControlName="role" type="text" placeholder="Entrez le rôle" />
+      <div *ngIf="utilisateurForm.get('role')?.errors?.['required'] && utilisateurForm.get('role')?.touched" class="error-message">
+        Le rôle est requis.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="actif">Actif</label>
+      <input id="actif" formControlName="actif" type="checkbox" />
+    </div>
+    <button type="submit" [disabled]="loading || utilisateurForm.invalid">Ajouter</button>
+    <div *ngIf="loading" class="spinner">
+      <div class="spinner-inner"></div>
+    </div>
+    <div *ngIf="success" class="success-message">{{ success }}</div>
+    <div *ngIf="error" class="error-message">✗ {{ error }}</div>
+  </form>
 </div>

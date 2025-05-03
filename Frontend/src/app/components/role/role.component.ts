@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RoleService } from '../../services/role.service';
+import { Role } from '../../Models/Role';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Role } from '../../Models/Role';
 
 @Component({
   selector: 'app-role',
@@ -24,12 +27,6 @@ import { Role } from '../../Models/Role';
         animate('300ms ease-out', style({ opacity: 0 }))
       ])
     ]),
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ transform: 'translateY(20px)', opacity: 0 }),
-        animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
-      ])
-    ]),
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
@@ -40,32 +37,25 @@ import { Role } from '../../Models/Role';
 export class RoleComponent implements OnInit {
   roles: Role[] = [];
   filteredRoles: Role[] = [];
-  searchTerm: string = '';
-  loading: boolean = false;
-  error: string | null = null;
+  dataSource: MatTableDataSource<Role>;
+  displayedColumns: string[] = ['nom', 'description', 'actif', 'permissions', 'actions'];
   buttonState: string = 'normal';
+  loading: boolean = false;
   statsVisible: boolean = false;
   roleStats: any[] = [];
-  availablePermissions: string[] = [
-    'users:view', 'users:manage',
-    'roles:view', 'roles:manage',
-    'clients:view', 'clients:manage',
-    'suppliers:view', 'suppliers:manage',
-    'invoices:view', 'invoices:manage',
-    'accounting:view', 'accounting:manage',
-    'reports:view', 'reports:manage',
-    'declarations:view', 'declarations:manage',
-    'advancedReports:view',
-    'system:manage'
-  ];
+  searchTerm: string = '';
+  permissionKeys: string[] = [];
 
-  constructor(
-    private roleService: RoleService,
-    private router: Router
-  ) {}
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(private roleService: RoleService, private router: Router) {
+    this.dataSource = new MatTableDataSource<Role>([]);
+  }
 
   ngOnInit(): void {
     this.loadRoles();
+    this.initializePermissionKeys();
   }
 
   loadRoles(): void {
@@ -73,83 +63,89 @@ export class RoleComponent implements OnInit {
     this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
         this.roles = data;
-        this.filteredRoles = [...this.roles];
+        this.filteredRoles = data;
+        this.dataSource.data = this.roles;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
         this.loading = false;
-        this.error = null;
       },
       error: (err: any) => {
-        this.error = err.message || 'Erreur lors du chargement des rôles.';
+        console.error('Erreur lors du chargement des rôles:', err);
         this.loading = false;
-        this.roles = [];
-        this.filteredRoles = [];
       }
     });
   }
 
-  applyFilter(): void {
-    if (!this.searchTerm) {
-      this.filteredRoles = [...this.roles];
-    } else {
-      const term = this.searchTerm.toLowerCase();
-      this.filteredRoles = this.roles.filter(role =>
-        role.nom.toLowerCase().includes(term) ||
-        (role.description && role.description.toLowerCase().includes(term))
-      );
-    }
+  initializePermissionKeys(): void {
+    const samplePermissions: Role['permissions'] = {
+      gererUtilisateursEtRoles: false,
+      configurerSysteme: false,
+      accesComplet: false,
+      validerEcritures: false,
+      cloturerPeriodes: false,
+      genererEtatsFinanciers: false,
+      superviserComptes: false,
+      saisirEcritures: false,
+      gererFactures: false,
+      suivrePaiements: false,
+      gererTresorerie: false,
+      analyserDepensesRecettes: false,
+      genererRapportsPerformance: false,
+      comparerBudgetRealise: false,
+      saisirNotesFrais: false,
+      consulterBulletinsPaie: false,
+      soumettreRemboursements: false,
+      accesFacturesPaiements: false,
+      telechargerDocuments: false,
+      communiquerComptabilite: false
+    };
+    this.permissionKeys = Object.keys(samplePermissions);
   }
 
-  viewRole(id: string): void {
-    this.router.navigate([`/roles/view/${id}`]);
+  getPermissionsList(role: Role): string[] {
+    return this.permissionKeys.filter(key => role.permissions[key as keyof Role['permissions']]);
   }
 
-  editRole(id: string): void {
-    this.router.navigate([`/roles/edit/${id}`]);
+  toggleActif(role: Role): void {
+    const updatedRole: Partial<Role> = { actif: !role.actif };
+    this.roleService.updateRole(role._id || '', updatedRole).subscribe({
+      next: () => { role.actif = !role.actif; },
+      error: (err: any) => { console.error('Erreur:', err); }
+    });
+  }
+
+  editRole(role: Role): void {
+    this.router.navigate([`/role/edit/${role._id}`]);
   }
 
   deleteRole(id: string): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')) {
+    if (confirm('Êtes-vous sûr ?')) {
       this.roleService.deleteRole(id).subscribe({
-        next: () => {
-          this.loadRoles();
-        },
-        error: (err: any) => {
-          this.error = err.message || 'Erreur lors de la suppression du rôle.';
-        }
+        next: () => this.loadRoles(),
+        error: (err: any) => console.error('Erreur:', err)
       });
     }
   }
 
-  togglePermission(role: Role, permission: string): void {
-    const permissions = role.permissions || [];
-    const permissionExists = permissions.includes(permission);
-    let updatedPermissions: string[];
+  viewRole(id: string): void {
+    this.router.navigate([`/role/${id}`]);
+  }
 
-    if (permissionExists) {
-      updatedPermissions = permissions.filter(p => p !== permission);
-    } else {
-      updatedPermissions = [...permissions, permission];
-    }
-
-    this.roleService.updateRole(role._id || role.id || '', { permissions: updatedPermissions }).subscribe({
-      next: () => {
-        this.loadRoles();
-      },
-      error: (err: any) => {
-        this.error = err.message || 'Erreur lors de la mise à jour des permissions.';
-      }
-    });
+  search(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchTerm = input.value.toLowerCase();
+    this.filteredRoles = this.roles.filter(role =>
+      role.nom.toLowerCase().includes(this.searchTerm) ||
+      role.description?.toLowerCase().includes(this.searchTerm)
+    );
   }
 
   loadRoleStats(): void {
-    this.roleService.getUsersPerRole().subscribe({
-      next: (data: any[]) => {
-        this.roleStats = data;
-        this.statsVisible = true;
-      },
-      error: (err: any) => {
-        this.error = err.message || 'Erreur lors du chargement des statistiques.';
-      }
-    });
+    this.statsVisible = true;
+    this.roleStats = this.roles.map(role => ({
+      nom: role.nom,
+      totalUsers: Math.floor(Math.random() * 10)
+    }));
   }
 
   hideStats(): void {
@@ -157,14 +153,24 @@ export class RoleComponent implements OnInit {
     this.roleStats = [];
   }
 
-  analysePermissionsUsage(): void {
-    this.roleService.analysePermissionsUsage().subscribe({
-      next: (data: any) => {
-        console.log('Analyse des permissions:', data);
-      },
-      error: (err: any) => {
-        this.error = err.message || 'Erreur lors de l\'analyse des permissions.';
-      }
-    });
+  exportToCSV(): void {
+    const csvData = this.roles.map(role => ({
+      Nom: role.nom,
+      Description: role.description,
+      Actif: role.actif ? 'Oui' : 'Non',
+      Permissions: this.getPermissionsList(role).join(';'),
+      DateCreation: new Date(role.dateCreation).toLocaleDateString()
+    }));
+    const csv = [
+      'Nom,Description,Actif,Permissions,DateCreation',
+      ...csvData.map(row => `${row.Nom},${row.Description},${row.Actif},${row.Permissions},${row.DateCreation}`)
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'roles.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 }

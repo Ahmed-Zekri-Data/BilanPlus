@@ -1,177 +1,54 @@
-<div class="roles-container">
-  <div class="roles-header" @fadeIn>
-    <h1>Gestion des Rôles</h1>
-    <div class="action-buttons">
-      <button 
-        mat-raised-button 
-        color="primary" 
-        routerLink="/roles/create"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>add</mat-icon> Nouveau Rôle
-      </button>
-      <button 
-        mat-raised-button 
-        color="accent" 
-        (click)="loadRoleStats()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>bar_chart</mat-icon> Statistiques
-      </button>
-      <button 
-        mat-raised-button 
-        color="accent" 
-        (click)="analysePermissionsUsage()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>security</mat-icon> Analyser Permissions
-      </button>
-      <button 
-        mat-raised-button 
-        color="warn" 
-        routerLink="/home"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>arrow_back</mat-icon> Retour
-      </button>
-    </div>
+<div class="container">
+  <h2>Liste des Rôles</h2>
+  <input type="text" placeholder="Rechercher un rôle..." (input)="search($event)" class="search-bar" />
+  <div *ngIf="loading" class="spinner">
+    <div class="spinner-inner"></div>
   </div>
-
-  <!-- Statistiques -->
-  <div *ngIf="statsVisible" class="stats-container" @fadeInOut>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3>Statistiques des utilisateurs par rôle</h3>
-      <button 
-        mat-raised-button 
-        color="warn" 
-        (click)="hideStats()"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
-      >
-        <mat-icon>close</mat-icon> Fermer
-      </button>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Rôle</th>
-            <th>Nombre d'utilisateurs</th>
-            <th>Actifs</th>
-            <th>Inactifs</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let stat of roleStats">
-            <td>{{ stat.roleName }}</td>
-            <td>{{ stat.nombreUtilisateurs }}</td>
-            <td>{{ stat.actifs }}</td>
-            <td>{{ stat.inactifs }}</td>
-          </tr>
-          <tr *ngIf="roleStats && roleStats.length === 0">
-            <td colspan="4" class="text-center">Aucune donnée disponible</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <table class="role-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Description</th>
+        <th>Actif</th>
+        <th>Permissions</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let role of filteredRoles" @fadeIn>
+        <td>{{ role.nom }}</td>
+        <td>{{ role.description }}</td>
+        <td>{{ role.actif ? 'Oui' : 'Non' }}</td>
+        <td>{{ getPermissionsList(role).join(', ') }}</td>
+        <td>
+          <button class="icon-button" (click)="toggleActif(role)">{{ role.actif ? 'Désactiver' : 'Activer' }}</button>
+          <button class="icon-button" (click)="editRole(role)">Modifier</button>
+          <button class="icon-button" (click)="deleteRole(role._id || '')">Supprimer</button>
+          <button class="icon-button" (click)="viewRole(role._id || '')">Voir</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <button class="action-button" (click)="loadRoleStats()">Afficher les Statistiques</button>
+    <button class="action-button" (click)="exportToCSV()">Exporter en CSV</button>
   </div>
-
-  <!-- Filtre de recherche -->
-  <div class="form-group" @fadeIn>
-    <div class="input-group mb-3">
-      <span class="input-group-text"><mat-icon>search</mat-icon></span>
-      <input 
-        type="text" 
-        class="form-control" 
-        placeholder="Rechercher un rôle..." 
-        [(ngModel)]="searchTerm"
-        (keyup)="applyFilter()"
-      >
-    </div>
+  <div *ngIf="statsVisible" class="mt-4" @fadeInOut>
+    <h3>Statistiques des Rôles</h3>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Nombre d'Utilisateurs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stat of roleStats">
+          <td>{{ stat.nom }}</td>
+          <td>{{ stat.totalUsers }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="action-button" (click)="hideStats()">Masquer</button>
   </div>
-
-  <!-- Chargement -->
-  <div *ngIf="loading" class="text-center">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
-
-  <!-- Message d'erreur -->
-  <div class="alert alert-danger" *ngIf="error" @fadeInOut>
-    <mat-icon>error</mat-icon> {{ error }}
-  </div>
-
-  <!-- Liste des rôles -->
-  <div class="roles-grid" *ngIf="filteredRoles.length > 0; else noRoles" @slideIn>
-    <div class="role-card" *ngFor="let role of filteredRoles">
-      <div class="card-content">
-        <h5>{{ role.nom }}</h5>
-        <p><strong>Description:</strong> {{ role.description || 'Aucune description' }}</p>
-        <p><strong>Statut:</strong> 
-          <span class="badge" [ngClass]="role.actif ? 'bg-success' : 'bg-danger'">
-            {{ role.actif ? 'Actif' : 'Inactif' }}
-          </span>
-        </p>
-        <p><strong>Date de création:</strong> {{ role.dateCreation | date:'dd/MM/yyyy' }}</p>
-        <p><strong>Permissions:</strong></p>
-        <div class="permissions-list">
-          <div *ngFor="let permission of availablePermissions">
-            <mat-checkbox
-              [checked]="role.permissions?.includes(permission) || false"
-              (change)="togglePermission(role, permission)"
-            >
-              {{ permission }}
-            </mat-checkbox>
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="viewRole(role.id!)"
-          [@buttonClick]="buttonState"
-          (mousedown)="buttonState = 'clicked'"
-          (mouseup)="buttonState = 'normal'"
-        >
-          <mat-icon>visibility</mat-icon> Détails
-        </button>
-        <button 
-          mat-raised-button 
-          color="accent" 
-          (click)="editRole(role.id!)"
-          [@buttonClick]="buttonState"
-          (mousedown)="buttonState = 'clicked'"
-          (mouseup)="buttonState = 'normal'"
-        >
-          <mat-icon>edit</mat-icon> Modifier
-        </button>
-        <button 
-          mat-raised-button 
-          color="warn" 
-          (click)="deleteRole(role.id!)"
-          [@buttonClick]="buttonState"
-          (mousedown)="buttonState = 'clicked'"
-          (mouseup)="buttonState = 'normal'"
-        >
-          <mat-icon>delete</mat-icon> Supprimer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message si aucun rôle -->
-  <ng-template #noRoles>
-    <div class="alert alert-info" *ngIf="!loading && !error" @fadeInOut>
-      Aucun rôle trouvé.
-    </div>
-  </ng-template>
 </div>

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
@@ -33,7 +32,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   ]
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
+  credentials = { email: '', password: '', rememberMe: false };
   loading = false;
   submitted = false;
   errorMessage = '';
@@ -71,16 +70,9 @@ export class LoginComponent implements OnInit {
   };
 
   constructor(
-    private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      rememberMe: [false]
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -98,16 +90,39 @@ export class LoginComponent implements OnInit {
     return this.translations[this.currentLanguage][key];
   }
 
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  onInputChange(event: Event, field: 'email' | 'password'): void {
+    const target = event.target as HTMLInputElement;
+    if (target) {
+      if (field === 'email') {
+        this.credentials.email = target.value;
+      } else if (field === 'password') {
+        this.credentials.password = target.value;
+      }
+    }
+  }
+
+  onCheckboxChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target) {
+      this.credentials.rememberMe = target.checked;
+    }
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessage = '';
 
-    if (this.loginForm.invalid) {
+    if (!this.credentials.email || !this.isValidEmail(this.credentials.email) || !this.credentials.password) {
       return;
     }
 
     this.loading = true;
-    const credentials = this.loginForm.value;
+    const credentials = this.credentials;
 
     this.authService.login(credentials).subscribe({
       next: () => {
