@@ -53,8 +53,12 @@
         <label for="echeance">Date d'échéance :</label>
         <input type="date" id="echeance" formControlName="echeance">
         <div *ngIf="devisForm.get('echeance')?.invalid && devisForm.get('echeance')?.touched" class="error-message">
-          Date d'échéance requise.
+         
         </div>
+        <div class="error" *ngIf="devisForm.get('echeance')?.hasError('dateInvalide')">
+            La date d'échéance ne peut pas être dans le futur.
+          </div>
+          
       </div>
   
       <div class="summary">

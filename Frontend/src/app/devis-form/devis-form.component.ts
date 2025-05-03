@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormArray, Validators, FormBuilder } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
   selector: 'app-devis-form',
@@ -22,24 +23,40 @@ export class DevisFormComponent implements OnInit {
       statut: ['Brouillon']
     });
   }
+  dateInférieureOuÉgaleAujourdhui(control: AbstractControl): ValidationErrors | null {
+    const valeur = control.value;
+    if (!valeur) return null;
+  
+    const today = new Date();
+    const inputDate = new Date(valeur);
+  
+    inputDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+  
+    return inputDate <= today ? null : { dateInvalide: true };
+  }
+  
 
   ngOnInit(): void {
-    // Charger les clients depuis localStorage
     const storedClients = localStorage.getItem('clients');
     if (storedClients) {
       this.clients = JSON.parse(storedClients);
     }
-
-    // Pour la démo, on ajoute des produits fictifs
+  
     this.produitsList = [
       { _id: 'prod1', nom: 'Produit A', prix: 100 },
       { _id: 'prod2', nom: 'Produit B', prix: 200 },
       { _id: 'prod3', nom: 'Produit C', prix: 150 }
     ];
-
-    // Ajouter un produit par défaut
+  
+    this.devisForm.get('echeance')?.setValidators([
+      Validators.required,
+      this.dateInférieureOuÉgaleAujourdhui
+    ]);
+  
     this.addProduit();
   }
+  
 
   get produitsArray() {
     return this.devisForm.get('produits') as FormArray;
