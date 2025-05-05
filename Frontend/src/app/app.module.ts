@@ -19,9 +19,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTableModule } from '@angular/material/table'; // Ajout de MatTableModule
+import { MatPaginatorModule } from '@angular/material/paginator';  
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table'; 
 
-// Components from both branches
 import { HomeComponent } from './home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
@@ -46,6 +47,7 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
+
 
 @NgModule({
   declarations: [
@@ -96,7 +98,9 @@ import { GenerateDeclarationDialogComponent } from './components/generate-declar
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule, 
-    CommonModule
+    CommonModule,
+    MatPaginatorModule,
+    MatSortModule
   ],
   providers: [],
   bootstrap: [AppComponent]

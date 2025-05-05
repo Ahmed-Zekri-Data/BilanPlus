@@ -1,33 +1,31 @@
-<div *ngIf="tva; else loading">
-    <h2>TVA Details</h2>
+<div *ngIf="isLoading; else tvaDetails">
+  <p>Chargement des détails de la TVA...</p>
+</div>
+
+<ng-template #tvaDetails>
+  <div *ngIf="errors.length > 0" class="error-container">
+    <p class="error-title">Erreur(s) :</p>
+    <ul>
+      <li *ngFor="let error of errors" class="error">{{ error }}</li>
+    </ul>
+  </div>
+
+  <div *ngIf="tva; else noTVA">
+    <h2>Détails de la TVA</h2>
     <div class="tva-details">
-      <p><strong>ID:</strong> {{ tva!._id}}</p>
-      <p><strong>Taux (%):</strong> {{ tva!.taux }}</p>
-      <p><strong>Montant:</strong> {{ tva!.montant }}</p>
-      <p><strong>Declaration ID:</strong> {{ tva!.declaration }}</p>
+      <p><strong>ID:</strong> {{ tva._id || 'N/A' }}</p>
+      <p><strong>Taux (%):</strong> {{ tva.taux }}</p>
+      <p><strong>Montant (TND):</strong> {{ tva.montant | number:'1.2-2' }}</p>
+      <p><strong>Déclaration Fiscale:</strong> {{ declaration ? declaration.periode : 'N/A' }}</p>
+      <p *ngIf="declaration"><strong>Montant Total de la Déclaration:</strong> {{ declaration.montantTotal | number:'1.2-2' }} TND</p>
     </div>
-  
-    <h3>Associated Declaration Fiscale</h3>
-    <div *ngIf="declaration; else noDeclaration">
-      <p><strong>Période:</strong> {{ declaration!.periode }}</p>
-      <p><strong>Montant Total:</strong> {{ declaration!.montantTotal }}</p>
-      <p><strong>Statut:</strong> {{ declaration!.statut }}</p>
-      <p><strong>Compte Comptable:</strong> {{ declaration!.compteComptable || 'N/A' }}</p>
-    </div>
-    <ng-template #noDeclaration>
-      <p>No associated Declaration Fiscale found.</p>
-    </ng-template>
-  
     <div class="actions">
-      <button mat-raised-button color="primary" (click)="editTva()">Edit TVA</button>
-      <button mat-raised-button color="warn" (click)="deleteTva()">Delete TVA</button>
-      <button mat-raised-button (click)="router.navigate(['/TVA'])">Back to List</button>
+      <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
     </div>
   </div>
-  
-  <ng-template #loading>
-    <p *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
-    <ng-template #spinner>
-      <p>Loading TVA details...</p>
-    </ng-template>
+
+  <ng-template #noTVA>
+    <p>Aucune TVA trouvée.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
   </ng-template>
+</ng-template>

@@ -1,46 +1,23 @@
-<div class="details-container">
+<div *ngIf="isLoading">
+  <p>Chargement des détails de la déclaration...</p>
+</div>
+
+<div *ngIf="!isLoading && declaration">
   <h2>DÉTAILS DE LA DÉCLARATION FISCALE</h2>
+  <p><strong>Période :</strong> {{ declaration.periode || 'N/A' }}</p>
+  <p><strong>Montant Total (TND) :</strong> {{ declaration.montantTotal || 0 }}</p>
+  <p><strong>TVA Collectée (TND) :</strong> {{ declaration.totalTVACollectee || 0 }}</p>
+  <p><strong>TVA Déductible (TND) :</strong> {{ declaration.totalTVADeductible || 0 }}</p>
+  <p><strong>TVA Nette (TND) :</strong> {{ declaration.totalTVADue || 0 }}</p>
+  <p><strong>Statut :</strong> {{ declaration.statut || 'N/A' }}</p>
+  <p><strong>Compte Comptable :</strong> {{ declaration.compteComptable?.nom || declaration.compteComptable?.code || declaration.compteComptable || 'N/A' }}</p>
+  <button mat-raised-button (click)="goBack()">Retour</button>
+</div>
 
-  <div class="details-content" *ngIf="!isLoading; else loading">
-    <div *ngIf="declaration; else noData">
-     
-      <div class="detail-item">
-        <span class="label">Période :</span>
-        <span class="value">{{ formatPeriode(declaration.periode) }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Montant Total :</span>
-        <span class="value">{{ declaration.montantTotal | number:'1.2-2' }} TND</span> <!-- Changé de € à TND -->
-      </div>
-      <div class="detail-item">
-        <span class="label">Statut :</span>
-        <span class="value">{{ declaration.statut }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Compte Comptable :</span>
-        <span class="value" *ngIf="compteComptable; else compteLoading">
-          {{ getCompteComptableName(compteComptable) }} <!-- Afficher uniquement le nom -->
-        </span>
-        <ng-template #compteLoading>
-          <span>Chargement des détails du compte comptable...</span>
-        </ng-template>
-      </div>
-    </div>
-
-    <ng-template #noData>
-      <p class="no-data">Aucune donnée disponible pour cette déclaration.</p>
-    </ng-template>
-  </div>
-
-  <ng-template #loading>
-    <p class="loading" *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
-    <ng-template #spinner>
-      <p class="loading">Chargement des détails de la déclaration...</p>
-    </ng-template>
-  </ng-template>
-
-  <div class="actions">
-    <button mat-raised-button color="primary" (click)="editDeclaration()">MODIFIER</button>
-    <button mat-raised-button color="primary" (click)="goBack()">RETOUR À LA LISTE</button>
-  </div>
+<div *ngIf="!isLoading && errors.length > 0" class="error-container">
+  <p class="error-title">Erreur(s) :</p>
+  <ul>
+    <li *ngFor="let error of errors" class="error">{{ error }}</li>
+  </ul>
+  <button mat-raised-button (click)="goBack()">Retour</button>
 </div>

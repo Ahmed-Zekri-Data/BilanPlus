@@ -1,50 +1,66 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
-import { CompteComptable } from '../../Models/CompteComptable';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { GenerateDeclarationDialogComponent } from '../generate-declaration-dialog/generate-declaration-dialog.component';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-list-df',
   templateUrl: './list-df.component.html',
-  styleUrls: ['./list-df.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./list-df.component.css']
 })
 export class ListDFComponent implements OnInit {
-  declarations: DeclarationFiscale[] = [];
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  declarations: any= [];
+  dataSource = new MatTableDataSource(this.declarations);
+  displayedColumns: string[] = ['periode', 'type','montantTotal', 'totalTVACollectee', 'totalTVADeductible', 'totalTVADue', 'statut', 'actions'];
+  isLoading: boolean = true;
   errors: string[] = [];
+
 
   constructor(
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.loadDeclarations();
   }
+  ngAfterViewInit(): void {
+    // Important : assigner paginator & sort ici
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    
+    }
 
   loadDeclarations(): void {
+    this.isLoading = true;
     this.declarationFiscaleTVAService.getDeclarations().subscribe({
-      next: (declarations) => {
-        console.log('Déclarations récupérées :', declarations);
+      next: (declarations: any) => {
         this.declarations = declarations;
+        this.dataSource.data = this.declarations;
+        this.dataSource.sort = this.sort;
+        
+        this.isLoading = false;
       },
       error: (errors: string[]) => {
         this.errors = errors;
+        this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+        this.isLoading = false;
       }
     });
   }
 
-  openGenerateDialog(): void {
-    // Rediriger vers /generer-df sans paramètres (nouvelle déclaration)
-    this.router.navigate(['/generer-df']);
-  }
-
   viewDetails(id: string): void {
-    // Red相當iriger vers /generer-df avec l'ID de la déclaration
-    this.router.navigate(['/generer-df'], { queryParams: { id } });
+    this.router.navigate(['/get-declaration', id]);
   }
 
   editDeclaration(id: string): void {
@@ -55,70 +71,33 @@ export class ListDFComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette déclaration ?')) {
       this.declarationFiscaleTVAService.deleteDeclaration(id).subscribe({
         next: () => {
-          this.declarations = this.declarations.filter(d => d._id !== id);
-          this.snackBar.open('Déclaration supprimée avec succès', 'Fermer', {
-            duration: 5000
-          });
+          this.snackBar.open('Déclaration supprimée avec succès', 'Fermer', { duration: 3000 });
+          this.loadDeclarations();
         },
         error: (errors: string[]) => {
-          this.errors = errors;
+          this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
         }
       });
     }
   }
 
-  isObject(value: any): boolean {
-    return typeof value === 'object' && value !== null;
-  }
-
-  getCompteComptableName(compteComptable: CompteComptable | string): string {
-    if (this.isObject(compteComptable)) {
-      return (compteComptable as CompteComptable).nom;
-    }
-    return compteComptable as string;
-  }
-
-  formatPeriode(periode: string): string {
-    try {
-      if (periode.includes(' - ')) {
-        const [startDate, endDate] = periode.split(' - ').map(date => new Date(date));
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-          return periode;
-        }
-        const startFormatted = this.formatDate(startDate);
-        const endFormatted = this.formatDate(endDate);
-        return `du ${startFormatted} au ${endFormatted}`;
+  addDeclaration(): void {
+    const dialogRef = this.dialog.open(GenerateDeclarationDialogComponent, {
+      width: '500px'
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.declarationFiscaleTVAService.generateDeclaration(result).subscribe({
+          next: (declaration) => {
+            this.snackBar.open('Déclaration générée avec succès', 'Fermer', { duration: 3000 });
+            this.loadDeclarations();
+          },
+          error: (errors: string[]) => {
+            this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+          }
+        });
       }
-
-      if (/^\d{4}-\d{2}$/.test(periode)) {
-        const [year, month] = periode.split('-');
-        const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-        const endDate = new Date(parseInt(year), parseInt(month), 0);
-        const startFormatted = this.formatDate(startDate);
-        const endFormatted = this.formatDate(endDate);
-        return `du ${startFormatted} au ${endFormatted}`;
-      }
-
-      const date = new Date(periode);
-      if (!isNaN(date.getTime())) {
-        const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-        const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        const startFormatted = this.formatDate(startDate);
-        const endFormatted = this.formatDate(endDate);
-        return `du ${startFormatted} au ${endFormatted}`;
-      }
-
-      return periode;
-    } catch (error) {
-      console.error('Erreur lors du formatage de la période :', periode, error);
-      return periode;
-    }
-  }
-
-  private formatDate(date: Date): string {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    });
   }
 }

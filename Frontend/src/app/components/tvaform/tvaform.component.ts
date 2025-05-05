@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
-import { TVA } from '../../Models/TVA';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
+import { TVA } from '../../Models/TVA';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-tva-form',
@@ -13,94 +14,103 @@ export class TvaFormComponent implements OnInit {
   tva: TVA = {
     taux: 0,
     montant: 0,
-    declaration: '' // Will hold the selected DeclarationFiscale _id
+    declaration: ''
   };
   declarations: DeclarationFiscale[] = [];
+  isEditMode: boolean = false;
   errors: string[] = [];
-  // Définir fieldErrors avec un type explicite pour éviter les erreurs d'index signature
   fieldErrors: { taux: string; montant: string; declaration: string } = {
     taux: '',
     montant: '',
     declaration: ''
   };
-  isEditMode: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private declarationFiscaleTVAService: DeclarationFiscaleTVAService
+    private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.loadTvaDetails(id);
+      this.loadTVADetails(id);
     }
     this.loadDeclarations();
   }
 
-  loadTvaDetails(id: string): void {
+  loadTVADetails(id: string): void {
+    this.isLoading = true;
     this.declarationFiscaleTVAService.getTVAById(id).subscribe({
       next: (tva) => {
         this.tva = { ...tva };
         if (this.tva.declaration && typeof this.tva.declaration !== 'string') {
           this.tva.declaration = this.tva.declaration._id!;
         }
-        this.clearErrors();
+        this.isLoading = false;
       },
       error: (errors: string[]) => {
         this.errors = errors;
         this.mapFieldErrors(errors);
+        this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+        this.isLoading = false;
       }
     });
   }
 
   loadDeclarations(): void {
     this.declarationFiscaleTVAService.getDeclarations().subscribe({
-      next: (declarations) => {
+      next: (declarations: DeclarationFiscale[]) => {
         this.declarations = declarations;
       },
       error: (errors: string[]) => {
         this.errors = errors;
         this.mapFieldErrors(errors);
+        this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
       }
     });
   }
 
-  saveTva(): void {
+  saveTVA(): void {
     this.clearErrors();
 
-    if (!this.tva.taux || !this.tva.montant || !this.tva.declaration) {
-      this.errors = ['Tous les champs sont requis'];
+    if (
+      !this.tva.taux ||
+      this.tva.taux <= 0 ||
+      !this.tva.montant ||
+      this.tva.montant <= 0
+    ) {
+      this.errors = ['Tous les champs sont requis et doivent être positifs'];
       this.mapFieldErrors(this.errors);
+      this.snackBar.open('Tous les champs sont requis et doivent être positifs', 'Fermer', { duration: 3000 });
       return;
     }
 
     if (this.isEditMode) {
-      // Update existing TVA
-      this.declarationFiscaleTVAService.updateTVA(this.tva._id!, this.tva).subscribe({
-        next: (updatedTva) => {
-          console.log('TVA updated successfully:', updatedTva);
-          this.clearErrors();
+      this.declarationFiscaleTVAService.updateTVA(String(this.tva._id), this.tva).subscribe({
+        next: () => {
+          this.snackBar.open('TVA mise à jour avec succès', 'Fermer', { duration: 3000 });
           this.router.navigate(['/list-tva']);
         },
         error: (errors: string[]) => {
           this.errors = errors;
           this.mapFieldErrors(errors);
+          this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
         }
       });
     } else {
-      // Create new TVA
       this.declarationFiscaleTVAService.createTVA(this.tva).subscribe({
-        next: (createdTva) => {
-          console.log('TVA created successfully:', createdTva);
-          this.clearErrors();
+        next: () => {
+          this.snackBar.open('TVA créée avec succès', 'Fermer', { duration: 3000 });
           this.router.navigate(['/list-tva']);
         },
         error: (errors: string[]) => {
           this.errors = errors;
           this.mapFieldErrors(errors);
+          this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
         }
       });
     }
@@ -111,21 +121,19 @@ export class TvaFormComponent implements OnInit {
     this.router.navigate(['/list-tva']);
   }
 
-  // Méthode pour réinitialiser les erreurs
   private clearErrors(): void {
     this.errors = [];
     this.fieldErrors = { taux: '', montant: '', declaration: '' };
   }
 
-  // Méthode pour associer les erreurs aux champs
   private mapFieldErrors(errors: string[]): void {
     errors.forEach(error => {
       if (error.toLowerCase().includes('taux')) {
-        this.fieldErrors['taux'] = error;
+        this.fieldErrors.taux = error;
       } else if (error.toLowerCase().includes('montant')) {
-        this.fieldErrors['montant'] = error;
-      } else if (error.toLowerCase().includes('déclaration') || error.toLowerCase().includes('declaration')) {
-        this.fieldErrors['declaration'] = error;
+        this.fieldErrors.montant = error;
+      } else if (error.toLowerCase().includes('declaration')) {
+        this.fieldErrors.declaration = error;
       }
     });
   }

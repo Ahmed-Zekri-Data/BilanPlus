@@ -100,7 +100,7 @@ async function updateDF(req, res) {
     }
 }
 
-// Générer une déclaration fiscale (avec calculs automatiques corrigés)
+// Fonction utilitaire pour vérifier l'existence d'un compte comptable
 async function findCompteComptableById(id) {
     try {
         const compteComptable = await mongoose.model('CompteComptable').findById(id);
@@ -113,6 +113,7 @@ async function findCompteComptableById(id) {
     }
 }
 
+// Générer une déclaration fiscale (avec calculs automatiques corrigés)
 async function genererDeclarationFiscale(req, res) {
     try {
         const { dateDebut, dateFin, type, compteComptable } = req.body;
@@ -154,6 +155,22 @@ async function genererDeclarationFiscale(req, res) {
         // Convertir les dates en objets Date
         const startDate = new Date(dateDebut);
         const endDate = new Date(dateFin);
+
+        // Vérifier que les dates sont valides
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates fournies sont invalides',
+            });
+        }
+
+        // Vérifier que la date de fin est postérieure à la date de début
+        if (endDate <= startDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'La date de fin doit être postérieure à la date de début',
+            });
+        }
 
         // Récupérer toutes les factures dans la période donnée
         const factures = await Facture.find({
@@ -201,39 +218,55 @@ async function genererDeclarationFiscale(req, res) {
         const totalTVADue = totalTVACollectee - totalTVADeductible;
 
         // Convertir la période en une chaîne de caractères
-        const periodeString = `${startDate.toISOString()} - ${endDate.toISOString()}`;
+        const periodeString = `${startDate.toISOString().split('T')[0]} - ${endDate.toISOString().split('T')[0]}`;
 
         // Calculer le montant total
         const montantTotal = totalTVADue + totalTCL + totalDroitTimbre;
 
+        // Log des données avant sauvegarde
+        console.log('Données de la déclaration avant sauvegarde:', {
+            periode: periodeString,
+            type,
+            statut: 'brouillon',
+            totalTVACollectee,
+            totalTVADeductible,
+            totalTVADue,
+            totalTCL,
+            totalDroitTimbre,
+            montantTotal,
+            compteComptable,
+            dateCreation: new Date(),
+        });
+
         // Sauvegarder la déclaration dans la base de données
         const nouvelleDeclaration = new DeclarationFiscale({
             periode: periodeString,
-            type: type,
+            type,
             statut: 'brouillon',
-            totalTVACollectee: totalTVACollectee,
-            totalTVADeductible: totalTVADeductible,
-            totalTVADue: totalTVADue,
-            totalTCL: totalTCL,
-            totalDroitTimbre: totalDroitTimbre,
+            totalTVACollectee,
+            totalTVADeductible,
+            totalTVADue,
+            totalTCL,
+            totalDroitTimbre,
+            montantTotal,
+            compteComptable,
             dateCreation: new Date(),
-            montantTotal: montantTotal,
-            compteComptable: compteComptable,
         });
 
-        await nouvelleDeclaration.save();
+        const savedDeclaration = await nouvelleDeclaration.save();
+        console.log('Déclaration sauvegardée avec succès:', savedDeclaration);
 
         return res.status(201).json({
             success: true,
-            message: 'Déclaration fiscale générée avec succès',
-            data: {
-                declaration: nouvelleDeclaration,
-            },
+            message: 'Déclaration fiscale générée et sauvegardée avec succès',
+            data: savedDeclaration,
         });
     } catch (error) {
+        console.error('Erreur lors de la génération de la déclaration:', error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: 'Erreur lors de la génération de la déclaration',
+            error: error.message,
         });
     }
 }
