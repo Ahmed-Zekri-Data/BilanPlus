@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { StockManagementService } from '../services/gestion-de-stock.service';
 import { Produit } from '../Models/Produit';
 
@@ -8,10 +8,12 @@ import { Produit } from '../Models/Produit';
   styleUrls: ['./produit.component.css']
 })
 export class ProduitComponent implements OnInit {
+  @ViewChild('formContainer') formContainer!: ElementRef;
+
   produits: Produit[] = [];
   filteredProduits: Produit[] = [];
   selectedProduit: Produit | null = null;
-  newProduit: Produit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 }; // Ajout de seuilAlerte
+  newProduit: Produit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
   editMode: boolean = false;
   errorMessage: string | null = null;
   searchTerm: string = '';
@@ -49,6 +51,19 @@ export class ProduitComponent implements OnInit {
     });
   }
 
+  openAddProduitForm(): void {
+    this.editMode = true;
+    this.selectedProduit = null;
+    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
+
+    // Attendre que le DOM soit mis à jour
+    setTimeout(() => {
+      if (this.formContainer) {
+        this.formContainer.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  }
+
   addProduit(): void {
     if (this.newProduit.prix! < 0 || this.newProduit.stock < 0 || this.newProduit.seuilAlerte < 0) {
       this.errorMessage = 'Les valeurs de prix, stock et seuil d\'alerte doivent être positives.';
@@ -59,7 +74,7 @@ export class ProduitComponent implements OnInit {
         this.produits.push(produit);
         this.filteredProduits = this.produits;
         this.searchTerm = '';
-        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 }; // Ajout de seuilAlerte
+        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
         this.editMode = false;
         this.errorMessage = null;
       },
@@ -74,6 +89,13 @@ export class ProduitComponent implements OnInit {
     this.selectedProduit = { ...produit };
     this.newProduit = { ...produit, seuilAlerte: produit.seuilAlerte || 0 };
     this.editMode = true;
+
+    // Attendre que le DOM soit mis à jour
+    setTimeout(() => {
+      if (this.formContainer) {
+        this.formContainer.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
   }
 
   updateProduit(): void {
@@ -88,7 +110,7 @@ export class ProduitComponent implements OnInit {
         this.filteredProduits = this.produits;
         this.searchTerm = '';
         this.selectedProduit = null;
-        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 }; // Ajout de seuilAlerte
+        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
         this.editMode = false;
         this.errorMessage = null;
       },
@@ -122,7 +144,7 @@ export class ProduitComponent implements OnInit {
 
   cancelEdit(): void {
     this.selectedProduit = null;
-    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 }; // Ajout de seuilAlerte
+    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
     this.editMode = false;
   }
 

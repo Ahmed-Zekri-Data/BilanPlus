@@ -20,7 +20,7 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent } from './dashboardproduit/dashboard.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },

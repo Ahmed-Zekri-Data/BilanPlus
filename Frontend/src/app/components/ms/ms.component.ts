@@ -3,6 +3,10 @@ import { StockManagementService } from '../../services/stock-movements.service';
 import { MouvementStock } from '../../Models/MouvementStock';
 import { Produit } from '../../Models/Produit';
 import { ActivatedRoute } from '@angular/router';
+import * as ExcelJS from 'exceljs';
+import * as FileSaver from 'file-saver'; // Keep this import
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 @Component({
   selector: 'app-ms',
@@ -40,7 +44,7 @@ export class MSComponent implements OnInit {
           date: new Date()
         };
         this.showForm = true;
-        this.editingMovement = null; // Ensure we're in "add" mode, not "edit"
+        this.editingMovement = null;
         this.cdr.detectChanges();
       }
     });
@@ -72,7 +76,6 @@ export class MSComponent implements OnInit {
   
     this.stockMovements.forEach(movement => {
       const product = movement.produit;
-      // Check if the product has low stock and hasn't been added yet
       if (this.isLowStock(movement) && !uniqueProductsMap.has(this.getProduitNom(product))) {
         uniqueProductsMap.set(this.getProduitNom(product), product);
       }
@@ -288,5 +291,66 @@ export class MSComponent implements OnInit {
     this.showForm = false;
     this.cdr.detectChanges();
     console.log('showForm set to:', this.showForm, 'editingMovement set to:', this.editingMovement);
+  }
+
+  exportToExcel(): void {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Mouvements de Stock');
+
+    worksheet.columns = [
+      { header: 'Produit', key: 'produit', width: 20 },
+      { header: 'Type', key: 'type', width: 15 },
+      { header: 'Quantité', key: 'quantite', width: 15 },
+      { header: 'Date', key: 'date', width: 25 },
+      { header: 'Alerte', key: 'alerte', width: 15 }
+    ];
+
+    this.stockMovements.forEach(movement => {
+      worksheet.addRow({
+        produit: this.getProduitNom(movement.produit),
+        type: movement.type?.toUpperCase(),
+        quantite: movement.quantite,
+        date: new Date(movement.date).toLocaleString(),
+        alerte: this.isLowStock(movement) ? 'Oui' : 'Non'
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFCCCCCC' }
+    };
+
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      FileSaver.saveAs(blob, `Mouvements_Stock_${new Date().toISOString().split('T')[0]}.xlsx`);
+    });
+  }
+
+  exportToPDF(): void {
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    (pdf as any).autoTable({
+      head: [['Produit', 'Type', 'Quantité', 'Date', 'Alerte']],
+      body: this.stockMovements.map(movement => [
+        this.getProduitNom(movement.produit),
+        movement.type?.toUpperCase(),
+        movement.quantite,
+        new Date(movement.date).toLocaleString(),
+        this.isLowStock(movement) ? 'Oui' : 'Non'
+      ]),
+      startY: 10,
+      margin: { top: 10, left: 10, right: 10, bottom: 10 },
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [240, 240, 240] }
+    });
+
+    pdf.save(`Mouvements_Stock_${new Date().toISOString().split('T')[0]}.pdf`);
   }
 }

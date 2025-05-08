@@ -44,7 +44,7 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
