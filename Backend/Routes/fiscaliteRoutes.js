@@ -3,6 +3,7 @@ const dashboardController = require('../Controller/DashboardFiscalController');
 const express = require("express");
 const router = express.Router();
 // Routes Dashboard Fiscal
+router.get('/dashboard/years', dashboardController.getAvailableYears); // Cette route doit être définie avant la route avec paramètre
 router.get('/dashboard/:annee', dashboardController.getDashboardFiscal);
 
 // Routes Simulations

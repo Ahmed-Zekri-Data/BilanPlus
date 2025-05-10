@@ -1,0 +1,329 @@
+<div class="simulation-container">
+  <h2>Simulations Fiscales</h2>
+
+  <div class="simulation-content">
+    <mat-tab-group [selectedIndex]="activeTab === 'volume' ? 0 : (activeTab === 'regime' ? 1 : 2)"
+                  (selectedIndexChange)="setActiveTab($event)">
+
+      <!-- Onglet Simulation de changement de volume d'activité -->
+      <mat-tab label="Changement de volume d'activité">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Simulation de changement de volume d'activité</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="volumeForm" (ngSubmit)="simulerChangementVolume()">
+                <div class="form-row">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Chiffre d'affaires actuel (DT)</mat-label>
+                    <input matInput type="number" formControlName="chiffreAffairesActuel">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Pourcentage de variation (%)</mat-label>
+                    <input matInput type="number" formControlName="pourcentageVariation">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Année</mat-label>
+                    <input matInput type="number" formControlName="annee">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="isLoadingVolume">
+                    Simuler
+                  </button>
+                  <button mat-button type="button" (click)="resetVolumeForm()" [disabled]="isLoadingVolume">
+                    Réinitialiser
+                  </button>
+                </div>
+              </form>
+
+              <!-- Message d'erreur -->
+              <div class="error-message" *ngIf="error">
+                <p>{{ error }}</p>
+              </div>
+
+              <!-- Indicateur de chargement -->
+              <div class="loading-spinner" *ngIf="isLoadingVolume">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Simulation en cours...</p>
+              </div>
+
+              <!-- Résultats de la simulation -->
+              <div class="results" *ngIf="volumeResults && !isLoadingVolume">
+                <h3>Résultats de la simulation</h3>
+
+                <div class="result-item">
+                  <span class="label">Chiffre d'affaires actuel:</span>
+                  <span class="value">{{ volumeResults.chiffreAffairesActuel | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Chiffre d'affaires projeté:</span>
+                  <span class="value">{{ volumeResults.chiffreAffairesProjecte | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Variation:</span>
+                  <span class="value">{{ volumeResults.pourcentageVariation }}%</span>
+                </div>
+
+                <h4>Impact fiscal</h4>
+
+                <div class="result-item">
+                  <span class="label">TVA actuelle:</span>
+                  <span class="value">{{ volumeResults.impactFiscal.tvaActuelle | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">TVA projetée:</span>
+                  <span class="value">{{ volumeResults.impactFiscal.tvaProjetee | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">TCL actuelle:</span>
+                  <span class="value">{{ volumeResults.impactFiscal.tclActuelle | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">TCL projetée:</span>
+                  <span class="value">{{ volumeResults.impactFiscal.tclProjetee | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item total">
+                  <span class="label">Variation totale des charges fiscales:</span>
+                  <span class="value" [ngClass]="{'positive': volumeResults.impactFiscal.variationTotale < 0, 'negative': volumeResults.impactFiscal.variationTotale > 0}">
+                    {{ volumeResults.impactFiscal.variationTotale | number:'1.2-2' }} DT
+                  </span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Onglet Simulation de changement de régime d'imposition -->
+      <mat-tab label="Changement de régime d'imposition">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Simulation de changement de régime d'imposition</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="regimeForm" (ngSubmit)="simulerChangementRegime()">
+                <div class="form-row">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Chiffre d'affaires (DT)</mat-label>
+                    <input matInput type="number" formControlName="chiffreAffairesActuel">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Régime actuel</mat-label>
+                    <mat-select formControlName="regimeActuel">
+                      <mat-option value="reel">Réel</mat-option>
+                      <mat-option value="forfaitaire">Forfaitaire</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Régime cible</mat-label>
+                    <mat-select formControlName="regimeCible">
+                      <mat-option value="reel">Réel</mat-option>
+                      <mat-option value="forfaitaire">Forfaitaire</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Année</mat-label>
+                    <input matInput type="number" formControlName="annee">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="isLoadingRegime">
+                    Simuler
+                  </button>
+                  <button mat-button type="button" (click)="resetRegimeForm()" [disabled]="isLoadingRegime">
+                    Réinitialiser
+                  </button>
+                </div>
+              </form>
+
+              <!-- Message d'erreur -->
+              <div class="error-message" *ngIf="error">
+                <p>{{ error }}</p>
+              </div>
+
+              <!-- Indicateur de chargement -->
+              <div class="loading-spinner" *ngIf="isLoadingRegime">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Simulation en cours...</p>
+              </div>
+
+              <!-- Résultats de la simulation -->
+              <div class="results" *ngIf="regimeResults && !isLoadingRegime">
+                <h3>Résultats de la simulation</h3>
+
+                <div class="result-item">
+                  <span class="label">Chiffre d'affaires:</span>
+                  <span class="value">{{ regimeResults.chiffreAffaires | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Régime actuel:</span>
+                  <span class="value">{{ regimeResults.regimeActuel | titlecase }}</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Régime cible:</span>
+                  <span class="value">{{ regimeResults.regimeCible | titlecase }}</span>
+                </div>
+
+                <h4>Comparaison des régimes</h4>
+
+                <div class="result-item">
+                  <span class="label">Charges fiscales régime actuel:</span>
+                  <span class="value">{{ regimeResults.comparaison.chargesFiscalesActuel | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Charges fiscales régime cible:</span>
+                  <span class="value">{{ regimeResults.comparaison.chargesFiscalesCible | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Différence:</span>
+                  <span class="value" [ngClass]="{'positive': regimeResults.comparaison.difference < 0, 'negative': regimeResults.comparaison.difference > 0}">
+                    {{ regimeResults.comparaison.difference | number:'1.2-2' }} DT
+                  </span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Pourcentage d'économie:</span>
+                  <span class="value" [ngClass]="{'positive': regimeResults.comparaison.pourcentageEconomie > 0, 'negative': regimeResults.comparaison.pourcentageEconomie < 0}">
+                    {{ regimeResults.comparaison.pourcentageEconomie | number:'1.2-2' }}%
+                  </span>
+                </div>
+
+                <div class="result-item recommendation">
+                  <span class="label">Recommandation:</span>
+                  <span class="value">{{ regimeResults.recommandation }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Onglet Simulation d'impact d'investissement -->
+      <mat-tab label="Impact d'investissement">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Simulation d'impact d'investissement</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="investissementForm" (ngSubmit)="simulerImpactInvestissement()">
+                <div class="form-row">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Montant de l'investissement (DT)</mat-label>
+                    <input matInput type="number" formControlName="montantInvestissement">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Type d'investissement</mat-label>
+                    <mat-select formControlName="typeInvestissement">
+                      <mat-option value="materiel">Matériel</mat-option>
+                      <mat-option value="immobilier">Immobilier</mat-option>
+                      <mat-option value="recherche">Recherche et développement</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Durée d'amortissement (années)</mat-label>
+                    <input matInput type="number" formControlName="dureeAmortissement">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Taux d'imposition (%)</mat-label>
+                    <input matInput type="number" formControlName="tauxImposition">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="isLoadingInvestissement">
+                    Simuler
+                  </button>
+                  <button mat-button type="button" (click)="resetInvestissementForm()" [disabled]="isLoadingInvestissement">
+                    Réinitialiser
+                  </button>
+                </div>
+              </form>
+
+              <!-- Message d'erreur -->
+              <div class="error-message" *ngIf="error">
+                <p>{{ error }}</p>
+              </div>
+
+              <!-- Indicateur de chargement -->
+              <div class="loading-spinner" *ngIf="isLoadingInvestissement">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Simulation en cours...</p>
+              </div>
+
+              <!-- Résultats de la simulation -->
+              <div class="results" *ngIf="investissementResults && !isLoadingInvestissement">
+                <h3>Résultats de la simulation</h3>
+
+                <div class="result-item">
+                  <span class="label">Montant de l'investissement:</span>
+                  <span class="value">{{ investissementResults.montantInvestissement | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Type d'investissement:</span>
+                  <span class="value">{{ investissementResults.typeInvestissement | titlecase }}</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Durée d'amortissement:</span>
+                  <span class="value">{{ investissementResults.dureeAmortissement }} ans</span>
+                </div>
+
+                <h4>Impact fiscal</h4>
+
+                <div class="result-item">
+                  <span class="label">Amortissement annuel:</span>
+                  <span class="value">{{ investissementResults.impactFiscal.amortissementAnnuel | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Économie d'impôt annuelle:</span>
+                  <span class="value">{{ investissementResults.impactFiscal.economieImpotAnnuelle | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Économie d'impôt totale:</span>
+                  <span class="value">{{ investissementResults.impactFiscal.economieImpotTotale | number:'1.2-2' }} DT</span>
+                </div>
+
+                <div class="result-item">
+                  <span class="label">Retour sur investissement fiscal:</span>
+                  <span class="value">{{ investissementResults.impactFiscal.roiFiscal | number:'1.2-2' }}%</span>
+                </div>
+
+                <div class="result-item recommendation">
+                  <span class="label">Recommandation:</span>
+                  <span class="value">{{ investissementResults.recommandation }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

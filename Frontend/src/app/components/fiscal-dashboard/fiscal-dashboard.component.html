@@ -1,0 +1,90 @@
+<div class="dashboard-container">
+  <h2>Tableau de bord fiscal</h2>
+
+  <div class="year-selector">
+    <button mat-icon-button (click)="changeYear(currentYear - 1)" [disabled]="isLoading">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="year-display">
+      <span class="year-label">Année fiscale:</span>
+      <span class="year">{{ currentYear }}</span>
+    </div>
+    <button mat-icon-button (click)="changeYear(currentYear + 1)" [disabled]="isLoading">
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div class="loading-spinner" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-message" *ngIf="error">
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadDashboardData()">Réessayer</button>
+  </div>
+
+  <!-- Message quand il n'y a pas de données -->
+  <div class="no-data-message" *ngIf="!dashboardData && !isLoading && !error">
+    <p>Aucune donnée disponible pour l'année {{ currentYear }}.</p>
+    <p class="available-years" *ngIf="availableYears && availableYears.length > 0">
+      Années disponibles :
+      <span *ngFor="let year of availableYears; let last = last">
+        <a (click)="changeYear(year)" class="year-link">{{ year }}</a>{{ !last ? ', ' : '' }}
+      </span>
+    </p>
+    <p *ngIf="!availableYears || availableYears.length === 0">
+      Aucune année avec des données n'a été trouvée.
+    </p>
+    <button mat-raised-button color="primary" (click)="loadDashboardData()">Réessayer</button>
+  </div>
+
+  <!-- Contenu du tableau de bord -->
+  <div class="dashboard-content" *ngIf="dashboardData && !isLoading">
+    <div class="summary-section">
+      <h3>
+        Résumé fiscal {{ currentYear }}
+      </h3>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="card-label">TVA Collectée</div>
+          <div class="card-value">{{ dashboardData.resume.totalTVACollectee | number:'1.2-2' }} DT</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-label">TVA Déductible</div>
+          <div class="card-value">{{ dashboardData.resume.totalTVADeductible | number:'1.2-2' }} DT</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-label">Solde TVA</div>
+          <div class="card-value" [ngClass]="{'positive': dashboardData.resume.soldeTVA > 0, 'negative': dashboardData.resume.soldeTVA < 0}">
+            {{ dashboardData.resume.soldeTVA | number:'1.2-2' }} DT
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-label">TCL</div>
+          <div class="card-value">{{ dashboardData.resume.totalTCL | number:'1.2-2' }} DT</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-label">Droit de Timbre</div>
+          <div class="card-value">{{ dashboardData.resume.totalDroitTimbre | number:'1.2-2' }} DT</div>
+        </div>
+
+        <div class="summary-card total">
+          <div class="card-label">Total Charges Fiscales</div>
+          <div class="card-value">{{ dashboardData.resume.totalChargesFiscales | number:'1.2-2' }} DT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques et statistiques -->
+    <div class="charts-section">
+      <app-fiscal-statistics></app-fiscal-statistics>
+    </div>
+  </div>
+</div>

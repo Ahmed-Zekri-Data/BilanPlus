@@ -32,15 +32,20 @@ export class DeclarationFiscaleTVAService {
       .pipe(catchError(this.handleError));
   }
 
+  soumettreDeclaration(id:string,declaration:DeclarationFiscale):Observable<DeclarationFiscale>{
+    return this.http.post<DeclarationFiscale>(`${this.dfApiUrl}/declaration/soumettre/${id}`, declaration)
+    .pipe(catchError(this.handleError));
+  }
+
   getDeclarations(): Observable<DeclarationFiscale[]> {
     return this.http.get<DeclarationFiscale[]>(`${this.dfApiUrl}/all`)
       .pipe(catchError(this.handleError));
   }
 
-  getDeclarationById(id: string): Observable<DeclarationFiscale> {
-    return this.http.get<DeclarationFiscale>(`${this.dfApiUrl}/${id}`)
-      .pipe(catchError(this.handleError));
-  }
+    getDeclarationById(id: string): Observable<DeclarationFiscale> {
+      return this.http.get<DeclarationFiscale>(`${this.dfApiUrl}/${id}`)
+        .pipe(catchError(this.handleError));
+    }
 
   updateDeclaration(id: string, declaration: DeclarationFiscale): Observable<DeclarationFiscale> {
     return this.http.put<DeclarationFiscale>(`${this.dfApiUrl}/${id}`, declaration)

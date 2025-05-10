@@ -1,23 +1,143 @@
-<div *ngIf="isLoading">
-  <p>Chargement des détails de la déclaration...</p>
+<div #pdfContent>
+  <div class="container my-8" *ngIf="declaration">
+    <div class="header">
+      <div class="logo">
+        <div class="flex-1"></div>
+        <div class="flex-2 text-center">
+          <h1 class="text-xl font-bold">RÉPUBLIQUE TUNISIENNE</h1>
+          <h2 class="text-lg">MINISTÈRE DES FINANCES</h2>
+          <h3 class="text-md">DIRECTION GÉNÉRALE DES IMPÔTS</h3>
+        </div>
+        <div class="flex-1"></div>
+      </div>
+      <h2 class="text-2xl font-bold mt-4">DÉCLARATION FISCALE</h2>
+      <p class="text-sm">(Article 57 du code de l'IRPP et IS)</p>
+    </div>
+
+    <!-- Identification -->
+    <div class="section">
+      <div class="section-title">IDENTIFICATION DU CONTRIBUABLE</div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="text-center">
+          <label>Identifiant Fiscal:</label>
+          <p _________________></p>
+        </div>
+        <div class="form-group">
+          <label>Compte Comptable:</label>
+          <p class="form-control readonly-field">{{ declaration.compteComptable?.nom }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Période -->
+    <div class="section">
+      <div class="section-title">PÉRIODE DE DÉCLARATION</div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="form-group">
+          <label>Période:</label>
+          <p class="form-control readonly-field">{{ declaration.periode }}</p>
+        </div>
+        <div class="form-group">
+          <label>Type de Déclaration:</label>
+          <p class="form-control readonly-field capitalize">{{ declaration.type }}</p>
+        </div>
+        <div class="form-group">
+          <label>Date de Création:</label>
+          <p class="form-control readonly-field">{{ declaration.dateCreation | date:'yyyy-MM-dd' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TVA -->
+    <div class="section">
+      <div class="section-title">TVA ET AUTRES TAXES</div>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <tbody>
+            <tr>
+              <td class="font-bold">Total TVA Collectée</td>
+              <td>{{ declaration.totalTVACollectee }} DT</td>
+            </tr>
+            <tr>
+              <td>Total TVA Déductible</td>
+              <td>{{ declaration.totalTVADeductible }} DT</td>
+            </tr>
+            <tr class="bg-gray-100">
+              <td class="font-bold">TVA Due</td>
+              <td>{{ declaration.totalTVADue }} DT</td>
+            </tr>
+            <tr>
+              <td>Taxe sur les Collectivités Locales (TCL)</td>
+              <td>{{ declaration.totalTCL }} DT</td>
+            </tr>
+            <tr>
+              <td>Droit de Timbre</td>
+              <td>{{ declaration.totalDroitTimbre }} DT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pénalités -->
+    <div class="section" *ngIf="declaration.penalites?.estEnRetard">
+      <div class="section-title">PÉNALITÉS DE RETARD</div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-group">
+          <label>Nombre de jours de retard:</label>
+          <p class="form-control readonly-field">{{ declaration.penalites?.retardJours }}</p>
+        </div>
+        <div class="form-group">
+          <label>Taux de pénalité (%):</label>
+          <p class="form-control readonly-field">{{ declaration.penalites?.tauxPenalite }}</p>
+        </div>
+        <div class="form-group col-span-2">
+          <label>Montant de la pénalité (TND):</label>
+          <p class="form-control readonly-field">{{ declaration.penalites?.montantPenalite }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Récapitulatif -->
+    <div class="section">
+      <div class="section-title">RÉCAPITULATIF</div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-group">
+          <label>Montant Total à Payer (TND):</label>
+          <p class="form-control readonly-field font-bold text-lg">{{ declaration.montantTotal }}</p>
+        </div>
+        <div class="form-group">
+          <label>Statut de la Déclaration:</label>
+          <p class="form-control readonly-field">{{ declaration.statut }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="signature">
+      <div class="text-center">
+        <p>Fait à ________________</p>
+        <p>Le ________________</p>
+      </div>
+      <div class="text-center">
+        <p>Signature et cachet:</p>
+        <div style="height: 80px; border-bottom: 1px solid #333; width: 200px;"></div>
+      </div>
+    </div>
+
+   
+  </div>
 </div>
 
-<div *ngIf="!isLoading && declaration">
-  <h2>DÉTAILS DE LA DÉCLARATION FISCALE</h2>
-  <p><strong>Période :</strong> {{ declaration.periode || 'N/A' }}</p>
-  <p><strong>Montant Total (TND) :</strong> {{ declaration.montantTotal || 0 }}</p>
-  <p><strong>TVA Collectée (TND) :</strong> {{ declaration.totalTVACollectee || 0 }}</p>
-  <p><strong>TVA Déductible (TND) :</strong> {{ declaration.totalTVADeductible || 0 }}</p>
-  <p><strong>TVA Nette (TND) :</strong> {{ declaration.totalTVADue || 0 }}</p>
-  <p><strong>Statut :</strong> {{ declaration.statut || 'N/A' }}</p>
-  <p><strong>Compte Comptable :</strong> {{ declaration.compteComptable?.nom || declaration.compteComptable?.code || declaration.compteComptable || 'N/A' }}</p>
-  <button mat-raised-button (click)="goBack()">Retour</button>
+<!-- Bouton PDF -->
+<div class="button-container">
+  <button mat-raised-button class="actions-button" color="primary" (click)="generatePDF()">
+    Exporter en PDF
+  </button>
 </div>
-
-<div *ngIf="!isLoading && errors.length > 0" class="error-container">
-  <p class="error-title">Erreur(s) :</p>
-  <ul>
-    <li *ngFor="let error of errors" class="error">{{ error }}</li>
-  </ul>
-  <button mat-raised-button (click)="goBack()">Retour</button>
+<!-- Bouton Soumettre DF -->
+<div class="button-container">
+  <button mat-raised-button class="actions-button" color="primary" (click)="Soumettredec()">
+    Soumettre Declaration Fiscale
+  </button>
 </div>

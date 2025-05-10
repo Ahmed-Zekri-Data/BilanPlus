@@ -1,19 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
 import { TVA } from '../../Models/TVA';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-list-tva',
   templateUrl: './list-tva.component.html',
   styleUrls: ['./list-tva.component.css']
 })
-export class ListTVAComponent implements OnInit {
+export class ListTVAComponent implements OnInit, AfterViewInit {
   tvaList: TVA[] = [];
-  displayedColumns: string[] = ['taux', 'montant', 'declaration', 'actions'];
+  displayedColumns: string[] = ['id', 'taux', 'montant', 'declaration', 'actions'];
   isLoading: boolean = true;
+  dataSource = new MatTableDataSource<TVA>([]);
   errors: string[] = [];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
@@ -25,11 +32,17 @@ export class ListTVAComponent implements OnInit {
     this.loadTVAList();
   }
 
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   loadTVAList(): void {
     this.isLoading = true;
     this.declarationFiscaleTVAService.getAllTVA().subscribe({
       next: (tvaList) => {
         this.tvaList = tvaList;
+        this.dataSource.data = this.tvaList; // Mettre à jour les données de dataSource
         this.isLoading = false;
       },
       error: (errors: string[]) => {
