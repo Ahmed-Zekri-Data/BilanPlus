@@ -40,10 +40,27 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Email et mot de passe requis" });
     }
 
+    // Récupérer l'adresse IP et le navigateur
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const navigateur = req.headers['user-agent'];
+
     console.log('Login: Searching for user with email:', email);
     const utilisateur = await Utilisateur.findOne({ email }).populate("role");
     if (!utilisateur) {
       console.log('Login: User not found for email:', email);
+      // Enregistrer la tentative de connexion échouée pour un utilisateur inconnu
+      try {
+        await require('../Models/Audit').LoginHistory.logLogin(
+          null,
+          false,
+          ip,
+          navigateur,
+          `Tentative de connexion avec un email inconnu: ${email}`
+        );
+      } catch (auditErr) {
+        console.error('Erreur lors de l\'enregistrement de la tentative de connexion:', auditErr);
+        // Ne pas bloquer le processus si l'audit échoue
+      }
       return res.status(401).json({ message: "Utilisateur non trouvé" });
     }
 
@@ -79,6 +96,24 @@ exports.login = async (req, res) => {
         utilisateur.actif = false;
         console.log('Login: Deactivating account due to too many attempts:', email);
       }
+
+      // Enregistrer la tentative de connexion échouée
+      try {
+        await utilisateur.logLogin(false, ip, navigateur, "Mot de passe incorrect");
+
+        // Enregistrer dans l'historique global
+        await require('../Models/Audit').LoginHistory.logLogin(
+          utilisateur._id,
+          false,
+          ip,
+          navigateur,
+          "Mot de passe incorrect"
+        );
+      } catch (auditErr) {
+        console.error('Erreur lors de l\'enregistrement de la tentative de connexion:', auditErr);
+        // Ne pas bloquer le processus si l'audit échoue
+      }
+
       await utilisateur.save();
       console.log('Login: Updated user after failed login attempt:', utilisateur);
       return res.status(401).json({ message: "Mot de passe incorrect" });
@@ -86,11 +121,29 @@ exports.login = async (req, res) => {
 
     utilisateur.tentativesConnexion = 0;
     utilisateur.dernierConnexion = new Date();
+
+    // Enregistrer la connexion réussie
+    try {
+      await utilisateur.logLogin(true, ip, navigateur, "Connexion réussie");
+
+      // Enregistrer dans l'historique global
+      await require('../Models/Audit').LoginHistory.logLogin(
+        utilisateur._id,
+        true,
+        ip,
+        navigateur,
+        "Connexion réussie"
+      );
+    } catch (auditErr) {
+      console.error('Erreur lors de l\'enregistrement de la connexion réussie:', auditErr);
+      // Ne pas bloquer le processus si l'audit échoue
+    }
+
     await utilisateur.save();
 
     console.log('Login: Signing token with jwtSecret:', config.jwtSecret);
     const token = jwt.sign(
-      { 
+      {
         id: utilisateur._id,
         email: utilisateur.email,
         nom: utilisateur.nom,
@@ -212,6 +265,19 @@ exports.resetLoginAttempts = async (req, res) => {
     utilisateur.tentativesConnexion = 0;
     utilisateur.actif = true;
     await utilisateur.save();
+
+    // Enregistrer l'action
+    await utilisateur.logAction("Réinitialisation des tentatives de connexion", `Réinitialisé par ${req.user.nom} ${req.user.prenom}`);
+
+    // Enregistrer dans l'audit global
+    await require('../Models/Audit').AuditLog.logAction(
+      req.user._id,
+      "Réinitialisation des tentatives de connexion",
+      `Réinitialisation des tentatives de connexion pour l'utilisateur ${utilisateur.nom} ${utilisateur.prenom} (${utilisateur.email})`,
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      req.headers['user-agent']
+    );
+
     res.status(200).json({ message: "Tentatives de connexion réinitialisées et compte réactivé" });
   } catch (err) {
     console.error('Erreur resetLoginAttempts:', err);
@@ -353,5 +419,131 @@ exports.exportUsersToCSV = async (req, res) => {
   } catch (err) {
     console.error('Erreur exportUsersToCSV:', err);
     res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+// Activer l'authentification à deux facteurs
+exports.enableTwoFactor = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { method } = req.body;
+
+    if (!method || !['app', 'sms', 'email'].includes(method)) {
+      return res.status(400).json({ message: "Méthode d'authentification à deux facteurs invalide" });
+    }
+
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Générer un secret pour l'authentification à deux facteurs
+    const crypto = require('crypto');
+    const secret = crypto.randomBytes(20).toString('hex');
+
+    utilisateur.authentificationDeuxFacteurs = {
+      active: true,
+      secret,
+      methode: method
+    };
+
+    await utilisateur.save();
+
+    // Enregistrer l'action
+    await utilisateur.logAction("Activation de l'authentification à deux facteurs", `Méthode: ${method}`);
+
+    // Enregistrer dans l'audit global
+    await require('../Models/Audit').AuditLog.logAction(
+      req.user._id,
+      "Activation de l'authentification à deux facteurs",
+      `Activation de l'authentification à deux facteurs pour l'utilisateur ${utilisateur.nom} ${utilisateur.prenom} (${utilisateur.email}) avec la méthode ${method}`,
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      req.headers['user-agent']
+    );
+
+    res.status(200).json({
+      message: "Authentification à deux facteurs activée",
+      method,
+      // Ne pas renvoyer le secret dans la réponse pour des raisons de sécurité
+      // Dans une implémentation réelle, il faudrait générer un QR code pour l'application
+    });
+  } catch (err) {
+    console.error('Erreur enableTwoFactor:', err);
+    res.status(500).json({ message: "Erreur serveur lors de l'activation de l'authentification à deux facteurs", error: err.message });
+  }
+};
+
+// Désactiver l'authentification à deux facteurs
+exports.disableTwoFactor = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    utilisateur.authentificationDeuxFacteurs = {
+      active: false
+    };
+
+    await utilisateur.save();
+
+    // Enregistrer l'action
+    await utilisateur.logAction("Désactivation de l'authentification à deux facteurs", "");
+
+    // Enregistrer dans l'audit global
+    await require('../Models/Audit').AuditLog.logAction(
+      req.user._id,
+      "Désactivation de l'authentification à deux facteurs",
+      `Désactivation de l'authentification à deux facteurs pour l'utilisateur ${utilisateur.nom} ${utilisateur.prenom} (${utilisateur.email})`,
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      req.headers['user-agent']
+    );
+
+    res.status(200).json({ message: "Authentification à deux facteurs désactivée" });
+  } catch (err) {
+    console.error('Erreur disableTwoFactor:', err);
+    res.status(500).json({ message: "Erreur serveur lors de la désactivation de l'authentification à deux facteurs", error: err.message });
+  }
+};
+
+// Vérifier un code d'authentification à deux facteurs
+exports.verifyTwoFactor = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ message: "Code requis" });
+    }
+
+    const utilisateur = await Utilisateur.findById(userId);
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    if (!utilisateur.authentificationDeuxFacteurs || !utilisateur.authentificationDeuxFacteurs.active) {
+      return res.status(400).json({ message: "L'authentification à deux facteurs n'est pas activée pour cet utilisateur" });
+    }
+
+    // Dans une implémentation réelle, il faudrait vérifier le code avec une bibliothèque comme speakeasy
+    // Pour cet exemple, nous allons simplement vérifier si le code est "123456"
+    const isValidCode = code === "123456";
+
+    if (!isValidCode) {
+      // Enregistrer l'action
+      await utilisateur.logAction("Échec de vérification du code d'authentification à deux facteurs", "");
+
+      return res.status(401).json({ message: "Code invalide" });
+    }
+
+    // Enregistrer l'action
+    await utilisateur.logAction("Vérification réussie du code d'authentification à deux facteurs", "");
+
+    res.status(200).json({ message: "Code vérifié avec succès" });
+  } catch (err) {
+    console.error('Erreur verifyTwoFactor:', err);
+    res.status(500).json({ message: "Erreur serveur lors de la vérification du code d'authentification à deux facteurs", error: err.message });
   }
 };

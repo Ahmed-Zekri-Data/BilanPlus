@@ -1,0 +1,52 @@
+<div class="permissions-container">
+  <h3>Permissions du rôle</h3>
+
+  <div class="error-message" *ngIf="!role || !role.permissions">
+    Impossible d'afficher les permissions. Le rôle ou les permissions ne sont pas définis.
+  </div>
+
+  <div class="permissions-groups" *ngIf="role && role.permissions">
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let group of permissionGroups">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="group-header">
+              <mat-icon>{{ group.icon }}</mat-icon>
+              <span>{{ group.name }}</span>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description>
+            <div class="group-status">
+              <ng-container [ngSwitch]="getGroupStatus(group)">
+                <span *ngSwitchCase="'all'" class="status-all">Toutes activées</span>
+                <span *ngSwitchCase="'some'" class="status-some">Partiellement activées</span>
+                <span *ngSwitchCase="'none'" class="status-none">Aucune activée</span>
+              </ng-container>
+              <button mat-icon-button (click)="selectAllInGroup(group); $event.stopPropagation()">
+                <mat-icon>{{ getGroupStatus(group) === 'all' ? 'clear_all' : 'select_all' }}</mat-icon>
+              </button>
+            </div>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="permissions-list">
+          <mat-card *ngFor="let permission of group.permissions" class="permission-card">
+            <mat-card-content>
+              <div class="permission-header">
+                <div class="permission-title">
+                  <h4>{{ permission.label }}</h4>
+                  <p *ngIf="permission.description">{{ permission.description }}</p>
+                </div>
+                <mat-slide-toggle
+                  [checked]="isPermissionEnabled(permission.key)"
+                  (change)="togglePermission(permission.key)"
+                  color="primary">
+                </mat-slide-toggle>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

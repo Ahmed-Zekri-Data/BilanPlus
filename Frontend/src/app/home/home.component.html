@@ -1,54 +1,41 @@
-<div class="container">
-  <div class="sidenav" [class]="sidebarOpen ? 'sidenav open' : 'sidenav'">
-    <ul class="nav-list">
-      <li><a routerLink="/utilisateurs" (click)="toggleSidebar()">Utilisateurs</a></li>
-      <li><a routerLink="/roles" (click)="toggleSidebar()">Rôles</a></li>
-      <li><a routerLink="/facturation" (click)="toggleSidebar()">Facturation</a></li>
-      <li><a routerLink="/fournisseurs" (click)="toggleSidebar()">Fournisseurs</a></li>
-      <li><a routerLink="/stocks" (click)="toggleSidebar()">Stocks</a></li>
-      <li><a routerLink="/gestion-comptable" (click)="toggleSidebar()">Gestion Comptable</a></li>
-      <li><a routerLink="/declarations" (click)="toggleSidebar()">Déclarations</a></li>
-    </ul>
-  </div>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="over" class="sidenav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/utilisateurs" (click)="sidenav.close()">Utilisateurs</a>
+      <a mat-list-item routerLink="/roles" (click)="sidenav.close()">Rôles</a>
+      <a mat-list-item routerLink="/facturation" (click)="sidenav.close()">Facturation</a>
+      <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()">Fournisseurs</a>
+      <a mat-list-item routerLink="/stocks" (click)="sidenav.close()">Stocks</a>
+      <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()">Gestion Comptable</a>
+      <a mat-list-item routerLink="/declarations" (click)="sidenav.close()">Déclarations</a>
+    </mat-nav-list>
+  </mat-sidenav>
 
-  <div class="sidenav-content">
-    <div class="toolbar bilan-gradient">
-      <button class="menu-button" (click)="toggleSidebar()" aria-label="Menu">
-        <span class="material-icon">☰</span>
+  <mat-sidenav-content>
+    <mat-toolbar class="bilan-gradient">
+      <button mat-icon-button class="menu-button" (click)="sidenav.toggle()" aria-label="Menu">
+        <mat-icon>menu</mat-icon>
       </button>
       <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
       <span class="spacer"></span>
       <div class="desktop-nav">
-        <button class="accent-button" routerLink="/utilisateurs">Utilisateurs</button>
-        <button class="accent-button" routerLink="/roles">Rôles</button>
-        <button class="accent-button" routerLink="/facturation">Facturation</button>
-        <button class="accent-button" routerLink="/fournisseurs">Fournisseurs</button>
-        <button class="accent-button" routerLink="/stocks">Stocks</button>
-        <button class="accent-button" routerLink="/gestion-comptable">Gestion Comptable</button>
-        <button class="accent-button" routerLink="/declarations">Déclarations</button>
-        <button class="warn-button" (click)="logout()">Déconnexion</button>
+        <button mat-raised-button color="accent" routerLink="/utilisateurs">Utilisateurs</button>
+        <button mat-raised-button color="accent" routerLink="/roles">Rôles</button>
+        <button mat-raised-button color="accent" routerLink="/facturation">Facturation</button>
+        <button mat-raised-button color="accent" routerLink="/fournisseurs">Fournisseurs</button>
+        <button mat-raised-button color="accent" routerLink="/stocks">Stocks</button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable">Gestion Comptable</button>
+        <button mat-raised-button color="accent" routerLink="/declarations">Déclarations</button>
       </div>
-    </div>
+    </mat-toolbar>
 
     <!-- Hero Section -->
     <div class="hero-section" @fadeIn>
       <div class="hero-content">
         <h1 style="color: #1E3A8A;">Bienvenue sur Bilan+</h1>
-        <p *ngIf="currentUser" style="color: #D4AF37;">
-          Bonjour, {{ currentUser.email }} ! Vous êtes connecté en tant que {{ userRole }}.
-        </p>
         <p style="color: #D4AF37;">Simple Finance, Big Success</p>
-        <p style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
-          Gérez votre comptabilité avec facilité et efficacité.
-        </p>
-        <button
-          class="accent-button"
-          routerLink="/gestion-comptable"
-          [@buttonClick]="buttonState"
-          (click)="onButtonClick()"
-        >
-          Commencer Maintenant
-        </button>
+        <p style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">Gérez votre comptabilité avec facilité et efficacité.</p>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">Commencer Maintenant</button>
       </div>
     </div>
 
@@ -57,81 +44,81 @@
       <h2 style="color: #1E3A8A;">Nos Fonctionnalités</h2>
       <div class="features-grid">
         <!-- Gestion des Utilisateurs et Accès -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion des Utilisateurs et Accès 🔐</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Utilisateurs et Accès 🔐</mat-card-title>
+          <mat-card-content>
             Authentification avancée (JWT, OAuth), gestion des permissions dynamiques, audit des connexions.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/utilisateurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Utilisateurs</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/utilisateurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Utilisateurs</button>
+          </mat-card-actions>
+        </mat-card>
 
-        <!-- Gestion des Rôles et Permissions -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion des Rôles et Permissions 🛡️</h3>
-          <p>
-            Créez et gérez des rôles avec des permissions personnalisées pour vos utilisateurs.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/roles" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Rôles</button>
-          </div>
-        </div>
+        <!-- Gestion des Rôles -->
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Rôles et Permissions 👥</mat-card-title>
+          <mat-card-content>
+            Définition des rôles, attribution des permissions, contrôle d'accès basé sur les rôles (RBAC).
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/roles" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Rôles</button>
+          </mat-card-actions>
+        </mat-card>
 
         <!-- Gestion de la Facturation et Clients -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion de la Facturation et Clients 🧾</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion de la Facturation et Clients 🧾</mat-card-title>
+          <mat-card-content>
             Création de devis, conversion en factures, suivi des paiements, relances automatiques.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/facturation" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Facturation</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/facturation" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Facturation</button>
+          </mat-card-actions>
+        </mat-card>
 
         <!-- Gestion des Fournisseurs et Achats -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion des Fournisseurs et Achats 📦</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Fournisseurs et Achats 📦</mat-card-title>
+          <mat-card-content>
             Création et suivi des commandes, validation automatique selon les stocks.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/fournisseurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Fournisseurs</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/fournisseurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Fournisseurs</button>
+          </mat-card-actions>
+        </mat-card>
 
         <!-- Gestion des Produits et Stocks -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion des Produits et Stocks 🏪</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Produits et Stocks 🏪</mat-card-title>
+          <mat-card-content>
             Gestion des stocks avec alertes, automatisation des réapprovisionnements.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/stocks" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Stocks</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/stocks" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Stocks</button>
+          </mat-card-actions>
+        </mat-card>
 
         <!-- Gestion Comptable et Transactions -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion Comptable et Transactions 💰</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion Comptable et Transactions 💰</mat-card-title>
+          <mat-card-content>
             Gestion du plan comptable tunisien, saisie automatique des écritures, calculs de bilan.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Comptabilité</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Comptabilité</button>
+          </mat-card-actions>
+        </mat-card>
 
         <!-- Gestion des Déclarations et TVA -->
-        <div class="feature-card" @slideIn>
-          <h3>Gestion des Déclarations et TVA 🏛</h3>
-          <p>
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Déclarations et TVA 🏛</mat-card-title>
+          <mat-card-content>
             Calcul automatique de la TVA, génération des déclarations, alertes pour les délais.
-          </p>
-          <div class="card-actions">
-            <button class="primary-button" routerLink="/declarations" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Déclarations</button>
-          </div>
-        </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/declarations" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Déclarations</button>
+          </mat-card-actions>
+        </mat-card>
       </div>
     </div>
 
@@ -139,5 +126,5 @@
     <footer class="footer">
       <p>© 2025 Bilan+ - Tous droits réservés</p>
     </footer>
-  </div>
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

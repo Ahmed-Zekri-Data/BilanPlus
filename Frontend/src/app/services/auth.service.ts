@@ -24,19 +24,48 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+
+    // Vérifier si le token est expiré (si possible)
+    // Pour l'instant, on considère que le token est valide s'il existe
+    return true;
   }
 
   getToken(): string | null {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    return currentUser?.token || null;
+    // Essayer d'abord de récupérer le token directement
+    const token = localStorage.getItem('token');
+    if (token) {
+      return token;
+    }
+
+    // Sinon, essayer de le récupérer depuis l'objet currentUser
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      return currentUser?.token || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token:', error);
+      return null;
+    }
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/user/login`, credentials).pipe( // Correction : /auth/login -> /user/login
+    return this.http.post<LoginResponse>(`${this.apiUrl}/user/login`, credentials).pipe(
       map(response => {
+        // Vérifier si la réponse contient un token
+        if (!response.token) {
+          throw new Error('Réponse de connexion invalide: token manquant');
+        }
+
+        // Stocker les informations de l'utilisateur et le token
         localStorage.setItem('currentUser', JSON.stringify(response));
+        localStorage.setItem('token', response.token); // Stocker le token séparément pour faciliter l'accès
+
+        // Mettre à jour le sujet BehaviorSubject
         this.currentUserSubject.next(response.user);
+
         return response;
       })
     );
@@ -44,7 +73,11 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
     this.currentUserSubject.next(null);
+
+    // Rediriger vers la page de connexion
+    window.location.href = '/login';
   }
 
   requestPasswordReset(email: string): Observable<any> {

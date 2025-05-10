@@ -1,0 +1,96 @@
+.permissions-container {
+  padding: 20px 0;
+}
+
+.permissions-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #1E3A8A;
+}
+
+.error-message {
+  color: #F44336;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #FFEBEE;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.permissions-groups {
+  margin-bottom: 20px;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.group-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-all {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.status-some {
+  color: #FF9800;
+  font-weight: 500;
+}
+
+.status-none {
+  color: #9E9E9E;
+  font-weight: 500;
+}
+
+.permissions-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.permission-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.permission-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.permission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.permission-title {
+  flex: 1;
+}
+
+.permission-title h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #1E3A8A;
+}
+
+.permission-title p {
+  margin: 0;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .permissions-list {
+    grid-template-columns: 1fr;
+  }
+}

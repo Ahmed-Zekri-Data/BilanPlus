@@ -6,11 +6,24 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   user: {
-    id: string;
+    _id: string;
+    id?: string;
     email: string;
     nom: string;
-    role: string | any; // Ajustez selon votre modèle
+    prenom?: string;
+    role: string | {
+      _id: string;
+      nom: string;
+      permissions: {
+        [key: string]: boolean;
+      };
+    };
+    actif?: boolean;
+    dernierConnexion?: Date | string;
+    tentativesConnexion?: number;
   };
+  message?: string;
+  expiresIn?: number;
 }
 
 export interface PasswordResetRequest {
@@ -20,4 +33,15 @@ export interface PasswordResetRequest {
 export interface PasswordReset {
   token: string;
   newPassword: string;
+  confirmPassword?: string;
+}
+
+export interface TwoFactorAuthRequest {
+  userId: string;
+  code: string;
+}
+
+export interface TwoFactorAuthResponse {
+  success: boolean;
+  message: string;
 }

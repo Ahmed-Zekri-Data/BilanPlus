@@ -68,11 +68,30 @@ export class UtilisateurComponent implements OnInit {
   }
 
   showDetails(user: Utilisateur): void {
-    this.router.navigate([`/utilisateur/${user._id}`]);
+    this.router.navigate([`/utilisateur/details/${user._id}`]);
   }
 
   getRoleName(user: Utilisateur): string {
+    if (!user.role) {
+      return 'Non défini';
+    }
     return typeof user.role === 'string' ? user.role : user.role.nom;
+  }
+
+  getActiveUsers(): Utilisateur[] {
+    return this.filteredUtilisateurs.filter(user => user.actif === true);
+  }
+
+  getInactiveUsers(): Utilisateur[] {
+    return this.filteredUtilisateurs.filter(user => user.actif === false);
+  }
+
+  hasActiveUsers(): boolean {
+    return this.getActiveUsers().length > 0;
+  }
+
+  hasInactiveUsers(): boolean {
+    return this.getInactiveUsers().length > 0;
   }
 
   exportToCSV(): void {

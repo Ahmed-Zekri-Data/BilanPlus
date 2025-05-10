@@ -103,7 +103,10 @@ export class RoleComponent implements OnInit {
   }
 
   getPermissionsList(role: Role): string[] {
-    return this.permissionKeys.filter(key => role.permissions[key as keyof Role['permissions']]);
+    if (!role.permissions) {
+      return [];
+    }
+    return this.permissionKeys.filter(key => role.permissions && role.permissions[key as keyof Role['permissions']]);
   }
 
   toggleActif(role: Role): void {
@@ -115,7 +118,7 @@ export class RoleComponent implements OnInit {
   }
 
   editRole(role: Role): void {
-    this.router.navigate([`/role/edit/${role._id}`]);
+    this.router.navigate([`/roles/edit/${role._id}`]);
   }
 
   deleteRole(id: string): void {
@@ -128,7 +131,7 @@ export class RoleComponent implements OnInit {
   }
 
   viewRole(id: string): void {
-    this.router.navigate([`/role/${id}`]);
+    this.router.navigate([`/roles/view/${id}`]);
   }
 
   search(event: Event): void {
@@ -159,7 +162,7 @@ export class RoleComponent implements OnInit {
       Description: role.description,
       Actif: role.actif ? 'Oui' : 'Non',
       Permissions: this.getPermissionsList(role).join(';'),
-      DateCreation: new Date(role.dateCreation).toLocaleDateString()
+      DateCreation: role.dateCreation ? new Date(role.dateCreation).toLocaleDateString() : 'Non définie'
     }));
     const csv = [
       'Nom,Description,Actif,Permissions,DateCreation',

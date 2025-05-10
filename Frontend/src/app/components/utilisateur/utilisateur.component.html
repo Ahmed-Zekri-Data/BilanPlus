@@ -1,50 +1,137 @@
-<mat-card class="search-card">
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher</mat-label>
-    <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
-</mat-card>
+<div class="utilisateur-container">
+  <div class="utilisateur-header">
+    <h1>Gestion des Utilisateurs</h1>
+    <p>Gérez les comptes utilisateurs et leurs accès</p>
+  </div>
 
-<div class="header">
-  <h2>VOS UTILISATEURS RÉCENTS</h2>
-  <button mat-flat-button color="primary" (click)="addUtilisateur()">
-    <mat-icon>upload</mat-icon> AJOUTER UN NOUVEL UTILISATEUR
-  </button>
-</div>
+  <div class="utilisateur-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Rechercher</mat-label>
+      <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
 
-<mat-tab-group>
-  <mat-tab label="TOUS">
-    <div class="file-list">
-      <mat-card *ngFor="let user of utilisateurs" class="file-card">
-        <mat-card-content class="file-content">
-          <mat-icon class="file-icon">person</mat-icon>
-          <div class="file-info">
-            <span class="file-name">{{ user.nom }} {{ user.prenom }}</span>
-            <span class="file-details">{{ user.email }} | Rôle: {{ getRoleName(user) }}</span>
-          </div>
-          <div class="file-actions">
-            <button mat-icon-button color="warn" (click)="openShareDialog(user)">
-              <mat-icon>share</mat-icon> PARTAGER
-            </button>
-            <button mat-icon-button color="primary" (click)="editUtilisateur(user)">
-              <mat-icon>edit</mat-icon> MODIFIER
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteUtilisateur(user._id)">
-              <mat-icon>delete</mat-icon> SUPPRIMER
-            </button>
-            <button mat-icon-button color="accent" (click)="showDetails(user)">
-              <mat-icon>info</mat-icon> DÉTAILS
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    <div class="toolbar-actions">
+      <button mat-raised-button color="primary" (click)="addUtilisateur()">
+        <mat-icon>person_add</mat-icon> Ajouter un utilisateur
+      </button>
+
+      <button mat-raised-button color="accent" (click)="exportToCSV()">
+        <mat-icon>download</mat-icon> Exporter en CSV
+      </button>
     </div>
-  </mat-tab>
-</mat-tab-group>
+  </div>
 
-<div *ngIf="errorMessage" class="error-message">
-  {{ errorMessage }}
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <mat-tab-group animationDuration="300ms">
+    <mat-tab label="Tous les utilisateurs">
+      <div class="user-cards-container">
+        <mat-card *ngFor="let user of filteredUtilisateurs" class="user-card">
+          <div class="user-card-header">
+            <div class="user-avatar">{{ user.nom ? user.nom.charAt(0) : 'U' }}{{ user.prenom ? user.prenom.charAt(0) : '' }}</div>
+            <div class="user-info">
+              <h3>{{ user.nom }} {{ user.prenom }}</h3>
+              <p>{{ user.email }}</p>
+              <span class="role-badge">{{ getRoleName(user) }}</span>
+              <span class="status-badge" [ngClass]="{'active': user.actif, 'inactive': !user.actif}">
+                {{ user.actif ? 'Actif' : 'Inactif' }}
+              </span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="user-card-actions">
+            <button mat-icon-button color="primary" matTooltip="Voir les détails" (click)="showDetails(user)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" matTooltip="Modifier" (click)="editUtilisateur(user)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteUtilisateur(user._id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card>
+
+        <div *ngIf="filteredUtilisateurs.length === 0" class="no-results">
+          <mat-icon>search_off</mat-icon>
+          <p>Aucun utilisateur trouvé</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Utilisateurs actifs">
+      <div class="user-cards-container">
+        <mat-card *ngFor="let user of getActiveUsers()" class="user-card">
+          <div class="user-card-header">
+            <div class="user-avatar">{{ user.nom ? user.nom.charAt(0) : 'U' }}{{ user.prenom ? user.prenom.charAt(0) : '' }}</div>
+            <div class="user-info">
+              <h3>{{ user.nom }} {{ user.prenom }}</h3>
+              <p>{{ user.email }}</p>
+              <span class="role-badge">{{ getRoleName(user) }}</span>
+              <span class="status-badge active">Actif</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="user-card-actions">
+            <button mat-icon-button color="primary" matTooltip="Voir les détails" (click)="showDetails(user)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" matTooltip="Modifier" (click)="editUtilisateur(user)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteUtilisateur(user._id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card>
+
+        <div *ngIf="!hasActiveUsers()" class="no-results">
+          <mat-icon>search_off</mat-icon>
+          <p>Aucun utilisateur actif trouvé</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Utilisateurs inactifs">
+      <div class="user-cards-container">
+        <mat-card *ngFor="let user of getInactiveUsers()" class="user-card">
+          <div class="user-card-header">
+            <div class="user-avatar inactive">{{ user.nom ? user.nom.charAt(0) : 'U' }}{{ user.prenom ? user.prenom.charAt(0) : '' }}</div>
+            <div class="user-info">
+              <h3>{{ user.nom }} {{ user.prenom }}</h3>
+              <p>{{ user.email }}</p>
+              <span class="role-badge">{{ getRoleName(user) }}</span>
+              <span class="status-badge inactive">Inactif</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="user-card-actions">
+            <button mat-icon-button color="primary" matTooltip="Voir les détails" (click)="showDetails(user)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" matTooltip="Modifier" (click)="editUtilisateur(user)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteUtilisateur(user._id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card>
+
+        <div *ngIf="!hasInactiveUsers()" class="no-results">
+          <mat-icon>search_off</mat-icon>
+          <p>Aucun utilisateur inactif trouvé</p>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>
-
-<button mat-flat-button color="accent" (click)="exportToCSV()">Exporter en CSV</button>

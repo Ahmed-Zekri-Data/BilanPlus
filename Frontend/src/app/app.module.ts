@@ -15,15 +15,30 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
+import { UtilisateurDashboardComponent } from './components/utilisateur-dashboard/utilisateur-dashboard.component';
+import { UtilisateurActivityComponent } from './components/utilisateur-activity/utilisateur-activity.component';
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
+import { RolePermissionsComponent } from './components/role-permissions/role-permissions.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -31,9 +46,13 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     UtilisateurComponent,
     AddUtilisateurComponent,
     UtilisateurDetailsComponent,
+    UtilisateurDashboardComponent,
+    UtilisateurActivityComponent,
     RoleComponent,
     AddRoleComponent,
-    RoleDetailsComponent
+    RoleDetailsComponent,
+    RolePermissionsComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +72,18 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     MatProgressSpinnerModule,
     MatCheckboxModule,
     MatSelectModule,
-    MatTabsModule
+    MatTabsModule,
+    MatSlideToggleModule,
+    MatExpansionModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
+    MatDividerModule,
+    MatChipsModule,
+    MatBadgeModule,
+    MatMenuModule
   ],
   providers: [],
   bootstrap: [AppComponent]

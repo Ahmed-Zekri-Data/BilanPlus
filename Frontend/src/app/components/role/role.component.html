@@ -1,54 +1,109 @@
-<div class="container">
-  <h2>Liste des Rôles</h2>
-  <input type="text" placeholder="Rechercher un rôle..." (input)="search($event)" class="search-bar" />
-  <div *ngIf="loading" class="spinner">
-    <div class="spinner-inner"></div>
+<div class="role-container">
+  <div class="role-header">
+    <h1>Gestion des Rôles</h1>
+    <p>Gérez les rôles et leurs permissions dans le système</p>
   </div>
-  <table class="role-table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Description</th>
-        <th>Actif</th>
-        <th>Permissions</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let role of filteredRoles" @fadeIn>
-        <td>{{ role.nom }}</td>
-        <td>{{ role.description }}</td>
-        <td>{{ role.actif ? 'Oui' : 'Non' }}</td>
-        <td>{{ getPermissionsList(role).join(', ') }}</td>
-        <td>
-          <button class="icon-button" (click)="toggleActif(role)">{{ role.actif ? 'Désactiver' : 'Activer' }}</button>
-          <button class="icon-button" (click)="editRole(role)">Modifier</button>
-          <button class="icon-button" (click)="deleteRole(role._id || '')">Supprimer</button>
-          <button class="icon-button" (click)="viewRole(role._id || '')">Voir</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div>
-    <button class="action-button" (click)="loadRoleStats()">Afficher les Statistiques</button>
-    <button class="action-button" (click)="exportToCSV()">Exporter en CSV</button>
+
+  <div class="role-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Rechercher</mat-label>
+      <input matInput placeholder="Rechercher un rôle..." (input)="search($event)">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="toolbar-actions">
+      <button mat-raised-button color="primary" routerLink="/roles/create">
+        <mat-icon>add_circle</mat-icon> Ajouter un rôle
+      </button>
+
+      <button mat-raised-button color="accent" (click)="exportToCSV()">
+        <mat-icon>download</mat-icon> Exporter en CSV
+      </button>
+
+      <button mat-raised-button color="basic" (click)="loadRoleStats()">
+        <mat-icon>bar_chart</mat-icon> Statistiques
+      </button>
+    </div>
   </div>
-  <div *ngIf="statsVisible" class="mt-4" @fadeInOut>
-    <h3>Statistiques des Rôles</h3>
-    <table class="stats-table">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Nombre d'Utilisateurs</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let stat of roleStats">
-          <td>{{ stat.nom }}</td>
-          <td>{{ stat.totalUsers }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <button class="action-button" (click)="hideStats()">Masquer</button>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Chargement des rôles...</p>
+  </div>
+
+  <div *ngIf="statsVisible" class="stats-container" @fadeInOut>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Statistiques des Rôles</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-grid">
+          <div *ngFor="let stat of roleStats" class="stat-item">
+            <div class="stat-name">{{ stat.nom }}</div>
+            <div class="stat-value">{{ stat.totalUsers }}</div>
+            <div class="stat-label">Utilisateurs</div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button color="warn" (click)="hideStats()">Fermer</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="role-cards-container" *ngIf="!loading">
+    <mat-card *ngFor="let role of filteredRoles" class="role-card" @fadeIn>
+      <mat-card-header>
+        <div mat-card-avatar class="role-avatar" [ngClass]="{'inactive': !role.actif}">
+          {{ role.nom.charAt(0) }}
+        </div>
+        <mat-card-title>{{ role.nom }}</mat-card-title>
+        <mat-card-subtitle>{{ role.description }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="role-status">
+          <span class="status-badge" [ngClass]="{'active': role.actif, 'inactive': !role.actif}">
+            {{ role.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+
+        <div class="permissions-section">
+          <h4>Permissions</h4>
+          <div class="permissions-list">
+            <div class="permission-chips">
+              <span *ngFor="let perm of getPermissionsList(role).slice(0, 3)" class="permission-chip">
+                {{ perm }}
+              </span>
+              <span *ngIf="getPermissionsList(role).length > 3" class="permission-chip more-chip">
+                +{{ getPermissionsList(role).length - 3 }} autres
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-actions>
+        <button mat-icon-button color="primary" matTooltip="Voir les détails" (click)="viewRole(role._id || '')">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="accent" matTooltip="Modifier" (click)="editRole(role)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [color]="role.actif ? 'warn' : 'primary'" matTooltip="{{ role.actif ? 'Désactiver' : 'Activer' }}" (click)="toggleActif(role)">
+          <mat-icon>{{ role.actif ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteRole(role._id || '')">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div *ngIf="filteredRoles.length === 0 && !loading" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>Aucun rôle trouvé</p>
+    </div>
   </div>
 </div>

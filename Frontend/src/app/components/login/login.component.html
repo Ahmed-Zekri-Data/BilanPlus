@@ -9,9 +9,9 @@
   </div>
 
   <!-- Section droite : Formulaire -->
-  <div class="login-container" @fadeIn>
+  <div class="login-container">
     <h2>{{ getTranslation('signIn') }}</h2>
-    <form (ngSubmit)="onSubmit()" class="login-form">
+    <form class="login-form">
       <!-- Email -->
       <div class="form-group">
         <label for="email">{{ getTranslation('loginLabel') }}</label>
@@ -23,14 +23,7 @@
             name="email"
             [placeholder]="getTranslation('loginPlaceholder')"
             (input)="onInputChange($event, 'email')"
-            [class.is-invalid]="submitted && !credentials.email"
           >
-        </div>
-        <div class="invalid-feedback" *ngIf="submitted && !credentials.email">
-          Email is required
-        </div>
-        <div class="invalid-feedback" *ngIf="submitted && credentials.email && !isValidEmail(credentials.email)">
-          Invalid email format
         </div>
       </div>
 
@@ -45,11 +38,7 @@
             name="password"
             [placeholder]="getTranslation('passwordPlaceholder')"
             (input)="onInputChange($event, 'password')"
-            [class.is-invalid]="submitted && !credentials.password"
           >
-        </div>
-        <div class="invalid-feedback" *ngIf="submitted && !credentials.password">
-          Password is required
         </div>
       </div>
 
@@ -59,27 +48,18 @@
           <input type="checkbox" id="rememberMe" (change)="onCheckboxChange($event)" />
           <label for="rememberMe">{{ getTranslation('verify') }}</label>
         </div>
-        <a class="forgot-password" routerLink="/forgot-password">{{ getTranslation('forgotPassword') }}</a>
+        <a class="forgot-password" (click)="navigateToForgotPassword()">{{ getTranslation('forgotPassword') }}</a>
       </div>
 
       <!-- Bouton de soumission -->
       <button
-        type="submit"
+        type="button"
         class="submit-button"
-        [disabled]="loading"
-        [@buttonClick]="buttonState"
-        (mousedown)="buttonState = 'clicked'"
-        (mouseup)="buttonState = 'normal'"
+        (click)="navigateToHome()"
       >
-        <span *ngIf="!loading">{{ getTranslation('signIn') }}</span>
-        <span *ngIf="loading" class="spinner">⏳</span>
+        Se connecter
       </button>
     </form>
-
-    <!-- Message d'erreur -->
-    <div class="alert alert-danger" *ngIf="errorMessage" [@fadeInOut]>
-      <span>⚠️</span> {{ errorMessage }}
-    </div>
 
     <!-- Bouton de traduction -->
     <div class="language-toggle">

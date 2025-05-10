@@ -76,7 +76,9 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/home']).then(success => {
+        console.log('Navigation to /home on init:', success ? 'Success' : 'Failed');
+      });
     }
   }
 
@@ -113,33 +115,16 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-    this.submitted = true;
-    this.errorMessage = '';
+  navigateToForgotPassword(): void {
+    this.router.navigate(['/forgot-password']).then(success => {
+      console.log('Navigation to /forgot-password:', success ? 'Success' : 'Failed');
+    });
+  }
 
-    if (!this.credentials.email || !this.isValidEmail(this.credentials.email) || !this.credentials.password) {
-      return;
-    }
-
-    this.loading = true;
-    const credentials = this.credentials;
-
-    this.authService.login(credentials).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/home']);
-      },
-      error: (err: any) => {
-        console.error('Erreur de connexion:', err);
-        if (err.status === 401) {
-          this.errorMessage = 'Email ou mot de passe incorrect.';
-        } else if (err.status === 0) {
-          this.errorMessage = 'Impossible de se connecter au serveur. Vérifiez votre connexion ou l\'état du serveur.';
-        } else {
-          this.errorMessage = err?.message || 'Une erreur est survenue lors de la connexion.';
-        }
-        this.loading = false;
-      }
+  navigateToHome(): void {
+    console.log('Navigating to /home');
+    this.router.navigate(['/home']).then(success => {
+      console.log('Navigation to /home:', success ? 'Success' : 'Failed');
     });
   }
 }

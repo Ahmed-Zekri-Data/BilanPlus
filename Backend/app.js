@@ -24,6 +24,7 @@ const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
+const AuditRouter = require("./Routes/AuditRoute");
 const { errorHandlers } = require("./MiddleWare/errorHandler");
 
 const port = process.env.PORT || 3000;
@@ -94,6 +95,7 @@ app.use("/MS", MSrouter);
 app.use("/produits", PRODrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
+app.use("/audit", AuditRouter);
 
 app.use(errorHandlers);
 
