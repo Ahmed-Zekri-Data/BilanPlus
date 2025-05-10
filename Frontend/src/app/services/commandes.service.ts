@@ -1,14 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface CommandeAchat {
   _id?: string;
-  produit: string;      // ID du produit
+  produit?: {
+    _id: string;
+    nom: string;
+  };
   quantite: number;
   prix: number;
-  statut?: string;       // Optionnel
-  fournisseurID: string; // ID du fournisseur
+  categorie?: string;
+  statut?: string;
+  fournisseurID?: {
+    _id: string;
+    nom: string;
+  };
+  date: Date;
+}
+
+export interface CommandeFilterParams {
+  page: number;
+  limit: number;
+  search?: string;
+  categorie?: string;
 }
 
 @Injectable({
@@ -21,7 +36,22 @@ export class CommandesService {
 
   // 📄 Récupérer toutes les commandes
   getAllCommandes(): Observable<CommandeAchat[]> {
-    return this.http.get<CommandeAchat[]>(`${this.apiUrl}`);
+    return this.http.get<CommandeAchat[]>(`${this.apiUrl}/all`);
+  }
+
+  getCommandesWithFilters(params: CommandeFilterParams): Observable<any> {
+    let httpParams = new HttpParams()
+      .set('page', params.page.toString())
+      .set('limit', params.limit.toString());
+
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+    if (params.categorie) {
+      httpParams = httpParams.set('categorie', params.categorie);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}`, { params: httpParams });
   }
 
   // 🔍 Récupérer une commande par son ID
@@ -42,5 +72,13 @@ export class CommandesService {
   // 🗑️ Supprimer une commande
   deleteCommande(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  updateStatut(id: string, statut: string): Observable<CommandeAchat> {
+    return this.http.put<CommandeAchat>(`${this.apiUrl}/updateStatut/${id}`, { statut });
+  }
+
+  getCategories(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/categories`);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FournisseurService, Fournisseur } from '../../../services/fournisseur.service';
+import { FournisseurService } from '../../../services/fournisseur.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./fournisseur-view.component.css']
 })
 export class FournisseurViewComponent implements OnInit {
-  fournisseur: Fournisseur | null = null;
+  fournisseur: any;
   isLoading = false;
 
   constructor(
@@ -20,36 +20,51 @@ export class FournisseurViewComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.loadFournisseur();
-  }
-
-  loadFournisseur(): void {
-    const id = this.route.snapshot.params['id'];
+    const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.isLoading = true;
-      this.fournisseurService.getFournisseurById(+id).subscribe({
-        next: (data) => {
-          this.fournisseur = data;
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.snackBar.open('Erreur lors du chargement du fournisseur', 'Fermer', {
-            duration: 3000
-          });
-          this.isLoading = false;
-          console.error(err);
-        }
-      });
+      this.loadFournisseur(id);
     }
   }
 
+  loadFournisseur(id: string): void {
+    this.isLoading = true;
+    this.fournisseurService.getFournisseurById(id).subscribe({
+      next: (fournisseur) => {
+        this.fournisseur = fournisseur;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.snackBar.open('Erreur lors du chargement du fournisseur', 'Fermer', {
+          duration: 3000
+        });
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
+  }
+
   editFournisseur(): void {
-    if (this.fournisseur?.id) {
+    if (this.fournisseur) {
       this.router.navigate(['/fournisseurs/edit', this.fournisseur.id]);
     }
   }
 
-  goBack(): void {
-    this.router.navigate(['/fournisseurs']);
+  deleteFournisseur(): void {
+    if (this.fournisseur && confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+      this.fournisseurService.deleteFournisseur(this.fournisseur.id).subscribe({
+        next: () => {
+          this.snackBar.open('Fournisseur supprimé avec succès', 'Fermer', {
+            duration: 3000
+          });
+          this.router.navigate(['/fournisseurs']);
+        },
+        error: (err) => {
+          this.snackBar.open('Erreur lors de la suppression du fournisseur', 'Fermer', {
+            duration: 3000
+          });
+          console.error(err);
+        }
+      });
+    }
   }
 } 

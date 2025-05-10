@@ -6,15 +6,18 @@ const {
   updateCommande,
   deleteCommande,
   updateStatut,
-  createDevis
+  getCommandeById,
+  getCommandesWithFilters,
+  getProductCategories
 } = require("../Controller/commandeController");
 
 router.post("/", createCommande);
-router.get("/", getAllCommandes);
+router.get("/", getCommandesWithFilters);
+router.get("/all", getAllCommandes);
+router.get("/categories", getProductCategories);
 router.put("/:id", updateCommande);
 router.put("/updateStatut/:id", updateStatut); 
 router.delete("/:id", deleteCommande);
-
-router.post("/devis", createDevis);
+router.get("/:id", getCommandeById);
 
 module.exports = router;

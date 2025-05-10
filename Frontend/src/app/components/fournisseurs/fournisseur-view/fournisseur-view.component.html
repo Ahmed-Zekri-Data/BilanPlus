@@ -1,45 +1,34 @@
 <div class="fournisseur-view-container">
-  <mat-card>
+  <mat-card *ngIf="fournisseur">
     <mat-card-header>
-      <mat-card-title>Détails du Fournisseur</mat-card-title>
-      <mat-card-subtitle>Informations complètes</mat-card-subtitle>
+      <mat-card-title>Détails du fournisseur</mat-card-title>
     </mat-card-header>
-
     <mat-card-content>
-      <div *ngIf="isLoading" class="loading-container">
-        <mat-spinner></mat-spinner>
+      <div class="detail-row">
+        <span class="label">ID:</span>
+        <span class="value">{{ fournisseur.id }}</span>
       </div>
-
-      <div *ngIf="!isLoading && fournisseur" class="fournisseur-details">
-        <div class="detail-row">
-          <span class="detail-label">Nom:</span>
-          <span class="detail-value">{{ fournisseur.nom }}</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Email:</span>
-          <span class="detail-value">{{ fournisseur.email }}</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Adresse:</span>
-          <span class="detail-value">{{ fournisseur.adresse }}</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Catégorie:</span>
-          <span class="detail-value">{{ fournisseur.categorie }}</span>
-        </div>
+      <div class="detail-row">
+        <span class="label">Nom:</span>
+        <span class="value">{{ fournisseur.nom }}</span>
       </div>
-
-      <div class="actions">
-        <button mat-raised-button color="primary" (click)="editFournisseur()">
-          <mat-icon>edit</mat-icon> Modifier
-        </button>
-        <button mat-raised-button (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon> Retour
-        </button>
+      <div class="detail-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ fournisseur.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Contact:</span>
+        <span class="value">{{ fournisseur.contact }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Statut:</span>
+        <span class="value">{{ fournisseur.statut }}</span>
       </div>
     </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="editFournisseur()">Modifier</button>
+      <button mat-raised-button color="warn" (click)="deleteFournisseur()">Supprimer</button>
+      <button mat-raised-button routerLink="/fournisseurs">Retour</button>
+    </mat-card-actions>
   </mat-card>
 </div> 

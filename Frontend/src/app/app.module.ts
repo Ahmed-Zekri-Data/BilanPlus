@@ -17,10 +17,29 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTreeModule } from '@angular/material/tree';
 
 // Components
 import { HomeComponent } from './home/home.component';
@@ -39,7 +58,13 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { ProduitsComponent } from './components/produits/produits.component';
+import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
+import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
+import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
+import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { MSComponent } from './components/ms/ms.component';
@@ -49,15 +74,6 @@ import { UtilisateurDetailsComponent } from './components/utilisateur-details/ut
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
-import { ListDFComponent } from './components/list-df/list-df.component';
-import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
-import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
-import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
-
-// Fournisseurs Components
-import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
-import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
-import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
 @NgModule({
   declarations: [
@@ -78,10 +94,12 @@ import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-
     BilanComponent,
     ResultatComponent,
     DashboardComponent,
+    ListCommandesComponent,
     ListFournisseursComponent,
     FournisseurFormComponent,
     FournisseurViewComponent,
-    ProduitsComponent,
+    CommandeFormComponent,
+    CommandeViewComponent,
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
@@ -91,12 +109,15 @@ import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-
     UtilisateurDetailsComponent,
     RoleComponent,
     AddRoleComponent,
-    RoleDetailsComponent,
-    ListCommandesComponent,
-    CommandeFormComponent,
-    CommandeViewComponent
+    RoleDetailsComponent
   ],
   imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatOptionModule,
     BrowserModule,
     CommonModule,
     AppRoutingModule,
@@ -118,7 +139,26 @@ import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-
     MatNativeDateModule,
     MatTableModule,
     MatProgressSpinnerModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatTabsModule,
+    MatDialogModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatSlideToggleModule,
+    MatProgressBarModule,
+    MatTooltipModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    MatBadgeModule,
+    MatBottomSheetModule,
+    MatButtonToggleModule,
+    MatRippleModule,
+    MatStepperModule,
+    MatTreeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

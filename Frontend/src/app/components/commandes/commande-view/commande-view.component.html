@@ -1,44 +1,61 @@
-<div class="container">
-  <div class="header">
-    <h1>Détails de la Commande</h1>
-    <div class="actions">
-      <button mat-raised-button color="primary" (click)="editCommande()">
-        <mat-icon>edit</mat-icon>
-        Modifier
-      </button>
-      <button mat-button (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Retour
-      </button>
-    </div>
-  </div>
+<div class="commande-view-container">
+  <mat-toolbar class="bilan-gradient">
+    <h1 style="color: white; margin: 0;">Détails de la Commande</h1>
+    <span class="spacer"></span>
+    <button mat-raised-button color="accent" (click)="editCommande()">
+      <mat-icon>edit</mat-icon>
+      Modifier
+    </button>
+    <button mat-raised-button color="warn" (click)="deleteCommande()">
+      <mat-icon>delete</mat-icon>
+      Supprimer
+    </button>
+  </mat-toolbar>
 
-  <div class="details-container" *ngIf="commande">
-    <mat-card>
+  <div class="content-section">
+    <mat-card class="main-card">
       <mat-card-content>
-        <div class="detail-row">
-          <span class="label">Produit:</span>
-          <span class="value">{{ commande.produit }}</span>
+        <div *ngIf="isLoading" class="loading-container">
+          <mat-spinner></mat-spinner>
         </div>
-        <div class="detail-row">
-          <span class="label">Quantité:</span>
-          <span class="value">{{ commande.quantite }}</span>
+
+        <div *ngIf="!isLoading && commande" class="commande-details">
+          <div class="detail-row">
+            <span class="label">Produit:</span>
+            <span class="value">{{ commande.produit?.nom || 'Non spécifié' }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Fournisseur:</span>
+            <span class="value">{{ commande.fournisseurID?.nom || 'Non spécifié' }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ commande.date | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Quantité:</span>
+            <span class="value">{{ commande.quantite }}</span>
+          </div>
+
+          
+
+          <div class="detail-row">
+            <span class="label">Statut:</span>
+            <span class="value">
+              <span [ngClass]="'statut-badge ' + (commande.statut ? commande.statut.toLowerCase() : '')">
+                {{ commande.statut || 'Non spécifié' }}
+              </span>
+            </span>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="label">Prix:</span>
-          <span class="value">{{ commande.prix | currency:'EUR' }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Statut:</span>
-          <span class="value">{{ commande.statut || 'En attente' }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Fournisseur:</span>
-          <span class="value">{{ commande.fournisseurID }}</span>
+
+        <div *ngIf="!isLoading && !commande" class="no-data">
+          <p>Commande non trouvée.</p>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
-
-  <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
 </div> 

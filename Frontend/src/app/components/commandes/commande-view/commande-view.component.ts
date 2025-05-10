@@ -29,8 +29,8 @@ export class CommandeViewComponent implements OnInit {
   loadCommande(id: string): void {
     this.isLoading = true;
     this.commandesService.getCommandeById(id).subscribe({
-      next: (data) => {
-        this.commande = data;
+      next: (commande) => {
+        this.commande = commande;
         this.isLoading = false;
       },
       error: (err) => {
@@ -44,8 +44,27 @@ export class CommandeViewComponent implements OnInit {
   }
 
   editCommande(): void {
-    if (this.commande?._id) {
+    if (this.commande) {
       this.router.navigate(['/commandes/edit', this.commande._id]);
+    }
+  }
+
+  deleteCommande(): void {
+    if (this.commande && confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+      this.commandesService.deleteCommande(this.commande._id!).subscribe({
+        next: () => {
+          this.snackBar.open('Commande supprimée avec succès', 'Fermer', {
+            duration: 3000
+          });
+          this.router.navigate(['/commandes']);
+        },
+        error: (err) => {
+          this.snackBar.open('Erreur lors de la suppression de la commande', 'Fermer', {
+            duration: 3000
+          });
+          console.error(err);
+        }
+      });
     }
   }
 

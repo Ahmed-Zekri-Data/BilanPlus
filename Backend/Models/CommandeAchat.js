@@ -7,8 +7,8 @@ const CommandeAchatSchema = new mongoose.Schema({
       required: true 
   },
   quantite: { type: Number},
-  prix: { type: Number, required: true },
-  statut: { type: String, default: "En attente" },
+  date: { type: Date, default: Date.now },
+  statut: { type: String, default: "non valide" },
   fournisseurID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Fournisseur',

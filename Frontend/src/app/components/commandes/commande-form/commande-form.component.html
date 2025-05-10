@@ -5,7 +5,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Produit</mat-label>
       <mat-select formControlName="produit" required>
-        <mat-option *ngFor="let produit of produits" [value]="produit.nom">
+        <mat-option *ngFor="let produit of produits" [value]="produit._id">
           {{produit.nom}}
         </mat-option>
       </mat-select>
@@ -49,7 +49,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Fournisseur</mat-label>
       <mat-select formControlName="fournisseurID" required>
-        <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur">
+        <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur._id">
           {{fournisseur.nom}}
         </mat-option>
       </mat-select>
@@ -67,4 +67,4 @@
   </form>
 
   <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
-</div>
+</div> 

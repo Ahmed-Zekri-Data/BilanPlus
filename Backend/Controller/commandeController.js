@@ -1,11 +1,11 @@
-const Commande = require('../Models/commandeAchat');
+const Commande = require('../Models/CommandeAchat');
 const Produit = require('../Models/Produit');
 const Fournisseur = require('../Models/Fournisseur');
 
 const sendEmail = require('../Utils/sendEmail');
 
-const createCommande = async (req, res) => {
-  const { produit, quantite, prix, statut, fournisseurID } = req.body;
+const createCommande1 = async (req, res) => {
+  const { produit, quantite, statut, fournisseurID } = req.body;
   try {
     const produitDoc = await Produit.findById(produit);
     if (!produitDoc) return res.status(404).json({ message: "Produit non trouvé" });
@@ -20,7 +20,6 @@ const createCommande = async (req, res) => {
     const commande = new Commande({
       produit,
       quantite,
-      prix,
       statut: statut || 'en attente',
       fournisseurID
     });
@@ -34,7 +33,7 @@ const createCommande = async (req, res) => {
 const getAllCommandes = async (req, res) => {
   try {
     const commandes = await Commande.find()
-      .populate('produit')
+      .populate('produit', 'nom')
       .populate('fournisseurID');
     res.status(200).json(commandes);
   } catch (err) {
@@ -44,17 +43,35 @@ const getAllCommandes = async (req, res) => {
 
 const updateCommande = async (req, res) => {
   const { id } = req.params;
-  const { produit, quantite, prix, statut, fournisseurID } = req.body;
+  const { produit, quantite, statut, fournisseurID } = req.body;
   try {
     const updatedCommande = await Commande.findByIdAndUpdate(
       id,
-      { produit, quantite, prix, statut, fournisseurID },
+      { produit, quantite,statut, fournisseurID },
       { new: true }
     );
     if (!updatedCommande) return res.status(404).json({ message: "Commande non trouvée" });
     res.status(200).json(updatedCommande);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+};
+
+const getCommandeById = async (req, res) => {
+  try {
+    const commandeId = req.params.id;
+
+    const commande = await Commande.findById(commandeId)
+      .populate('produit')         // récupère tous les champs du produit
+      .populate('fournisseurID');  // récupère tous les champs du fournisseur
+
+    if (!commande) {
+      return res.status(404).json({ message: 'Commande non trouvée' });
+    }
+
+    res.status(200).json(commande);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -99,13 +116,17 @@ const deleteCommande = async (req, res) => {
   }
 };
 
-const createDevis = async (req, res) => {
-  const { produit, quantite, categorie } = req.body;
+const createCommande = async (req, res) => {
+  const { produit, quantite, statut, fournisseurID } = req.body;
 
   try {
     // Find all suppliers in the same category
+    const produitDoc = await Produit.findById(produit);
+    if (!produitDoc) {
+      return res.status(404).json({ message: "Produit non trouvé" });
+    }
+    const categorie = produitDoc.categorie;
     const fournisseurs = await Fournisseur.find({ categorie: categorie });
-    
     if (!fournisseurs || fournisseurs.length === 0) {
       return res.status(404).json({ 
         message: "Aucun fournisseur trouvé dans cette catégorie",
@@ -197,6 +218,56 @@ const createDevis = async (req, res) => {
   }
 };
 
+const getProductCategories = async (req, res) => {
+  try {
+    const categories = await Produit.distinct('categorie');
+    res.status(200).json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getCommandesWithFilters = async (req, res) => {
+  try {
+    const { startDate, endDate, fournisseurId, search, categorie } = req.query;
+    let query = {};
+
+    // Date range filter
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    // Fournisseur filter
+    if (fournisseurId) {
+      query.fournisseurID = fournisseurId;
+    }
+
+    // Full text search
+    if (search) {
+      query.$or = [
+        { 'produit.nom': { $regex: search, $options: 'i' } },
+        { 'produit.categorie': { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const commandes = await Commande.find(query)
+      .populate('produit', 'nom categorie')
+      .populate('fournisseurID', 'nom email')
+      .sort({ date: -1 });
+
+    // Correction : filtrer par catégorie après le populate
+    let filteredCommandes = commandes;
+    if (categorie) {
+      filteredCommandes = commandes.filter(cmd => cmd.produit && cmd.produit.categorie === categorie);
+    }
+
+    res.status(200).json(filteredCommandes);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 module.exports = {
   createCommande,
@@ -204,5 +275,7 @@ module.exports = {
   updateCommande,
   deleteCommande,
   updateStatut,
-  createDevis
+  getCommandeById,
+  getProductCategories,
+  getCommandesWithFilters
 };

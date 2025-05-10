@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FournisseurService, Fournisseur } from '../../../services/fournisseur.service';
+import { FournisseurService } from '../../../services/fournisseur.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -11,8 +11,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class FournisseurFormComponent implements OnInit {
   fournisseurForm: FormGroup;
+  fournisseurId: string | null = null;
   isEditMode = false;
-  fournisseurId: number | null = null;
   isLoading = false;
 
   constructor(
@@ -25,19 +25,17 @@ export class FournisseurFormComponent implements OnInit {
     this.fournisseurForm = this.fb.group({
       nom: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      adresse: ['', Validators.required],
-      categorie: ['', Validators.required]
+      contact: ['', Validators.required],
+      statut: ['actif', Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.isEditMode = true;
-        this.fournisseurId = +params['id'];
-        this.loadFournisseur();
-      }
-    });
+    this.fournisseurId = this.route.snapshot.paramMap.get('id');
+    if (this.fournisseurId) {
+      this.isEditMode = true;
+      this.loadFournisseur();
+    }
   }
 
   loadFournisseur(): void {
@@ -63,13 +61,13 @@ export class FournisseurFormComponent implements OnInit {
     if (this.fournisseurForm.valid) {
       this.isLoading = true;
       const fournisseurData = this.fournisseurForm.value;
-
       if (this.isEditMode && this.fournisseurId) {
         this.fournisseurService.updateFournisseur(this.fournisseurId, fournisseurData).subscribe({
           next: () => {
             this.snackBar.open('Fournisseur mis à jour avec succès', 'Fermer', {
               duration: 3000
             });
+            this.isLoading = false;
             this.router.navigate(['/fournisseurs']);
           },
           error: (err) => {
@@ -86,6 +84,7 @@ export class FournisseurFormComponent implements OnInit {
             this.snackBar.open('Fournisseur créé avec succès', 'Fermer', {
               duration: 3000
             });
+            this.isLoading = false;
             this.router.navigate(['/fournisseurs']);
           },
           error: (err) => {
