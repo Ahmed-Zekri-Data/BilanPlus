@@ -4,6 +4,7 @@
       <a mat-list-item routerLink="/utilisateurs" (click)="sidenav.close()">Utilisateurs</a>
       <a mat-list-item routerLink="/facturation" (click)="sidenav.close()">Facturation</a>
       <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()">Fournisseurs</a>
+      <a mat-list-item routerLink="/commandes" (click)="sidenav.close()">Commandes</a>
       <a mat-list-item routerLink="/stocks" (click)="sidenav.close()">Stocks</a>
       <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()">Gestion Comptable</a>
       <a mat-list-item routerLink="/declarations" (click)="sidenav.close()">Déclarations</a>
@@ -21,6 +22,7 @@
         <button mat-raised-button color="accent" routerLink="/utilisateurs">Utilisateurs</button>
         <button mat-raised-button color="accent" routerLink="/facturation">Facturation</button>
         <button mat-raised-button color="accent" routerLink="/fournisseurs">Fournisseurs</button>
+        <button mat-raised-button color="accent" routerLink="/commandes">Commandes</button>
         <button mat-raised-button color="accent" routerLink="/stocks">Stocks</button>
         <button mat-raised-button color="accent" routerLink="/gestion-comptable">Gestion Comptable</button>
         <button mat-raised-button color="accent" routerLink="/declarations">Déclarations</button>
@@ -63,14 +65,25 @@
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion des Fournisseurs et Achats -->
+        <!-- Gestion des Fournisseurs -->
         <mat-card class="feature-card" @slideIn>
-          <mat-card-title>Gestion des Fournisseurs et Achats 📦</mat-card-title>
+          <mat-card-title>Gestion des Fournisseurs 📦</mat-card-title>
           <mat-card-content>
-            Création et suivi des commandes, validation automatique selon les stocks.
+            Gérez vos fournisseurs, leurs informations et leurs contacts. Suivez les performances et les relations commerciales.
           </mat-card-content>
           <mat-card-actions>
             <button mat-button color="primary" routerLink="/fournisseurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Fournisseurs</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Gestion des Commandes -->
+        <mat-card class="feature-card" @slideIn>
+          <mat-card-title>Gestion des Commandes 📝</mat-card-title>
+          <mat-card-content>
+            Créez et suivez vos commandes. Gérez les bons de commande et le suivi des livraisons.
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" routerLink="/commandes" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Commandes</button>
           </mat-card-actions>
         </mat-card>
 

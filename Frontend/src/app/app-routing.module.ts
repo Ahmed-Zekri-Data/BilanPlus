@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 // Stock
 import { MSComponent } from './components/ms/ms.component';
 import { ProduitComponent } from './components/produit.component';
-import { ProduitsComponent } from './components/produits/produits.component';
 
 // Main / Comptabilité / Utilisateurs / Rôles
 import { HomeComponent } from './home/home.component';
@@ -26,19 +25,24 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 
 // TVA / Déclarations fiscales
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
-import { TvaFormComponent } from './components/tva-form/tva-form.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 
-// Commandes & fournisseurs
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
+// Fournisseurs et Commandes
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
+import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
+import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
+import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-
+  { path: 'home', component: HomeComponent },
+  
   // Gestion comptable
   {
     path: 'gestion-comptable',
@@ -57,13 +61,30 @@ const routes: Routes = [
   },
 
   // Stock
-  { path: 'produits', component: ProduitsComponent },
   { path: 'produit', component: ProduitComponent },
   { path: 'stock-movements', component: MSComponent },
 
-  // Commandes & fournisseurs
-  { path: 'commandes', component: CommandesComponent },
-  { path: 'fournisseurs', component: FournisseursComponent },
+  // Commandes
+  {
+    path: 'commandes',
+    children: [
+      { path: '', component: ListCommandesComponent },
+      { path: 'add', component: CommandeFormComponent },
+      { path: 'edit/:id', component: CommandeFormComponent },
+      { path: 'view/:id', component: CommandeViewComponent }
+    ]
+  },
+
+  // Fournisseurs
+  {
+    path: 'fournisseurs',
+    children: [
+      { path: '', component: ListFournisseursComponent },
+      { path: 'add', component: FournisseurFormComponent },
+      { path: 'edit/:id', component: FournisseurFormComponent },
+      { path: 'view/:id', component: FournisseurViewComponent }
+    ]
+  },
 
   // Utilisateurs
   { path: 'utilisateurs', component: UtilisateurComponent },
