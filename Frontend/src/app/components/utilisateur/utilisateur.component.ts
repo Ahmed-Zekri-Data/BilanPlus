@@ -56,12 +56,18 @@ export class UtilisateurComponent implements OnInit {
   }
 
   deleteUtilisateur(id: string | undefined): void {
-    if (id && confirm('Êtes-vous sûr ?')) {
+    if (id && confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       this.utilisateurService.deleteUtilisateur(id).subscribe({
-        next: () => this.loadUtilisateurs(),
+        next: () => {
+          this.loadUtilisateurs();
+          // Afficher un message de succès
+          alert('Utilisateur supprimé avec succès');
+        },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la suppression de l\'utilisateur.';
+          this.errorMessage = err?.message || 'Erreur lors de la suppression de l\'utilisateur.';
           console.error('Erreur:', err);
+          // Afficher un message d'erreur
+          alert('Erreur lors de la suppression de l\'utilisateur: ' + this.errorMessage);
         }
       });
     }
@@ -95,23 +101,26 @@ export class UtilisateurComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    const csvData = this.utilisateurs.map(user => ({
-      Nom: user.nom,
-      Prenom: user.prenom || '',
-      Email: user.email,
-      Role: typeof user.role === 'string' ? user.role : user.role.nom,
-      Actif: user.actif ? 'Oui' : 'Non'
-    }));
-    const csv = [
-      'Nom,Prenom,Email,Role,Actif',
-      ...csvData.map(row => `${row.Nom},${row.Prenom},${row.Email},${row.Role},${row.Actif}`)
-    ].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'utilisateurs.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    this.utilisateurService.exportToCSV().subscribe({
+      next: (blob: Blob) => {
+        // Créer un URL pour le blob
+        const url = window.URL.createObjectURL(blob);
+        // Créer un élément a pour déclencher le téléchargement
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'utilisateurs.csv';
+        document.body.appendChild(a);
+        a.click();
+        // Nettoyer
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.errorMessage = 'Erreur lors de l\'exportation des utilisateurs.';
+        console.error('Erreur lors de l\'exportation:', err);
+        // Afficher un message d'erreur
+        alert('Erreur lors de l\'exportation des utilisateurs: ' + (err.message || 'Erreur inconnue'));
+      }
+    });
   }
 }

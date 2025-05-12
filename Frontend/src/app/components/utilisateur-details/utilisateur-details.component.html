@@ -1,18 +1,117 @@
-<div class="container mt-4">
-  <div class="card" *ngIf="!loading && utilisateur">
-    <div class="card-body">
-      <h5 class="card-title">{{ utilisateur.nom }}</h5>
-      <p><strong>Email :</strong> {{ utilisateur.email }}</p>
-      <p><strong>ID :</strong> {{ utilisateur._id }}</p>
-      <div class="preferences">
-        <h6>Préférences</h6>
-        <p><strong>Thème :</strong> <span class="info-value">{{ utilisateur.preferences?.theme === 'light' ? 'Clair' : 'Sombre' }}</span></p>
-        <p><strong>Langue :</strong> <span class="info-value">{{ utilisateur.preferences?.langue === 'fr' ? 'Français' : 'Anglais' }}</span></p>
-        <p><strong>Notifications Email :</strong> <span class="info-value">{{ utilisateur.preferences?.notificationsEmail ? 'Activées' : 'Désactivées' }}</span></p>
-      </div>
+<div class="user-details-container">
+  <div class="user-details-header">
+    <h1>Détails de l'utilisateur</h1>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon> Retour
+      </button>
+      <button mat-raised-button color="accent" [routerLink]="['/utilisateur/edit', utilisateur?._id]">
+        <mat-icon>edit</mat-icon> Modifier
+      </button>
+      <button mat-raised-button color="warn" (click)="deleteUtilisateur()">
+        <mat-icon>delete</mat-icon> Supprimer
+      </button>
     </div>
-    <div class="card-footer">
-      <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Chargement des informations...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <mat-card class="user-details-card" *ngIf="!loading && utilisateur">
+    <mat-card-header>
+      <div mat-card-avatar class="user-avatar" [ngClass]="{'inactive': !utilisateur.actif}">
+        {{ utilisateur.nom ? utilisateur.nom.charAt(0) : 'U' }}{{ utilisateur.prenom ? utilisateur.prenom.charAt(0) : '' }}
+      </div>
+      <mat-card-title>{{ utilisateur.nom }} {{ utilisateur.prenom }}</mat-card-title>
+      <mat-card-subtitle>{{ utilisateur.email }}</mat-card-subtitle>
+      <div class="status-badge" [ngClass]="{'active': utilisateur.actif, 'inactive': !utilisateur.actif}">
+        {{ utilisateur.actif ? 'Actif' : 'Inactif' }}
+      </div>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <div class="details-section">
+        <h3>Informations générales</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">{{ utilisateur._id }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Rôle</span>
+            <span class="detail-value">{{ getRoleName() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date de création</span>
+            <span class="detail-value">{{ utilisateur.dateCreation | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Dernière connexion</span>
+            <span class="detail-value">{{ utilisateur.dernierConnexion ? (utilisateur.dernierConnexion | date:'dd/MM/yyyy HH:mm') : 'Jamais' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-section">
+        <h3>Préférences</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Thème</span>
+            <span class="detail-value">{{ utilisateur.preferences?.theme === 'light' ? 'Clair' : 'Sombre' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Langue</span>
+            <span class="detail-value">{{ utilisateur.preferences?.langue === 'fr' ? 'Français' : 'Anglais' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Notifications Email</span>
+            <span class="detail-value">{{ utilisateur.preferences?.notificationsEmail ? 'Activées' : 'Désactivées' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-section">
+        <h3>Sécurité</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Authentification à deux facteurs</span>
+            <span class="detail-value">{{ utilisateur.twoFactorAuth?.enabled ? 'Activée' : 'Désactivée' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tentatives de connexion</span>
+            <span class="detail-value">{{ utilisateur.tentativesConnexion || 0 }}</span>
+          </div>
+          <div class="detail-item" *ngIf="utilisateur.tentativesConnexion > 0">
+            <button mat-button color="primary" (click)="resetLoginAttempts()">
+              <mat-icon>refresh</mat-icon> Réinitialiser les tentatives
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Confirmation Dialog -->
+  <div *ngIf="showConfirmDialog" class="confirm-dialog-overlay">
+    <div class="confirm-dialog">
+      <h2>Confirmation de suppression</h2>
+      <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.</p>
+      <div class="confirm-dialog-actions">
+        <button mat-raised-button (click)="cancelDelete()">Annuler</button>
+        <button mat-raised-button color="warn" (click)="confirmDelete()">Supprimer</button>
+      </div>
     </div>
   </div>
 </div>

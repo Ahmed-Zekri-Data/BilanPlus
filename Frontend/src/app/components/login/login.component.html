@@ -51,13 +51,20 @@
         <a class="forgot-password" (click)="navigateToForgotPassword()">{{ getTranslation('forgotPassword') }}</a>
       </div>
 
+      <!-- Message d'erreur -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <!-- Bouton de soumission -->
       <button
         type="button"
         class="submit-button"
         (click)="navigateToHome()"
+        [disabled]="loading"
       >
-        Se connecter
+        <span *ngIf="!loading">Se connecter</span>
+        <span *ngIf="loading">Connexion en cours...</span>
       </button>
     </form>
 

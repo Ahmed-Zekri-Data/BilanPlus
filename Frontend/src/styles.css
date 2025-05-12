@@ -29,3 +29,18 @@ router-outlet + * {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Styles pour les snackbars */
+.success-snackbar {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+.mat-simple-snackbar-action {
+  color: white !important;
+}

@@ -13,9 +13,38 @@ export class UtilisateurService {
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('currentUser') || '{}').token;
+    let token = '';
+
+    // Essayer d'abord de récupérer le token directement (méthode préférée)
+    token = localStorage.getItem('token') || '';
+
+    // Si aucun token n'a été trouvé, essayer de le récupérer depuis currentUser
+    if (!token) {
+      try {
+        const currentUserStr = localStorage.getItem('currentUser');
+        if (currentUserStr) {
+          const currentUser = JSON.parse(currentUserStr);
+          if (currentUser && currentUser.token) {
+            token = currentUser.token;
+
+            // Stocker le token séparément pour les prochaines requêtes
+            localStorage.setItem('token', token);
+            console.log('UtilisateurService: Token récupéré depuis currentUser et stocké séparément');
+          }
+        }
+      } catch (error) {
+        console.error('UtilisateurService: Erreur lors de la récupération du token depuis currentUser:', error);
+      }
+    }
+
+    if (!token) {
+      console.error('UtilisateurService: Aucun token trouvé, l\'utilisateur n\'est probablement pas connecté');
+    } else {
+      console.log('UtilisateurService: Token trouvé, longueur:', token.length);
+    }
+
     return new HttpHeaders({
-      'Authorization': `Bearer ${token || ''}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
   }
@@ -68,8 +97,11 @@ export class UtilisateurService {
     );
   }
 
-  exportToCSV(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/export-csv`, { headers: this.getHeaders() }).pipe(
+  exportToCSV(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export-csv`, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    }).pipe(
       catchError(this.handleError)
     );
   }
@@ -95,22 +127,36 @@ export class UtilisateurService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Une erreur est survenue. Veuillez réessayer plus tard.';
+    console.error('Erreur HTTP détectée:', error);
 
     if (error.error instanceof ErrorEvent) {
       // Erreur côté client
       errorMessage = `Erreur côté client: ${error.error.message}`;
+      console.error('Erreur côté client:', error.error.message);
     } else {
       // Erreur côté serveur
+      console.error('Erreur côté serveur:', {
+        status: error.status,
+        statusText: error.statusText,
+        url: error.url,
+        error: error.error
+      });
+
       switch (error.status) {
         case 400:
           errorMessage = 'Requête invalide. Veuillez vérifier les données saisies.';
           break;
         case 401:
           errorMessage = 'Vous n\'êtes pas autorisé à accéder à cette ressource. Veuillez vous reconnecter.';
-          // Rediriger vers la page de connexion si le token est expiré
-          if (error.error?.message === 'Token expiré') {
-            localStorage.removeItem('token');
-            localStorage.removeItem('currentUser');
+
+          // Vérifier si le token est expiré ou invalide
+          if (error.error?.message === 'Token expiré' || error.error?.message === 'Token invalide') {
+            console.warn('Token expiré ou invalide. Veuillez vous reconnecter.');
+
+            // Afficher un message à l'utilisateur
+            alert('Votre session a expiré. Veuillez vous reconnecter.');
+
+            // Rediriger vers la page de connexion
             window.location.href = '/login';
           }
           break;
@@ -135,7 +181,7 @@ export class UtilisateurService {
         errorMessage = `${errorMessage} - ${error.error.message}`;
       }
 
-      console.error('Détails de l\'erreur:', error.error);
+      console.error('Message d\'erreur final:', errorMessage);
     }
 
     return throwError(() => ({

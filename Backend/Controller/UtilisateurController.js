@@ -397,8 +397,31 @@ exports.analyserActiviteUtilisateurs = async (req, res) => {
 exports.exportUsersToCSV = async (req, res) => {
   try {
     const utilisateurs = await Utilisateur.find().populate('role');
+
+    // Créer un répertoire temporaire s'il n'existe pas
+    const tempDir = './temp';
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    const filePath = `${tempDir}/utilisateurs_export_${Date.now()}.csv`;
     const csvStream = csv.format({ headers: true });
-    const writableStream = fs.createWriteStream('utilisateurs_export.csv');
+    const writableStream = fs.createWriteStream(filePath);
+
+    // Enregistrer l'action dans l'audit
+    if (req.user && req.user._id) {
+      try {
+        await require('../Models/Audit').AuditLog.logAction(
+          req.user._id,
+          "Exportation des utilisateurs",
+          `Exportation de la liste des utilisateurs en CSV`,
+          req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+          req.headers['user-agent']
+        );
+      } catch (auditErr) {
+        console.error('Erreur lors de l\'enregistrement de l\'action d\'exportation:', auditErr);
+      }
+    }
 
     csvStream.pipe(writableStream);
     utilisateurs.forEach(user => {
@@ -406,15 +429,34 @@ exports.exportUsersToCSV = async (req, res) => {
         Nom: user.nom,
         Prenom: user.prenom || '',
         Email: user.email,
-        Role: user.role ? user.role.nom : 'N/A',
-        Actif: user.actif,
-        DateCreation: user.dateCreation
+        Role: user.role ? (typeof user.role === 'object' ? user.role.nom : user.role) : 'N/A',
+        Actif: user.actif ? 'Oui' : 'Non',
+        DateCreation: user.dateCreation ? new Date(user.dateCreation).toLocaleString() : 'N/A',
+        DernierConnexion: user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : 'Jamais'
       });
     });
     csvStream.end();
 
     writableStream.on('finish', () => {
-      res.status(200).json({ message: "Exportation terminée", file: 'utilisateurs_export.csv' });
+      // Envoyer le fichier au client
+      res.download(filePath, 'utilisateurs.csv', (err) => {
+        if (err) {
+          console.error('Erreur lors de l\'envoi du fichier CSV:', err);
+          return res.status(500).json({ message: "Erreur lors de l'envoi du fichier", error: err.message });
+        }
+
+        // Supprimer le fichier temporaire après l'envoi
+        fs.unlink(filePath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error('Erreur lors de la suppression du fichier temporaire:', unlinkErr);
+          }
+        });
+      });
+    });
+
+    writableStream.on('error', (err) => {
+      console.error('Erreur lors de l\'écriture du fichier CSV:', err);
+      res.status(500).json({ message: "Erreur lors de la création du fichier CSV", error: err.message });
     });
   } catch (err) {
     console.error('Erreur exportUsersToCSV:', err);

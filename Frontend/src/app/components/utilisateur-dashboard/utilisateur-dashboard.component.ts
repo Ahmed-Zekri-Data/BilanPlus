@@ -3,6 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { UtilisateurService } from '../../services/utilisateur.service';
+import { AuthService } from '../../services/auth.service';
 import { Utilisateur, UtilisateurResponse } from '../../Models/Utilisateur';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -48,6 +49,7 @@ export class UtilisateurDashboardComponent implements OnInit {
 
   constructor(
     private utilisateurService: UtilisateurService,
+    private authService: AuthService,
     private router: Router,
     private dialog: MatDialog
   ) {
@@ -67,20 +69,70 @@ export class UtilisateurDashboardComponent implements OnInit {
 
   loadUtilisateurs(): void {
     this.loading = true;
+    this.error = null;
+    console.log('UtilisateurDashboardComponent: Chargement des utilisateurs...');
+
+    // Vérifier si l'utilisateur est connecté
+    if (!this.authService.isLoggedIn()) {
+      this.loading = false;
+      this.error = 'Vous devez être connecté pour accéder à cette ressource.';
+      console.error('UtilisateurDashboardComponent: Utilisateur non connecté');
+
+      // Rediriger vers la page de connexion après un court délai
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
+
+      return;
+    }
+
     this.utilisateurService.getUtilisateurs().subscribe({
       next: (response: UtilisateurResponse) => {
-        this.utilisateurs = response.utilisateurs;
-        this.filteredUtilisateurs = response.utilisateurs;
-        this.dataSource = new MatTableDataSource(this.utilisateurs);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.calculateStatistics();
+        console.log('UtilisateurDashboardComponent: Utilisateurs chargés avec succès:', response);
+
+        if (response && response.utilisateurs) {
+          this.utilisateurs = response.utilisateurs;
+          this.filteredUtilisateurs = response.utilisateurs;
+          this.dataSource = new MatTableDataSource(this.utilisateurs);
+
+          if (this.paginator) {
+            this.dataSource.paginator = this.paginator;
+          } else {
+            console.warn('UtilisateurDashboardComponent: Paginator non initialisé');
+          }
+
+          if (this.sort) {
+            this.dataSource.sort = this.sort;
+          } else {
+            console.warn('UtilisateurDashboardComponent: Sort non initialisé');
+          }
+
+          this.calculateStatistics();
+        } else {
+          this.error = 'Format de réponse invalide: utilisateurs manquants';
+          console.error('UtilisateurDashboardComponent: Format de réponse invalide:', response);
+        }
+
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Erreur lors du chargement des utilisateurs.';
-        console.error('Erreur:', err);
         this.loading = false;
+        this.error = err.message || 'Erreur lors du chargement des utilisateurs.';
+        console.error('UtilisateurDashboardComponent: Erreur lors du chargement des utilisateurs:', err);
+
+        // Afficher un message d'erreur plus détaillé
+        if (err.originalError && err.originalError.status) {
+          console.error(`UtilisateurDashboardComponent: Statut HTTP: ${err.originalError.status}`);
+
+          if (err.originalError.status === 401) {
+            this.error = 'Votre session a expiré. Veuillez vous reconnecter.';
+
+            // Déconnecter l'utilisateur et rediriger vers la page de connexion
+            this.authService.logout();
+          } else if (err.originalError.status === 403) {
+            this.error = 'Vous n\'avez pas les permissions nécessaires pour accéder à cette ressource.';
+          }
+        }
       }
     });
   }
@@ -121,14 +173,18 @@ export class UtilisateurDashboardComponent implements OnInit {
   }
 
   deleteUtilisateur(id: string | undefined): void {
-    if (id && confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    if (id && confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) {
       this.utilisateurService.deleteUtilisateur(id).subscribe({
         next: () => {
           this.loadUtilisateurs();
+          // Afficher un message de succès
+          alert('Utilisateur supprimé avec succès');
         },
         error: (err) => {
-          this.error = 'Erreur lors de la suppression de l\'utilisateur.';
+          this.error = err?.message || 'Erreur lors de la suppression de l\'utilisateur.';
           console.error('Erreur:', err);
+          // Afficher un message d'erreur
+          alert('Erreur lors de la suppression de l\'utilisateur: ' + this.error);
         }
       });
     }
@@ -172,27 +228,30 @@ export class UtilisateurDashboardComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    const csvData = this.utilisateurs.map(user => ({
-      Nom: user.nom,
-      Prenom: user.prenom || '',
-      Email: user.email,
-      Role: typeof user.role === 'string' ? user.role : user.role.nom,
-      Actif: user.actif ? 'Oui' : 'Non',
-      DernierConnexion: user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : 'Jamais'
-    }));
-
-    const csv = [
-      'Nom,Prenom,Email,Role,Actif,DernierConnexion',
-      ...csvData.map(row => `${row.Nom},${row.Prenom},${row.Email},${row.Role},${row.Actif},${row.DernierConnexion}`)
-    ].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'utilisateurs.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    this.loading = true;
+    this.utilisateurService.exportToCSV().subscribe({
+      next: (blob: Blob) => {
+        this.loading = false;
+        // Créer un URL pour le blob
+        const url = window.URL.createObjectURL(blob);
+        // Créer un élément a pour déclencher le téléchargement
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'utilisateurs.csv';
+        document.body.appendChild(a);
+        a.click();
+        // Nettoyer
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = 'Erreur lors de l\'exportation des utilisateurs.';
+        console.error('Erreur lors de l\'exportation:', err);
+        // Afficher un message d'erreur
+        alert('Erreur lors de l\'exportation des utilisateurs: ' + (err.message || 'Erreur inconnue'));
+      }
+    });
   }
 
   getRoleName(user: Utilisateur): string {

@@ -1,49 +1,94 @@
-<div class="container">
-  <h2>Ajouter un Utilisateur</h2>
-  <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="nom">Nom</label>
-      <input id="nom" formControlName="nom" type="text" placeholder="Entrez le nom" />
-      <div *ngIf="utilisateurForm.get('nom')?.errors?.['required'] && utilisateurForm.get('nom')?.touched" class="error-message">
-        Le nom est requis.
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" formControlName="email" type="email" placeholder="Entrez l'email" />
-      <div *ngIf="utilisateurForm.get('email')?.errors?.['required'] && utilisateurForm.get('email')?.touched" class="error-message">
-        L'email est requis.
-      </div>
-      <div *ngIf="utilisateurForm.get('email')?.errors?.['email'] && utilisateurForm.get('email')?.touched" class="error-message">
-        L'email n'est pas valide.
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="password">Mot de passe</label>
-      <input id="password" formControlName="password" type="password" placeholder="Entrez le mot de passe" />
-      <div *ngIf="utilisateurForm.get('password')?.errors?.['required'] && utilisateurForm.get('password')?.touched" class="error-message">
-        Le mot de passe est requis.
-      </div>
-      <div *ngIf="utilisateurForm.get('password')?.errors?.['minlength'] && utilisateurForm.get('password')?.touched" class="error-message">
-        Le mot de passe doit contenir au moins 6 caractères.
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="role">Rôle</label>
-      <input id="role" formControlName="role" type="text" placeholder="Entrez le rôle" />
-      <div *ngIf="utilisateurForm.get('role')?.errors?.['required'] && utilisateurForm.get('role')?.touched" class="error-message">
-        Le rôle est requis.
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="actif">Actif</label>
-      <input id="actif" formControlName="actif" type="checkbox" />
-    </div>
-    <button type="submit" [disabled]="loading || utilisateurForm.invalid">Ajouter</button>
-    <div *ngIf="loading" class="spinner">
-      <div class="spinner-inner"></div>
-    </div>
-    <div *ngIf="success" class="success-message">{{ success }}</div>
-    <div *ngIf="error" class="error-message">✗ {{ error }}</div>
-  </form>
+<div class="form-container">
+  <div class="form-header">
+    <h1>Ajouter un Utilisateur</h1>
+    <p>Créez un nouveau compte utilisateur dans le système</p>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Nom</mat-label>
+            <input matInput id="nom" formControlName="nom" placeholder="Entrez le nom de l'utilisateur">
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error *ngIf="utilisateurForm.get('nom')?.errors?.['required']">
+              Le nom est requis
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Prénom</mat-label>
+            <input matInput id="prenom" formControlName="prenom" placeholder="Entrez le prénom de l'utilisateur">
+            <mat-icon matSuffix>person</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Email</mat-label>
+          <input matInput id="email" formControlName="email" placeholder="exemple@domaine.com" type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="utilisateurForm.get('email')?.errors?.['required']">
+            L'email est requis
+          </mat-error>
+          <mat-error *ngIf="utilisateurForm.get('email')?.errors?.['email']">
+            Veuillez entrer une adresse email valide
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput id="password" formControlName="password" [type]="hidePassword ? 'password' : 'text'" placeholder="Minimum 6 caractères">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="utilisateurForm.get('password')?.errors?.['required']">
+            Le mot de passe est requis
+          </mat-error>
+          <mat-error *ngIf="utilisateurForm.get('password')?.errors?.['minlength']">
+            Le mot de passe doit contenir au moins 6 caractères
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Rôle</mat-label>
+          <mat-select formControlName="role">
+            <mat-option *ngIf="loadingRoles" value="">Chargement des rôles...</mat-option>
+            <mat-option *ngIf="!loadingRoles && roles.length === 0" value="">Aucun rôle disponible</mat-option>
+            <mat-option *ngFor="let role of roles" [value]="role._id">
+              {{role.nom}}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>admin_panel_settings</mat-icon>
+          <mat-error *ngIf="utilisateurForm.get('role')?.errors?.['required']">
+            Le rôle est requis
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-field-checkbox">
+          <mat-checkbox formControlName="actif" color="primary">
+            Compte actif
+          </mat-checkbox>
+          <span class="checkbox-hint">Les utilisateurs inactifs ne peuvent pas se connecter au système</span>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="goBack()">Annuler</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading || utilisateurForm.invalid">
+            <mat-icon>save</mat-icon>
+            <span *ngIf="!loading">Enregistrer</span>
+            <span *ngIf="loading">Enregistrement...</span>
+          </button>
+        </div>
+
+        <div *ngIf="success" class="success-message">
+          <mat-icon>check_circle</mat-icon> {{ success }}
+        </div>
+
+        <div *ngIf="error" class="error-message">
+          <mat-icon>error</mat-icon> {{ error }}
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -60,18 +60,55 @@ export class RoleComponent implements OnInit {
 
   loadRoles(): void {
     this.loading = true;
+    console.log('Chargement des rôles...');
+
     this.roleService.getRoles().subscribe({
       next: (data: Role[]) => {
-        this.roles = data;
-        this.filteredRoles = data;
-        this.dataSource.data = this.roles;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        console.log('Rôles chargés avec succès:', data);
+
+        if (Array.isArray(data)) {
+          this.roles = data;
+          this.filteredRoles = data;
+          this.dataSource.data = this.roles;
+
+          if (this.paginator) {
+            this.dataSource.paginator = this.paginator;
+          } else {
+            console.warn('Paginator non initialisé');
+          }
+
+          if (this.sort) {
+            this.dataSource.sort = this.sort;
+          } else {
+            console.warn('Sort non initialisé');
+          }
+        } else {
+          console.error('Format de réponse invalide pour les rôles:', data);
+        }
+
         this.loading = false;
       },
       error: (err: any) => {
-        console.error('Erreur lors du chargement des rôles:', err);
         this.loading = false;
+        console.error('Erreur lors du chargement des rôles:', err);
+
+        // Afficher un message d'erreur à l'utilisateur
+        let errorMessage = 'Erreur lors du chargement des rôles.';
+
+        if (err.message) {
+          errorMessage = err.message;
+        }
+
+        // Afficher un message d'erreur plus détaillé
+        if (err.originalError && err.originalError.status) {
+          console.error(`Statut HTTP: ${err.originalError.status}`);
+
+          if (err.originalError.status === 403) {
+            errorMessage = 'Vous n\'avez pas les permissions nécessaires pour accéder à cette ressource.';
+          }
+        }
+
+        alert(errorMessage);
       }
     });
   }

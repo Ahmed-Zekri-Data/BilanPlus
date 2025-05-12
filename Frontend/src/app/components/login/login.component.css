@@ -181,6 +181,21 @@ input::placeholder {
   background-color: #16307a;
 }
 
+.submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 100%;
+}
+
 .alert {
   display: flex;
   align-items: center;

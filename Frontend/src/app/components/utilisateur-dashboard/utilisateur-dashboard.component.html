@@ -39,6 +39,12 @@
 
   <!-- Barre d'outils -->
   <div class="dashboard-toolbar">
+    <div class="toolbar-left">
+      <button mat-raised-button color="basic" routerLink="/home">
+        <mat-icon>arrow_back</mat-icon> Retour à l'accueil
+      </button>
+    </div>
+
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Rechercher</mat-label>
       <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">

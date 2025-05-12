@@ -73,12 +73,33 @@ const verifierAdmin = (req, res, next) => {
 const verifierPermission = (permission) => {
   return (req, res, next) => {
     if (!req.user) {
+      console.error('verifierPermission: Utilisateur non authentifié');
       return res.status(401).json({ message: "Utilisateur non authentifié" });
     }
+
+    console.log('verifierPermission: Vérification de la permission', permission);
+    console.log('verifierPermission: Utilisateur', req.user._id, req.user.email);
+    console.log('verifierPermission: Rôle', req.user.role ? req.user.role._id : 'Aucun rôle');
+
+    // Vérifier si l'utilisateur a un accès complet (admin)
+    if (req.user.role && req.user.role.permissions && req.user.role.permissions.accesComplet) {
+      console.log('verifierPermission: Utilisateur avec accès complet, permission accordée');
+      return next();
+    }
+
+    // Vérifier la permission spécifique
     if (req.user.role && req.user.role.permissions && req.user.role.permissions[permission]) {
+      console.log('verifierPermission: Permission accordée');
       next();
     } else {
-      res.status(403).json({ 
+      console.error('verifierPermission: Permission refusée', {
+        utilisateur: req.user._id,
+        role: req.user.role ? req.user.role._id : 'Aucun rôle',
+        permissionRequise: permission,
+        permissionsDisponibles: req.user.role && req.user.role.permissions ? Object.keys(req.user.role.permissions).filter(key => req.user.role.permissions[key]) : []
+      });
+
+      res.status(403).json({
         message: `Accès refusé - Permission ${permission} requise`,
         required: permission
       });
@@ -86,8 +107,8 @@ const verifierPermission = (permission) => {
   };
 };
 
-module.exports = { 
-  verifierToken, 
+module.exports = {
+  verifierToken,
   verifierAdmin,
   verifierPermission
 };

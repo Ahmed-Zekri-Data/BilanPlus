@@ -76,9 +76,19 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']).then(success => {
-        console.log('Navigation to /home on init:', success ? 'Success' : 'Failed');
-      });
+      // Vérifier s'il y a une URL de redirection stockée
+      const redirectUrl = sessionStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        console.log('Redirection vers:', redirectUrl);
+        sessionStorage.removeItem('redirectUrl'); // Nettoyer après utilisation
+        this.router.navigateByUrl(redirectUrl).then(success => {
+          console.log('Navigation vers URL stockée:', success ? 'Success' : 'Failed');
+        });
+      } else {
+        this.router.navigate(['/home']).then(success => {
+          console.log('Navigation to /home on init:', success ? 'Success' : 'Failed');
+        });
+      }
     }
   }
 
@@ -122,9 +132,37 @@ export class LoginComponent implements OnInit {
   }
 
   navigateToHome(): void {
-    console.log('Navigating to /home');
-    this.router.navigate(['/home']).then(success => {
-      console.log('Navigation to /home:', success ? 'Success' : 'Failed');
+    this.loading = true;
+    this.errorMessage = '';
+
+    // Vérifier si les champs sont remplis
+    if (!this.credentials.email || !this.credentials.password) {
+      this.errorMessage = 'Veuillez remplir tous les champs';
+      this.loading = false;
+      return;
+    }
+
+    // Tentative de connexion
+    this.authService.login(this.credentials).subscribe({
+      next: (response) => {
+        this.loading = false;
+        console.log('Connexion réussie');
+
+        // Vérifier s'il y a une URL de redirection stockée
+        const redirectUrl = sessionStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          console.log('Redirection vers:', redirectUrl);
+          sessionStorage.removeItem('redirectUrl'); // Nettoyer après utilisation
+          this.router.navigateByUrl(redirectUrl);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = error.message || 'Erreur de connexion. Veuillez réessayer.';
+        console.error('Erreur de connexion:', error);
+      }
     });
   }
 }

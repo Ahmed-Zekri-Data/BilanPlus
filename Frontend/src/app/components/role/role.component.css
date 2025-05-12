@@ -28,6 +28,11 @@
   gap: 15px;
 }
 
+.toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
 .search-field {
   width: 300px;
 }
@@ -219,12 +224,22 @@
     align-items: stretch;
   }
 
+  .toolbar-left {
+    margin-bottom: 10px;
+  }
+
   .search-field {
     width: 100%;
   }
 
   .toolbar-actions {
     justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-actions button {
+    margin-bottom: 10px;
   }
 
   .role-cards-container {
