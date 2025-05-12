@@ -30,13 +30,27 @@ export class FiscalStatisticsComponent implements OnInit {
   constructor(private fiscalService: FiscalService) { }
 
   ngOnInit(): void {
-    // Initialiser les années disponibles (3 dernières années)
-    const currentYear = new Date().getFullYear();
-    this.availableYears = [currentYear - 2, currentYear - 1, currentYear];
-    this.selectedYear = currentYear;
+    // Charger les années disponibles depuis le service
+    this.fiscalService.getAvailableYears().subscribe({
+      next: (response) => {
+        if (response && response.data && Array.isArray(response.data)) {
+          this.availableYears = response.data;
+          console.log('Années disponibles:', this.availableYears);
 
-    // Charger les données
-    this.loadFiscalData();
+          // Sélectionner la première année disponible
+          if (this.availableYears.length > 0) {
+            this.selectedYear = this.availableYears[0];
+
+            // Charger les données pour l'année sélectionnée
+            this.loadFiscalData();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des années disponibles:', err);
+        this.error = 'Erreur lors du chargement des années disponibles';
+      }
+    });
   }
 
   onYearChange(): void {
@@ -50,12 +64,30 @@ export class FiscalStatisticsComponent implements OnInit {
     this.fiscalService.getDashboardFiscal(this.selectedYear).subscribe({
       next: (response) => {
         if (response.success && response.data.dataAvailable) {
-          this.fiscalData = response.data;
+          // Récupérer les données du résumé fiscal
+          if (response.data.resume) {
+            this.fiscalData = { ...response.data.resume };
+          } else {
+            this.fiscalData = { ...response.data };
+          }
 
           // Afficher les données fiscales dans la console pour le débogage
-          console.log('Données fiscales reçues:', this.fiscalData);
+          console.log('Données fiscales reçues (brut):', response.data);
+          console.log('Données fiscales traitées:', this.fiscalData);
 
           // Initialiser les valeurs par défaut si elles ne sont pas définies
+          if (this.fiscalData.totalTVACollectee === undefined) {
+            this.fiscalData.totalTVACollectee = 0;
+          }
+
+          if (this.fiscalData.totalTVADeductible === undefined) {
+            this.fiscalData.totalTVADeductible = 0;
+          }
+
+          if (this.fiscalData.soldeTVA === undefined) {
+            this.fiscalData.soldeTVA = this.fiscalData.totalTVACollectee - this.fiscalData.totalTVADeductible;
+          }
+
           if (this.fiscalData.totalTCL === undefined) {
             this.fiscalData.totalTCL = 0;
           }
@@ -64,13 +96,56 @@ export class FiscalStatisticsComponent implements OnInit {
             this.fiscalData.totalDroitTimbre = 0;
           }
 
-          this.monthlyData = response.data.indicateursMensuels;
+          // Recalculer le total des charges fiscales pour assurer la cohérence
+          const soldeTVA = this.fiscalData.soldeTVA > 0 ? this.fiscalData.soldeTVA : 0;
+          this.fiscalData.totalChargesFiscales = soldeTVA + this.fiscalData.totalTCL + this.fiscalData.totalDroitTimbre;
+
+          this.monthlyData = response.data.indicateursMensuels || [];
 
           // Afficher les valeurs calculées pour le débogage
-          console.log('TVA Amount:', this.getTVAAmount());
-          console.log('TCL Amount:', this.getTCLAmount());
-          console.log('Droit de Timbre Amount:', this.getDroitTimbreAmount());
-          console.log('Total Charges Fiscales:', this.getTotalChargesFiscales());
+          console.log('Statistics - TVA Amount:', this.getTVAAmount());
+          console.log('Statistics - TCL Amount:', this.getTCLAmount());
+          console.log('Statistics - Droit de Timbre Amount:', this.getDroitTimbreAmount());
+          console.log('Statistics - Total Charges Fiscales:', this.getTotalChargesFiscales());
+          console.log('Statistics - Total Charges Fiscales (direct):', this.fiscalData.totalChargesFiscales);
+
+          // Logs détaillés pour comprendre la source des différences
+          console.log('Statistics - Détail des données:');
+          console.log('  - totalTVACollectee:', this.fiscalData.totalTVACollectee);
+          console.log('  - totalTVADeductible:', this.fiscalData.totalTVADeductible);
+          console.log('  - soldeTVA:', this.fiscalData.soldeTVA);
+          console.log('  - soldeTVA positif:', this.fiscalData.soldeTVA > 0 ? this.fiscalData.soldeTVA : 0);
+          console.log('  - soldeTVAPositif:', this.fiscalData.soldeTVAPositif);
+          console.log('  - totalTCL:', this.fiscalData.totalTCL);
+          console.log('  - totalDroitTimbre:', this.fiscalData.totalDroitTimbre);
+          console.log('  - totalChargesFiscales (direct):', this.fiscalData.totalChargesFiscales);
+
+          // Calculer le total manuellement pour vérifier
+          const calculManuel = (this.fiscalData.soldeTVA > 0 ? this.fiscalData.soldeTVA : 0) +
+                              this.fiscalData.totalTCL +
+                              this.fiscalData.totalDroitTimbre;
+          console.log('Statistics - Total calculé manuellement:', calculManuel);
+
+          // Vérifier les valeurs retournées par les méthodes
+          console.log('Statistics - Valeurs retournées par les méthodes:');
+          console.log('  - getTVAAmount():', this.getTVAAmount());
+          console.log('  - getTCLAmount():', this.getTCLAmount());
+          console.log('  - getDroitTimbreAmount():', this.getDroitTimbreAmount());
+          console.log('  - getTVAPercentage():', this.getTVAPercentage());
+          console.log('  - getTCLPercentage():', this.getTCLPercentage());
+          console.log('  - getDroitTimbrePercentage():', this.getDroitTimbrePercentage());
+
+          // Vérifier si les totaux sont cohérents
+          if (this.fiscalData.totalChargesFiscales !== calculManuel) {
+            console.error('ERREUR: Incohérence détectée dans les totaux!');
+            console.error('  - Total dans fiscalData:', this.fiscalData.totalChargesFiscales);
+            console.error('  - Total calculé manuellement:', calculManuel);
+            console.error('  - Différence:', this.fiscalData.totalChargesFiscales - calculManuel);
+
+            // Forcer la cohérence
+            this.fiscalData.totalChargesFiscales = calculManuel;
+            console.log('  - Total corrigé:', this.fiscalData.totalChargesFiscales);
+          }
 
           // Générer des données de comparaison annuelle simulées
           this.generateYearlyComparisonData();
@@ -92,45 +167,48 @@ export class FiscalStatisticsComponent implements OnInit {
   }
 
   generateYearlyComparisonData(): void {
-    // Simuler des données pour les années précédentes
-    // Dans une implémentation réelle, ces données viendraient d'un appel API
+    // Utiliser uniquement les données réelles pour l'année sélectionnée
+    // Ne pas générer de données fictives pour les autres années
+
+    // Récupérer uniquement l'année actuelle
+    const currentYear = this.selectedYear;
+
+    // Créer un tableau avec uniquement l'année actuelle
+    const years = [currentYear];
+
+    // Utiliser les valeurs réelles pour l'année actuelle
+    const tva = [this.getTVAAmount()];
+    const tcl = [this.getTCLAmount()];
+    const droitTimbre = [this.getDroitTimbreAmount()];
+
     this.yearlyComparisonData = {
-      years: this.availableYears,
-      tva: this.availableYears.map(year => Math.random() * 50000 + 10000),
-      tcl: this.availableYears.map(year => Math.random() * 5000 + 1000),
-      droitTimbre: this.availableYears.map(year => Math.random() * 2000 + 500)
+      years: years,
+      tva: tva,
+      tcl: tcl,
+      droitTimbre: droitTimbre
     };
+
+    console.log('Données de comparaison annuelle (réelles):', this.yearlyComparisonData);
   }
 
   // Calculer le total des charges fiscales
   getTotalChargesFiscales(): number {
     if (!this.fiscalData) return 0;
 
-    // Utiliser directement totalChargesFiscales si disponible
-    if (this.fiscalData.totalChargesFiscales !== undefined && this.fiscalData.totalChargesFiscales > 0) {
-      return this.fiscalData.totalChargesFiscales;
-    }
+    // Calculer directement avec la formule standard
+    const soldeTVAPositif = this.fiscalData.soldeTVA > 0 ? this.fiscalData.soldeTVA : 0;
+    const totalTCL = this.fiscalData.totalTCL || 0;
+    const totalDroitTimbre = this.fiscalData.totalDroitTimbre || 0;
 
-    // Sinon, calculer à partir des composants individuels
-    const tvaTotalAmount = this.getTVAAmount();
-    const tclAmount = this.getTCLAmount();
-    const droitTimbreAmount = this.getDroitTimbreAmount();
-
-    return tvaTotalAmount + tclAmount + droitTimbreAmount;
+    return soldeTVAPositif + totalTCL + totalDroitTimbre;
   }
 
-  // Calculer le montant net de TVA
+  // Calculer le montant net de TVA (uniquement la partie positive)
   getTVAAmount(): number {
-    if (!this.fiscalData) return 0;
+    if (!this.fiscalData || !this.fiscalData.soldeTVA) return 0;
 
-    // Si totalTVA est disponible, l'utiliser directement
-    if (this.fiscalData.totalTVA !== undefined) {
-      return this.fiscalData.totalTVA;
-    }
-
-    // Sinon, calculer à partir de TVA collectée et déductible
-    return this.fiscalData.totalTVACollectee - this.fiscalData.totalTVADeductible > 0 ?
-      this.fiscalData.totalTVACollectee - this.fiscalData.totalTVADeductible : 0;
+    // Uniquement la partie positive du solde TVA
+    return this.fiscalData.soldeTVA > 0 ? this.fiscalData.soldeTVA : 0;
   }
 
   // Calculer le montant de TCL

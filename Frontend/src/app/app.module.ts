@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,6 +25,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { HomeComponent } from './home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
@@ -50,6 +51,7 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleComponent } from './components/role/role.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
+import { GenerateTvaDialogComponent } from './components/generate-tva-dialog/generate-tva-dialog.component';
 import { DFTVAComponent } from './components/dftva/dftva.component';
 import { TvaManagementComponent } from './components/tva-management/tva-management.component';
 import { DfManagementComponent } from './components/df-management/df-management.component';
@@ -85,6 +87,7 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
     AddRoleComponent,
     RoleDetailsComponent,
     GenerateDeclarationDialogComponent,
+    GenerateTvaDialogComponent,
     DFTVAComponent,
     TvaManagementComponent,
     DfManagementComponent,
@@ -118,9 +121,10 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
     MatPaginatorModule,
     MatSortModule,
     MatTabsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
-  providers: [],
+  providers: [DecimalPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

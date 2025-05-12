@@ -74,6 +74,31 @@ export class FiscalDashboardComponent implements OnInit {
           // Des données sont disponibles
           this.dashboardData = response.data;
           console.log(`Données chargées pour l'année ${this.currentYear}:`, this.dashboardData);
+
+          // Logs détaillés pour comprendre la source des différences
+          console.log('Dashboard - Total Charges Fiscales:', this.dashboardData.resume.totalChargesFiscales);
+          console.log('Dashboard - Détail des charges:');
+          console.log('  - TVA (solde positif):', this.dashboardData.resume.soldeTVA > 0 ? this.dashboardData.resume.soldeTVA : 0);
+          console.log('  - TCL:', this.dashboardData.resume.totalTCL);
+          console.log('  - Droit de Timbre:', this.dashboardData.resume.totalDroitTimbre);
+
+          // Calculer le total manuellement pour vérifier
+          const calculManuel = (this.dashboardData.resume.soldeTVA > 0 ? this.dashboardData.resume.soldeTVA : 0) +
+                              this.dashboardData.resume.totalTCL +
+                              this.dashboardData.resume.totalDroitTimbre;
+          console.log('Dashboard - Total calculé manuellement:', calculManuel);
+
+          // Vérifier si les totaux sont cohérents
+          if (this.dashboardData.resume.totalChargesFiscales !== calculManuel) {
+            console.error('ERREUR: Incohérence détectée dans les totaux du dashboard!');
+            console.error('  - Total dans dashboardData:', this.dashboardData.resume.totalChargesFiscales);
+            console.error('  - Total calculé manuellement:', calculManuel);
+            console.error('  - Différence:', this.dashboardData.resume.totalChargesFiscales - calculManuel);
+
+            // Forcer la cohérence
+            this.dashboardData.resume.totalChargesFiscales = calculManuel;
+            console.log('  - Total corrigé:', this.dashboardData.resume.totalChargesFiscales);
+          }
         } else {
           this.error = 'Format de réponse invalide';
           console.error('Format de réponse invalide:', response);
@@ -104,5 +129,17 @@ export class FiscalDashboardComponent implements OnInit {
     console.log(`Changement d'année: ${this.currentYear} -> ${year}`);
     this.currentYear = year;
     this.loadDashboardData();
+  }
+
+  // Calculer le total des charges fiscales
+  calculateTotalCharges(): number {
+    if (!this.dashboardData || !this.dashboardData.resume) return 0;
+
+    // Calculer directement avec la formule standard
+    const soldeTVAPositif = this.dashboardData.resume.soldeTVA > 0 ? this.dashboardData.resume.soldeTVA : 0;
+    const totalTCL = this.dashboardData.resume.totalTCL || 0;
+    const totalDroitTimbre = this.dashboardData.resume.totalDroitTimbre || 0;
+
+    return soldeTVAPositif + totalTCL + totalDroitTimbre;
   }
 }

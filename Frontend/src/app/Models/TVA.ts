@@ -4,5 +4,6 @@ export interface TVA {
   _id?: string;
   taux: number; // Taux de TVA (ex. 19%)
   montant: number; // Montant total de la TVA
-  declaration?: string | DeclarationFiscale; // Référence à une déclaration fiscale (ID ou objet)
+  declarations?: (string | DeclarationFiscale)[] | null; // Références à des déclarations fiscales (IDs ou objets), peut être null
+  dateCreation?: Date | string; // Date de création de la TVA
 }

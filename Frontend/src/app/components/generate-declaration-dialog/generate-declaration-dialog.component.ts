@@ -149,16 +149,48 @@ export class GenerateDeclarationDialogComponent implements OnInit {
     if (this.declarationForm.valid) {
       const formData = this.declarationForm.value;
 
-      const formatDate = (date: Date) => date.toISOString().split('T')[0];
-
-      const payload = {
-        dateDebut: formatDate(new Date(formData.dateDebut)),
-        dateFin: formatDate(new Date(formData.dateFin)),
-        type: formData.type,
-        compteComptable: formData.compteComptable
+      // Utiliser le fuseau horaire local au lieu d'UTC pour éviter le décalage de date
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
       };
 
-      this.dialogRef.close(payload);
+      const dateDebut = formatDate(new Date(formData.dateDebut));
+      const dateFin = formatDate(new Date(formData.dateFin));
+
+      // Vérifier si une déclaration existe déjà pour cette période
+      this.declarationFiscaleTVAService.checkDeclarationExists(dateDebut, dateFin).subscribe({
+        next: (response) => {
+          if (response && response.exists) {
+            // Une déclaration existe déjà pour cette période
+            this.snackBar.open(
+              "Une déclaration fiscale existe déjà pour cette période. Veuillez choisir une autre période.",
+              "Fermer",
+              { duration: 5000 }
+            );
+          } else {
+            // Aucune déclaration n'existe pour cette période, on peut continuer
+            const payload = {
+              dateDebut: dateDebut,
+              dateFin: dateFin,
+              type: formData.type,
+              compteComptable: formData.compteComptable
+            };
+
+            this.dialogRef.close(payload);
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de la vérification de l\'existence d\'une déclaration:', error);
+          this.snackBar.open(
+            "Une erreur est survenue lors de la vérification. Veuillez réessayer.",
+            "Fermer",
+            { duration: 5000 }
+          );
+        }
+      });
     }
   }
 

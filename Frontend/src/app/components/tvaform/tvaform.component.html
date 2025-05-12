@@ -4,45 +4,56 @@
   <form (ngSubmit)="saveTVA()">
     <div class="form-group">
       <label for="taux">Taux (%):</label>
-      <input
-        type="number"
+      <select
         id="taux"
         name="taux"
         [(ngModel)]="tva.taux"
+        (ngModelChange)="onTauxChange($event)"
         required
-        step="0.01"
-        min="0"
-      />
+      >
+        <option [ngValue]="7">7%</option>
+        <option [ngValue]="13">13%</option>
+        <option [ngValue]="19">19%</option>
+      </select>
       <p *ngIf="fieldErrors.taux" class="error">{{ fieldErrors.taux }}</p>
     </div>
 
     <div class="form-group">
-      <label for="montant">Montant (TND):</label>
+      <label for="montant">Montant (DT):</label>
       <input
         type="number"
         id="montant"
         name="montant"
         [(ngModel)]="tva.montant"
-        required
-        step="0.01"
         min="0"
-      />
+        step="0.01"
+        required
+        [readonly]="tva.declarations && tva.declarations.length > 0"
+        [title]="tva.declarations && tva.declarations.length > 0 ? 'Le montant est calculé automatiquement à partir des déclarations sélectionnées' : ''"
+      >
+      <p *ngIf="tva.declarations && tva.declarations.length > 0" class="info">
+        Le montant est calculé automatiquement à partir des déclarations sélectionnées
+      </p>
       <p *ngIf="fieldErrors.montant" class="error">{{ fieldErrors.montant }}</p>
     </div>
 
     <div class="form-group">
-      <label for="declaration">Déclaration Fiscale:</label>
+      <label for="declarations">Déclarations Fiscales (optionnel):</label>
+      <p class="info-text">
+        Vous pouvez associer cette TVA à une ou plusieurs déclarations fiscales. Le montant de TVA sera automatiquement calculé comme la somme des TVA dues des déclarations sélectionnées.
+      </p>
       <select
-        id="declaration"
-        name="declaration"
-        [(ngModel)]="tva.declaration"
+        id="declarations"
+        name="declarations"
+        [(ngModel)]="tva.declarations"
+        (ngModelChange)="onDeclarationsChange()"
+        multiple
       >
-        <option value="" disabled>Sélectionnez une déclaration</option>
-        <option *ngFor="let decl of declarations" [value]="decl._id">
+        <option *ngFor="let decl of declarations" [ngValue]="decl._id">
           {{ decl.periode }} (Montant: {{ decl.montantTotal | number:'1.2-2' }} TND)
         </option>
       </select>
-      <p *ngIf="fieldErrors.declaration" class="error">{{ fieldErrors.declaration }}</p>
+      <p *ngIf="fieldErrors.declarations" class="error">{{ fieldErrors.declarations }}</p>
     </div>
 
     <div class="actions">
@@ -52,7 +63,7 @@
       <button mat-raised-button (click)="goBack()">Annuler</button>
     </div>
 
-    <div *ngIf="errors.length > 0 && !fieldErrors.taux && !fieldErrors.montant && !fieldErrors.declaration" class="error-container">
+    <div *ngIf="errors.length > 0 && !fieldErrors.taux && !fieldErrors.montant && !fieldErrors.declarations" class="error-container">
       <p class="error-title">Erreur(s) :</p>
       <ul>
         <li *ngFor="let error of errors" class="error">{{ error }}</li>

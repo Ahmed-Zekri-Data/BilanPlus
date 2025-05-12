@@ -1,8 +1,9 @@
-<div *ngIf="isLoading; else tvaDetails">
+<div *ngIf="isLoading" class="loading-container">
+  <mat-spinner diameter="40"></mat-spinner>
   <p>Chargement des détails de la TVA...</p>
 </div>
 
-<ng-template #tvaDetails>
+<div *ngIf="!isLoading">
   <div *ngIf="errors.length > 0" class="error-container">
     <p class="error-title">Erreur(s) :</p>
     <ul>
@@ -10,22 +11,95 @@
     </ul>
   </div>
 
-  <div *ngIf="tva; else noTVA">
-    <h2>Détails de la TVA</h2>
-    <div class="tva-details">
-      <p><strong>ID:</strong> {{ tva._id || 'N/A' }}</p>
-      <p><strong>Taux (%):</strong> {{ tva.taux }}</p>
-      <p><strong>Montant (TND):</strong> {{ tva.montant | number:'1.2-2' }}</p>
-      <p><strong>Déclaration Fiscale:</strong> {{ declaration ? declaration.periode : 'N/A' }}</p>
-      <p *ngIf="declaration"><strong>Montant Total de la Déclaration:</strong> {{ declaration.montantTotal | number:'1.2-2' }} TND</p>
+  <div *ngIf="tva; else noTVA" class="tva-container">
+    <div class="tva-header">
+      <h2>Détails de la TVA</h2>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Retour
+        </button>
+      </div>
     </div>
-    <div class="actions">
-      <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+
+    <div class="tva-card">
+      <div class="tva-info">
+        <div class="tva-info-item">
+          <div class="tva-info-label">Identifiant</div>
+          <div class="tva-info-value">{{ tva._id || 'N/A' }}</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">Date de création</div>
+          <div class="tva-info-value">{{ tva.dateCreation ? (tva.dateCreation | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">Taux de TVA</div>
+          <div class="tva-info-value highlight">{{ tva.taux }}%</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">Montant</div>
+          <div class="tva-info-value highlight">{{ tva.montant | number:'1.2-2' }} TND</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="declarations-section">
+      <div class="declarations-header">
+        <h3 class="declarations-title">Déclarations Fiscales Associées</h3>
+        <div *ngIf="declarations && declarations.length > 0" class="declarations-count">
+          {{ declarations.length }}
+        </div>
+      </div>
+
+      <div *ngIf="declarations && declarations.length > 0; else noDeclarations">
+        <ul class="declarations-list">
+          <li *ngFor="let decl of declarations" class="declaration-item">
+            <div class="declaration-info">
+              <div class="declaration-period">{{ formatPeriode(decl.periode) }}</div>
+              <div class="declaration-details">
+                <div class="declaration-detail">
+                  <span class="declaration-detail-label">Montant Total:</span>
+                  <span class="declaration-detail-value">{{ decl.montantTotal | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="declaration-detail">
+                  <span class="declaration-detail-label">TVA Due:</span>
+                  <span class="declaration-detail-value">{{ decl.totalTVADue | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="declaration-detail">
+                  <span class="declaration-detail-label">Statut:</span>
+                  <span class="declaration-detail-value">{{ decl.statut }}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <ng-template #noDeclarations>
+        <div class="no-declarations">
+          <mat-icon>info</mat-icon>
+          <p>Aucune déclaration fiscale n'est associée à cette TVA</p>
+        </div>
+      </ng-template>
     </div>
   </div>
 
   <ng-template #noTVA>
-    <p>Aucune TVA trouvée.</p>
-    <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+    <div class="tva-container">
+      <div class="tva-header">
+        <h2>TVA non trouvée</h2>
+      </div>
+      <div class="no-declarations">
+        <mat-icon>error</mat-icon>
+        <p>Aucune TVA correspondante n'a été trouvée dans la base de données.</p>
+      </div>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Retour à la liste
+        </button>
+      </div>
+    </div>
   </ng-template>
-</ng-template>
+</div>

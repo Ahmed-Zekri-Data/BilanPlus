@@ -217,8 +217,16 @@ async function genererDeclarationFiscale(req, res) {
         // Calculer totalTVADue
         const totalTVADue = totalTVACollectee - totalTVADeductible;
 
-        // Convertir la période en une chaîne de caractères
-        const periodeString = `${startDate.toISOString().split('T')[0]} - ${endDate.toISOString().split('T')[0]}`;
+        // Convertir la période en une chaîne de caractères en utilisant le fuseau horaire local
+        // pour éviter le décalage de date dû à UTC
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const periodeString = `${formatDate(startDate)} - ${formatDate(endDate)}`;
 
         // Calculer le montant total
         const montantTotal = totalTVADue + totalTCL + totalDroitTimbre;
@@ -306,7 +314,7 @@ async function soumettreDeclaration(req, res) {
 
         // Vérifier les délais et calculer les pénalités si nécessaire
         const infoDelais = DeclarationFiscaleService.verifierDelaisDeclaration(
-            declaration.type, 
+            declaration.type,
             finPeriode
         );
 
@@ -342,6 +350,58 @@ async function soumettreDeclaration(req, res) {
     }
 }
 
+// Vérifier si une déclaration existe déjà pour une période donnée
+async function checkDeclarationExists(req, res) {
+    try {
+        const { dateDebut, dateFin } = req.query;
+
+        if (!dateDebut || !dateFin) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates de début et de fin sont requises'
+            });
+        }
+
+        // Convertir les dates en objets Date
+        const startDate = new Date(dateDebut);
+        const endDate = new Date(dateFin);
+
+        // Vérifier que les dates sont valides
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Les dates fournies sont invalides'
+            });
+        }
+
+        // Formater les dates pour la comparaison
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const periodeString = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+        // Rechercher une déclaration avec la même période
+        const existingDeclaration = await DeclarationFiscale.findOne({ periode: periodeString });
+
+        return res.status(200).json({
+            success: true,
+            exists: !!existingDeclaration,
+            declaration: existingDeclaration
+        });
+    } catch (error) {
+        console.error('Erreur lors de la vérification de l\'existence d\'une déclaration:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la vérification de l\'existence d\'une déclaration',
+            error: error.message
+        });
+    }
+}
+
 // Exporter toutes les méthodes
 module.exports = {
     addDF,
@@ -351,5 +411,6 @@ module.exports = {
     updateDF,
     findDeclarationById,
     genererDeclarationFiscale,
-    soumettreDeclaration
+    soumettreDeclaration,
+    checkDeclarationExists
 };

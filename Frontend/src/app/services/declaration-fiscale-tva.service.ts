@@ -9,20 +9,27 @@ import { TVA } from '../Models/TVA';
   providedIn: 'root'
 })
 export class DeclarationFiscaleTVAService {
-  private dfApiUrl = 'http://localhost:3000/df'; // Base URL pour les déclarations fiscales
-  private tvaApiUrl = 'http://localhost:3000/tva'; // Base URL pour les TVA
+  private dfApiUrl = 'http://localhost:3000/DF'; // Base URL pour les déclarations fiscales
+  private tvaApiUrl = 'http://localhost:3000/TVA'; // Base URL pour les TVA
 
   constructor(private http: HttpClient) {}
 
   private handleError(error: any): Observable<never> {
     let errorMessage: string[] = [];
-    if (error.error instanceof Array) {
-      errorMessage = error.error;
+
+    if (error.error && Array.isArray(error.error.errors)) {
+      errorMessage = error.error.errors;
+    } else if (error.error && error.error.message) {
+      errorMessage = [error.error.message];
     } else if (error.error instanceof ErrorEvent) {
       errorMessage = [error.error.message];
+    } else if (error.error && typeof error.error === 'string') {
+      errorMessage = [error.error];
     } else {
-      errorMessage = [`Error Code: ${error.status}\nMessage: ${error.message}`];
+      errorMessage = [`Error Code: ${error.status || 'Unknown'}\nMessage: ${error.message || 'Unknown error'}`];
     }
+
+    console.error('API Error:', error);
     return throwError(() => errorMessage);
   }
 
@@ -62,10 +69,21 @@ export class DeclarationFiscaleTVAService {
       .pipe(catchError(this.handleError));
   }
 
+  // Vérifier si une déclaration existe déjà pour une période donnée
+  checkDeclarationExists(dateDebut: string, dateFin: string): Observable<any> {
+    return this.http.get<any>(`${this.dfApiUrl}/check-exists?dateDebut=${dateDebut}&dateFin=${dateFin}`)
+      .pipe(catchError(this.handleError));
+  }
+
   // Méthodes pour les TVA
   createTVA(tva: TVA): Observable<TVA> {
     return this.http.post<TVA>(`${this.tvaApiUrl}/addTVA`, tva)
       .pipe(catchError(this.handleError));
+  }
+
+  // Alias pour createTVA pour une meilleure cohérence avec le composant
+  addTVA(tva: TVA): Observable<TVA> {
+    return this.createTVA(tva);
   }
 
   getAllTVA(): Observable<TVA[]> {

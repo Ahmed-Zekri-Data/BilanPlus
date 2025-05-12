@@ -38,7 +38,7 @@ export class ListDFComponent implements OnInit {
     // Important : assigner paginator & sort ici
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    
+
     }
 
   loadDeclarations(): void {
@@ -48,7 +48,7 @@ export class ListDFComponent implements OnInit {
         this.declarations = declarations;
         this.dataSource.data = this.declarations;
         this.dataSource.sort = this.sort;
-        
+
         this.isLoading = false;
       },
       error: (errors: string[]) => {
@@ -85,7 +85,7 @@ export class ListDFComponent implements OnInit {
     const dialogRef = this.dialog.open(GenerateDeclarationDialogComponent, {
       width: '500px'
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.declarationFiscaleTVAService.generateDeclaration(result).subscribe({
@@ -99,5 +99,47 @@ export class ListDFComponent implements OnInit {
         });
       }
     });
+  }
+
+  /**
+   * Formate une période de déclaration (ex: "2025-05-01 - 2025-05-31") en format lisible (ex: "Mai 2025")
+   * @param periode La période à formater
+   * @returns La période formatée
+   */
+  formatPeriode(periode: string): string {
+    if (!periode) return 'Période non spécifiée';
+
+    try {
+      // Extraire les dates de début et de fin
+      const dates = periode.split(' - ');
+      if (dates.length !== 2) return periode;
+
+      const dateDebut = new Date(dates[0]);
+      const dateFin = new Date(dates[1]);
+
+      // Vérifier si les dates sont valides
+      if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
+        return periode;
+      }
+
+      // Vérifier si les dates sont dans le même mois et la même année
+      if (dateDebut.getMonth() === dateFin.getMonth() && dateDebut.getFullYear() === dateFin.getFullYear()) {
+        // Formater en "Mois Année"
+        const mois = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+        const annee = dateDebut.getFullYear();
+        return `${mois.charAt(0).toUpperCase() + mois.slice(1)} ${annee}`;
+      }
+
+      // Si les dates couvrent plusieurs mois, formater en "Mois Année - Mois Année"
+      const moisDebut = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+      const anneeDebut = dateDebut.getFullYear();
+      const moisFin = dateFin.toLocaleString('fr-FR', { month: 'long' });
+      const anneeFin = dateFin.getFullYear();
+
+      return `${moisDebut.charAt(0).toUpperCase() + moisDebut.slice(1)} ${anneeDebut} - ${moisFin.charAt(0).toUpperCase() + moisFin.slice(1)} ${anneeFin}`;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la période:', error);
+      return periode;
+    }
   }
 }

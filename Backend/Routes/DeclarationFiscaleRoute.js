@@ -5,6 +5,7 @@ const DeclarationFiscaleController = require('../Controller/DeclarationFiscaleCo
 // Routes
 router.post('/add', DeclarationFiscaleController.addDF);
 router.get('/all', DeclarationFiscaleController.getall);
+router.get('/check-exists', DeclarationFiscaleController.checkDeclarationExists); // Nouvelle route pour vérifier l'existence d'une déclaration
 router.get('/:id', DeclarationFiscaleController.getbyid);
 router.delete('/:id', DeclarationFiscaleController.deleteDF);
 router.put('/:id', DeclarationFiscaleController.updateDF);
