@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '../../services/role.service';
+import { AuthService } from '../../services/auth.service';
 import { Role } from '../../Models/Role';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -20,10 +21,24 @@ export class RoleDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private roleService: RoleService,
+    private authService: AuthService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    // Vérifier si l'utilisateur est connecté
+    if (!this.authService.isLoggedIn()) {
+      this.error = 'Vous devez être connecté pour accéder à cette ressource.';
+      console.error('RoleDetailsComponent: Utilisateur non connecté');
+
+      // Rediriger vers la page de connexion après un court délai
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
+
+      return;
+    }
+
     this.roleId = this.route.snapshot.paramMap.get('id');
     if (this.roleId) {
       this.loadRole(this.roleId);
@@ -34,21 +49,61 @@ export class RoleDetailsComponent implements OnInit {
 
   loadRole(id: string): void {
     this.loading = true;
+    this.error = '';
+    console.log('RoleDetailsComponent: Chargement du rôle avec ID:', id);
+
     this.roleService.getRoleById(id).subscribe({
       next: (role) => {
+        console.log('RoleDetailsComponent: Rôle chargé avec succès:', role);
+
+        // Vérifier si le rôle a des permissions
+        if (!role.permissions) {
+          console.warn('RoleDetailsComponent: Le rôle n\'a pas de permissions définies');
+          role.permissions = {
+            gererUtilisateursEtRoles: false,
+            configurerSysteme: false,
+            accesComplet: false,
+            validerEcritures: false,
+            cloturerPeriodes: false,
+            genererEtatsFinanciers: false,
+            superviserComptes: false,
+            saisirEcritures: false,
+            gererFactures: false,
+            suivrePaiements: false,
+            gererTresorerie: false,
+            analyserDepensesRecettes: false,
+            genererRapportsPerformance: false,
+            comparerBudgetRealise: false,
+            saisirNotesFrais: false,
+            consulterBulletinsPaie: false,
+            soumettreRemboursements: false,
+            accesFacturesPaiements: false,
+            telechargerDocuments: false,
+            communiquerComptabilite: false
+          };
+        }
+
         this.role = role;
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Erreur lors du chargement du rôle: ' + (err?.message || 'Erreur inconnue');
         this.loading = false;
-        console.error('Erreur lors du chargement du rôle:', err);
+        this.error = 'Erreur lors du chargement du rôle: ' + (err?.message || 'Erreur inconnue');
+        console.error('RoleDetailsComponent: Erreur lors du chargement du rôle:', err);
+
+        // Si l'erreur est due à une authentification expirée, rediriger vers la page de connexion
+        if (err.originalError && err.originalError.status === 401) {
+          this.error = 'Votre session a expiré. Veuillez vous reconnecter.';
+          setTimeout(() => {
+            this.authService.logout();
+          }, 2000);
+        }
       }
     });
   }
 
   goBack(): void {
-    this.router.navigate(['/roles']);
+    this.router.navigate(['/home']);
   }
 
   deleteRole(): void {

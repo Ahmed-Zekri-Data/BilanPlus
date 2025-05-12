@@ -285,6 +285,71 @@ exports.resetLoginAttempts = async (req, res) => {
   }
 };
 
+exports.toggleUserStatus = async (req, res) => {
+  try {
+    console.log('toggleUserStatus: Requête reçue', req.params.id, req.body);
+
+    // Utiliser updateOne au lieu de findById + save pour éviter les problèmes de concurrence
+    const result = await Utilisateur.updateOne(
+      { _id: req.params.id },
+      { $set: { actif: req.body.actif } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé ou supprimé" });
+    }
+
+    if (result.modifiedCount === 0) {
+      return res.status(400).json({ message: "Aucune modification n'a été effectuée" });
+    }
+
+    // Récupérer l'utilisateur mis à jour pour la réponse
+    const utilisateur = await Utilisateur.findById(req.params.id).select('-password');
+    if (!utilisateur) {
+      return res.status(404).json({ message: "Utilisateur non trouvé après mise à jour" });
+    }
+
+    const actionType = req.body.actif ? "Activation du compte" : "Désactivation du compte";
+
+    // Enregistrer dans l'audit global sans utiliser la méthode logAction
+    try {
+      const AuditLog = require('../Models/Audit').AuditLog;
+      const auditLog = new AuditLog({
+        utilisateur: req.user._id,
+        action: actionType,
+        details: `${actionType} pour l'utilisateur ${utilisateur.nom} ${utilisateur.prenom} (${utilisateur.email})`,
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        navigateur: req.headers['user-agent'],
+        date: new Date()
+      });
+
+      // Sauvegarder l'audit en arrière-plan sans attendre
+      auditLog.save().catch(err => {
+        console.error('Erreur lors de l\'enregistrement de l\'audit en arrière-plan:', err);
+      });
+
+      console.log('toggleUserStatus: Action enregistrée dans l\'audit global');
+    } catch (auditErr) {
+      console.error('toggleUserStatus: Erreur lors de l\'enregistrement dans l\'audit global:', auditErr);
+      // Ne pas bloquer le processus si l'enregistrement dans l'audit échoue
+    }
+
+    res.status(200).json({
+      message: req.body.actif ? "Utilisateur activé avec succès" : "Utilisateur désactivé avec succès",
+      utilisateur: {
+        _id: utilisateur._id,
+        nom: utilisateur.nom,
+        prenom: utilisateur.prenom,
+        email: utilisateur.email,
+        actif: utilisateur.actif
+      }
+    });
+  } catch (err) {
+    console.error('Erreur toggleUserStatus:', err);
+    res.status(500).json({ message: "Erreur serveur lors de la modification du statut de l'utilisateur", error: err.message });
+  }
+};
+
 exports.updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;

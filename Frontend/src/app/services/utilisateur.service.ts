@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, delay, retry, timeout } from 'rxjs/operators';
 import { Utilisateur, UtilisateurResponse } from '../Models/Utilisateur';
 
 @Injectable({
@@ -82,6 +82,22 @@ export class UtilisateurService {
   resetLoginAttempts(id: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/reset-attempts/${id}`, {}, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
+    );
+  }
+
+  toggleUserStatus(id: string, actif: boolean): Observable<any> {
+    console.log(`UtilisateurService: Changement de statut pour l'utilisateur ${id} à ${actif}`);
+
+    // Utiliser une requête PATCH pour mettre à jour uniquement le statut
+    return this.http.patch<any>(
+      `${this.apiUrl}/toggle-status/${id}`,
+      { actif },
+      { headers: this.getHeaders() }
+    ).pipe(
+      catchError((error) => {
+        console.error('UtilisateurService: Erreur lors du changement de statut:', error);
+        return this.handleError(error);
+      })
     );
   }
 

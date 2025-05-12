@@ -11,6 +11,7 @@ router.post('/add', verifierToken, verifierPermission('gererUtilisateursEtRoles'
 router.put('/:id', verifierToken, verifierPermission('gererUtilisateursEtRoles'), validateUpdateUser, UtilisateurController.updateUser);
 router.delete('/:id', verifierToken, verifierAdmin, UtilisateurController.deleteUser);
 router.post('/reset-attempts/:id', verifierToken, verifierAdmin, UtilisateurController.resetLoginAttempts);
+router.patch('/toggle-status/:id', verifierToken, verifierPermission('gererUtilisateursEtRoles'), UtilisateurController.toggleUserStatus);
 router.put('/update-password/:id', verifierToken, UtilisateurController.updatePassword);
 router.post('/request-reset-password', UtilisateurController.requestPasswordReset);
 router.post('/reset-password', UtilisateurController.resetPassword);

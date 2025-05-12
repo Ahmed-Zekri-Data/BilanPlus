@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UtilisateurService } from '../../services/utilisateur.service';
 import { AuthService } from '../../services/auth.service';
 import { Utilisateur, UtilisateurResponse } from '../../Models/Utilisateur';
@@ -51,7 +52,8 @@ export class UtilisateurDashboardComponent implements OnInit {
     private utilisateurService: UtilisateurService,
     private authService: AuthService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.dataSource = new MatTableDataSource<Utilisateur>([]);
   }
@@ -195,20 +197,63 @@ export class UtilisateurDashboardComponent implements OnInit {
   }
 
   toggleUserStatus(user: Utilisateur): void {
-    if (!user._id) return;
+    if (!user._id) {
+      console.error('UtilisateurDashboardComponent: ID utilisateur manquant');
+      return;
+    }
 
-    const updatedUser: Partial<Utilisateur> = {
-      actif: !user.actif
-    };
+    // Désactiver le toggle pendant la requête pour éviter les clics multiples
+    const toggleElement = document.querySelector(`mat-slide-toggle[data-user-id="${user._id}"]`) as any;
+    if (toggleElement) {
+      toggleElement.disabled = true;
+    }
 
-    this.utilisateurService.updateUtilisateur(user._id, updatedUser).subscribe({
-      next: () => {
-        user.actif = !user.actif;
-        this.calculateStatistics();
+    console.log(`UtilisateurDashboardComponent: Changement de statut pour l'utilisateur ${user._id} de ${user.actif} à ${!user.actif}`);
+
+    // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
+    const previousState = user.actif;
+
+    // Mettre à jour l'interface utilisateur immédiatement pour une meilleure expérience
+    user.actif = !user.actif;
+    this.calculateStatistics();
+
+    // Utiliser la méthode spécifique pour changer le statut
+    this.utilisateurService.toggleUserStatus(user._id, user.actif).subscribe({
+      next: (response) => {
+        console.log('UtilisateurDashboardComponent: Statut mis à jour avec succès', response);
+
+        // Réactiver le toggle
+        if (toggleElement) {
+          toggleElement.disabled = false;
+        }
+
+        // Afficher un message de confirmation discret (sans alert)
+        this.snackBar.open(
+          user.actif ? 'Utilisateur activé avec succès' : 'Utilisateur désactivé avec succès',
+          'Fermer',
+          { duration: 3000 }
+        );
       },
       error: (err) => {
-        this.error = 'Erreur lors de la mise à jour du statut de l\'utilisateur.';
-        console.error('Erreur:', err);
+        console.error('UtilisateurDashboardComponent: Erreur lors de la mise à jour du statut', err);
+
+        // Restaurer l'état précédent
+        user.actif = previousState;
+        this.calculateStatistics();
+
+        // Réactiver le toggle et restaurer son état
+        if (toggleElement) {
+          toggleElement.disabled = false;
+          toggleElement.checked = previousState;
+        }
+
+        // Afficher un message d'erreur
+        this.error = err.message || 'Erreur lors de la mise à jour du statut de l\'utilisateur.';
+        this.snackBar.open(
+          'Erreur lors de la mise à jour du statut: ' + this.error,
+          'Fermer',
+          { duration: 5000, panelClass: ['error-snackbar'] }
+        );
       }
     });
   }

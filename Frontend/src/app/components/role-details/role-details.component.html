@@ -2,8 +2,11 @@
   <div class="role-details-header">
     <h1>Détails du Rôle</h1>
     <div class="header-actions">
-      <button mat-raised-button color="primary" (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon> Retour
+      <button mat-raised-button color="basic" (click)="goBack()">
+        <mat-icon>home</mat-icon> Retour à l'accueil
+      </button>
+      <button mat-raised-button color="primary" [routerLink]="['/roles']">
+        <mat-icon>arrow_back</mat-icon> Retour aux rôles
       </button>
       <button mat-raised-button color="accent" [routerLink]="['/roles/edit', role?._id]">
         <mat-icon>edit</mat-icon> Modifier

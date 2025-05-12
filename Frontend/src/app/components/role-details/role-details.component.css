@@ -22,6 +22,7 @@
 .header-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .loading-spinner {
@@ -235,7 +236,12 @@
 
   .header-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+
+  .header-actions button {
+    margin-bottom: 10px;
   }
 
   .details-grid {

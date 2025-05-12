@@ -113,7 +113,8 @@
           <mat-slide-toggle
             [checked]="user.actif"
             (change)="toggleUserStatus(user)"
-            color="primary">
+            color="primary"
+            [attr.data-user-id]="user._id">
           </mat-slide-toggle>
         </td>
       </ng-container>
