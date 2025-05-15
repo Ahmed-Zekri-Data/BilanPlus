@@ -38,8 +38,14 @@ import { DFTVAComponent } from './components/dftva/dftva.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 
+// Dashboard for stock (from Gestion_de_stock)
+import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+
 const routes: Routes = [
   { path: '', component: HomeComponent },
+
+  // Dashboard (stock-specific)
+  { path: 'dashboard', component: StockDashboardComponent },
 
   // Gestion comptable
   {
@@ -90,12 +96,15 @@ const routes: Routes = [
   { path: 'add-declaration', component: DFFormComponent },
   { path: 'edit-declaration/:id', component: DFFormComponent },
   { path: 'get-declaration/:id', component: DFDetailComponent },
-  {path:'generer-df', component: GenerateDeclarationDialogComponent},
-  {path:'DFTVA',component: DFTVAComponent},
+  { path: 'generer-df', component: GenerateDeclarationDialogComponent },
+  { path: 'DFTVA', component: DFTVAComponent },
+
+  // Wildcard route for unmatched paths
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

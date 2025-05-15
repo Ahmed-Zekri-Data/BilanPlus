@@ -1,12 +1,15 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav mode="over" class="sidenav">
     <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard" (click)="sidenav.close()">Tableau de Bord</a>
       <a mat-list-item routerLink="/utilisateurs" (click)="sidenav.close()">Utilisateurs</a>
-      <a mat-list-item routerLink="/facturation" (click)="sidenav.close()">Facturation</a>
+      <a mat-list-item routerLink="/facturation Journey to Wellness - Empowering Your Health and Happiness with Every Step
+" (click)="sidenav.close()">Facturation</a>
       <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()">Fournisseurs</a>
-      <a mat-list-item routerLink="/stocks" (click)="sidenav.close()">Stocks</a>
+      <a mat-list-item routerLink="/produit" (click)="sidenav.close()">Gérer Produit</a>
+      <a mat-list-item routerLink="/stock-movements" (click)="sidenav.close()">Mouvement de Stock</a>
       <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()">Gestion Comptable</a>
-      <a mat-list-item routerLink="/declarations" (click)="sidenav.close()">Déclarations</a>
+      <a mat-list-item routerLink="/DFTVA" (click)="sidenav.close()">Déclarations</a>
     </mat-nav-list>
   </mat-sidenav>
 
@@ -18,10 +21,12 @@
       <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
       <span class="spacer"></span>
       <div class="desktop-nav">
+        <button mat-raised-button color="accent" routerLink="/dashboard">Tableau de Bord produits</button>
         <button mat-raised-button color="accent" routerLink="/utilisateurs">Utilisateurs</button>
         <button mat-raised-button color="accent" routerLink="/facturation">Facturation</button>
         <button mat-raised-button color="accent" routerLink="/fournisseurs">Fournisseurs</button>
-        <button mat-raised-button color="accent" routerLink="/stocks">Stocks</button>
+        <button mat-raised-button color="accent" routerLink="/produit">Gérer produit</button>
+        <button mat-raised-button color="accent" routerLink="/stock-movements">Mouvement de Stock</button>
         <button mat-raised-button color="accent" routerLink="/gestion-comptable">Gestion Comptable</button>
         <button mat-raised-button color="accent" routerLink="/DFTVA">Déclarations</button>
       </div>
@@ -32,8 +37,12 @@
       <div class="hero-content">
         <h1 style="color: #1E3A8A;">Bienvenue sur Bilan+</h1>
         <p style="color: #D4AF37;">Simple Finance, Big Success</p>
-        <p style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">Gérez votre comptabilité avec facilité et efficacité.</p>
-        <button mat-raised-button color="accent" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">Commencer Maintenant</button>
+        <p style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+          Gérez votre comptabilité avec facilité et efficacité.
+        </p>
+        <button mat-raised-button color="accent" routerLink="/dashboard" [@buttonClick]="buttonState" (click)="onButtonClick()">
+          Voir le Tableau de Bord des produits
+        </button>
       </div>
     </div>
 
@@ -41,69 +50,75 @@
     <div class="features-section">
       <h2 style="color: #1E3A8A;">Nos Fonctionnalités</h2>
       <div class="features-grid">
-        <!-- Gestion des Utilisateurs et Accès -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion des Utilisateurs et Accès 🔐</mat-card-title>
           <mat-card-content>
             Authentification avancée (JWT, OAuth), gestion des permissions dynamiques, audit des connexions.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/utilisateurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Utilisateurs</button>
+            <button mat-button color="primary" routerLink="/utilisateurs" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Gérer les Utilisateurs
+            </button>
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion de la Facturation et Clients -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion de la Facturation et Clients 🧾</mat-card-title>
           <mat-card-content>
             Création de devis, conversion en factures, suivi des paiements, relances automatiques.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/facturation" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Facturation</button>
+            <button mat-button color="primary" routerLink="/facturation" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Gérer la Facturation
+            </button>
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion des Fournisseurs et Achats -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion des Fournisseurs et Achats 📦</mat-card-title>
           <mat-card-content>
             Création et suivi des commandes, validation automatique selon les stocks.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/fournisseurs" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Fournisseurs</button>
+            <button mat-button color="primary" routerLink="/fournisseurs" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Gérer les Fournisseurs
+            </button>
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion des Produits et Stocks -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion des Produits et Stocks 🏪</mat-card-title>
           <mat-card-content>
             Gestion des stocks avec alertes, automatisation des réapprovisionnements.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/stocks" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Stocks</button>
+            <button mat-button color="primary" routerLink="/dashboard" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Voir le Tableau de Bord des produits
+            </button>
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion Comptable et Transactions -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion Comptable et Transactions 💰</mat-card-title>
           <mat-card-content>
             Gestion du plan comptable tunisien, saisie automatique des écritures, calculs de bilan.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer la Comptabilité</button>
+            <button mat-button color="primary" routerLink="/gestion-comptable" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Gérer la Comptabilité
+            </button>
           </mat-card-actions>
         </mat-card>
 
-        <!-- Gestion des Déclarations et TVA -->
         <mat-card class="feature-card" @slideIn>
           <mat-card-title>Gestion des Déclarations et TVA 🏛</mat-card-title>
           <mat-card-content>
             Calcul automatique de la TVA, génération des déclarations, alertes pour les délais.
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button color="primary" routerLink="/DFTVA" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Déclarations</button>
+            <button mat-button color="primary" routerLink="/DFTVA" [@buttonClick]="buttonState" (click)="onButtonClick()">
+              Gérer les Déclarations
+            </button>
           </mat-card-actions>
         </mat-card>
       </div>

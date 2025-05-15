@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { NgChartsModule } from 'ng2-charts';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -47,7 +47,6 @@ import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
 import { CommandesComponent } from './components/commandes/commandes.component';
-import { ProduitsComponent } from './components/produits/produits.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
@@ -66,6 +65,8 @@ import { DfManagementComponent } from './components/df-management/df-management.
 import { FiscalDashboardComponent } from './components/fiscal-dashboard/fiscal-dashboard.component';
 import { SimulationFiscaleComponent } from './components/simulation-fiscale/simulation-fiscale.component';
 import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal-statistics.component';
+import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
+import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,6 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
     DashboardComponent,
     FournisseursComponent,
     CommandesComponent,
-    ProduitsComponent,
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
@@ -106,7 +106,9 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
     DfManagementComponent,
     FiscalDashboardComponent,
     SimulationFiscaleComponent,
-    FiscalStatisticsComponent
+    FiscalStatisticsComponent,
+    ShortenIdPipe,
+    StockDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -115,6 +117,7 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    NgChartsModule,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
