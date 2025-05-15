@@ -1,0 +1,168 @@
+<div class="dashboard-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <h1 class="dashboard-title">Tableau de Bord Comptable</h1>
+
+    <!-- Statistiques générales -->
+    <div class="stats-cards">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ dashboardData.statistiques.totalComptes }}</div>
+          <div class="stat-label">Comptes</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ dashboardData.statistiques.totalEcritures }}</div>
+          <div class="stat-label">Écritures</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card actif-card">
+        <mat-card-content>
+          <div class="stat-value">{{ dashboardData.statistiques.totalActif | currency:'EUR':'symbol':'1.2-2' }}</div>
+          <div class="stat-label">Total Actif</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card passif-card">
+        <mat-card-content>
+          <div class="stat-value">{{ dashboardData.statistiques.totalPassif | currency:'EUR':'symbol':'1.2-2' }}</div>
+          <div class="stat-label">Total Passif</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="dashboard-row">
+      <!-- Résultat -->
+      <mat-card class="resultat-card">
+        <mat-card-header>
+          <mat-card-title>Résultat de la période</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="resultat-content" [ngClass]="{'benefice': dashboardData.statistiques.resultatPeriode > 0, 'perte': dashboardData.statistiques.resultatPeriode < 0}">
+            <div class="resultat-label">
+              {{ dashboardData.statistiques.resultatPeriode > 0 ? 'Bénéfice' : 'Perte' }}
+            </div>
+            <div class="resultat-value">
+              {{ dashboardData.statistiques.resultatPeriode | currency:'EUR':'symbol':'1.2-2' }}
+            </div>
+          </div>
+          <div class="resultat-details">
+            <div class="resultat-detail">
+              <div class="detail-label">Produits:</div>
+              <div class="detail-value">{{ dashboardData.statistiques.totalProduits | currency:'EUR':'symbol':'1.2-2' }}</div>
+            </div>
+            <div class="resultat-detail">
+              <div class="detail-label">Charges:</div>
+              <div class="detail-value">{{ dashboardData.statistiques.totalCharges | currency:'EUR':'symbol':'1.2-2' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Dernière écriture -->
+      <mat-card class="derniere-ecriture-card" *ngIf="dashboardData.derniereEcriture">
+        <mat-card-header>
+          <mat-card-title>Dernière écriture comptable</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="ecriture-date">
+            {{ dashboardData.derniereEcriture.date | date:'dd/MM/yyyy' }}
+          </div>
+          <div class="ecriture-libelle">
+            {{ dashboardData.derniereEcriture.libelle }}
+          </div>
+          <div class="ecriture-lignes">
+            <div class="ecriture-ligne" *ngFor="let ligne of dashboardData.derniereEcriture.lignes">
+              <div class="ligne-compte">
+                {{ ligne.compte.numeroCompte }} - {{ ligne.compte.nom }}
+              </div>
+              <div class="ligne-nature">
+                {{ formatNature(ligne.nature) }}
+              </div>
+              <div class="ligne-montant">
+                {{ ligne.montant | currency:'EUR':'symbol':'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Dernières écritures -->
+    <mat-card class="dernieres-ecritures-card">
+      <mat-card-header>
+        <mat-card-title>Dernières écritures comptables</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="dashboardData.dernieresEcritures" class="mat-elevation-z0">
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let ecriture">{{ ecriture.date | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          <!-- Libellé Column -->
+          <ng-container matColumnDef="libelle">
+            <th mat-header-cell *matHeaderCellDef>Libellé</th>
+            <td mat-cell *matCellDef="let ecriture">{{ ecriture.libelle }}</td>
+          </ng-container>
+
+          <!-- Débit Column -->
+          <ng-container matColumnDef="debit">
+            <th mat-header-cell *matHeaderCellDef>Débit</th>
+            <td mat-cell *matCellDef="let ecriture">
+              <div *ngFor="let ligne of ecriture.lignes">
+                <ng-container *ngIf="ligne.nature === 'débit'">
+                  {{ ligne.compte.numeroCompte }}: {{ ligne.montant | currency:'EUR':'symbol':'1.2-2' }}
+                </ng-container>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Crédit Column -->
+          <ng-container matColumnDef="credit">
+            <th mat-header-cell *matHeaderCellDef>Crédit</th>
+            <td mat-cell *matCellDef="let ecriture">
+              <div *ngFor="let ligne of ecriture.lignes">
+                <ng-container *ngIf="ligne.nature === 'crédit'">
+                  {{ ligne.compte.numeroCompte }}: {{ ligne.montant | currency:'EUR':'symbol':'1.2-2' }}
+                </ng-container>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['date', 'libelle', 'debit', 'credit']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['date', 'libelle', 'debit', 'credit'];"></tr>
+        </table>
+
+        <div *ngIf="dashboardData.dernieresEcritures.length === 0" class="no-data">
+          Aucune écriture comptable enregistrée.
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+<!-- Statistiques mensuelles -->
+<mat-card class="stats-mensuelles-card">
+  <mat-card-header>
+    <mat-card-title>Écritures comptables par mois</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="graph-container">
+      <div class="bar-chart">
+        <div class="bar-item" *ngFor="let item of dashboardData.sixMoisDerniers">
+          <div class="bar-value" [style.height.%]="getBarHeight(item.count)"></div>
+          <div class="bar-label">{{ item.mois }}</div>
+          <div class="bar-count">{{ item.count }}</div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+  </div>
+</div>

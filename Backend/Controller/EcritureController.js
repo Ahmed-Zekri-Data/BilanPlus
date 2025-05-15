@@ -1,147 +1,186 @@
-const mongoose = require("mongoose");
 const EcritureComptable = require("../Models/EcritureComptable");
 const CompteComptable = require("../Models/CompteComptable");
 
-// READ - Récupérer toutes les écritures
+// Récupérer toutes les écritures
 const getEcritures = async (req, res) => {
   try {
     const ecritures = await EcritureComptable.find().populate("lignes.compte");
-    res.json(ecritures);
-  } catch (err) {
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(200).json(ecritures);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération des écritures : " + error.message });
   }
 };
 
-// CREATE - Ajouter une écriture (déjà bon, pas de changement)
+// Créer une nouvelle écriture
 const createEcriture = async (req, res) => {
   try {
-    const { libelle, lignes } = req.body;
+    const { libelle, date, lignes } = req.body;
 
-    if (!libelle) {
-      return res.status(400).json({ message: "Le libellé est requis" });
-    }
-    if (!lignes) {
-      return res.status(400).json({ message: "Les lignes sont requises" });
-    }
-    if (lignes.length < 2) {
-      return res.status(400).json({ message: "Il faut au moins 2 lignes (débit et crédit)" });
+    // Validation des données
+    if (!libelle || !lignes || !Array.isArray(lignes) || lignes.length === 0) {
+      return res.status(400).json({ message: "Données invalides : libelle et lignes sont requis." });
     }
 
-    const totalDebit = lignes.reduce((sum, ligne) => 
-      ligne.nature === "débit" ? sum + ligne.montant : sum, 0);
-    const totalCredit = lignes.reduce((sum, ligne) => 
-      ligne.nature === "crédit" ? sum + ligne.montant : sum, 0);
+    // Calculer la somme des débits et des crédits
+    const totalDebit = lignes
+      .filter((ligne) => ligne.nature === "débit")
+      .reduce((sum, ligne) => sum + (ligne.montant || 0), 0);
+    const totalCredit = lignes
+      .filter((ligne) => ligne.nature === "crédit")
+      .reduce((sum, ligne) => sum + (ligne.montant || 0), 0);
+
+    // Vérifier l’équilibrage
     if (totalDebit !== totalCredit) {
-      return res.status(400).json({ message: "L’écriture n’est pas équilibrée : Débit (" + totalDebit + ") ≠ Crédit (" + totalCredit + ")" });
+      return res.status(400).json({
+        message: `L’écriture n’est pas équilibrée : débit (${totalDebit}) ≠ crédit (${totalCredit})`,
+      });
     }
 
+    // Vérifier que tous les comptes existent
     for (const ligne of lignes) {
       const compte = await CompteComptable.findById(ligne.compte);
       if (!compte) {
-        return res.status(404).json({ message: `Compte ${ligne.compte} introuvable` });
-      }
-      if (ligne.nature === "crédit" && compte.type === "actif") {
-        if (compte.solde - ligne.montant < 0) {
-          return res.status(400).json({ message: `Pas assez d’argent sur ${compte.nom} (solde : ${compte.solde})` });
-        }
+        return res.status(404).json({ message: `Compte avec ID ${ligne.compte} non trouvé.` });
       }
     }
 
-    const ecriture = new EcritureComptable({ libelle, lignes });
-    await ecriture.save();
+    // Créer l’écriture comptable
+    const nouvelleEcriture = new EcritureComptable({
+      libelle,
+      date: date || Date.now(),
+      lignes,
+    });
+    await nouvelleEcriture.save();
 
+    // Mettre à jour les soldes des comptes
     for (const ligne of lignes) {
       const compte = await CompteComptable.findById(ligne.compte);
+      // Convention : un débit diminue le solde, un crédit l’augmente (à ajuster selon tes besoins)
       if (ligne.nature === "débit") {
-        compte.solde += ligne.montant;
-      } else if (ligne.nature === "crédit") {
         compte.solde -= ligne.montant;
+      } else if (ligne.nature === "crédit") {
+        compte.solde += ligne.montant;
       }
       await compte.save();
     }
 
-    res.status(201).json(ecriture);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur lors de l’ajout de l’écriture", error: err.message });
+    // Renvoyer l’écriture avec les comptes peuplés
+    const ecriturePeuplee = await EcritureComptable.findById(nouvelleEcriture._id).populate("lignes.compte");
+    res.status(201).json(ecriturePeuplee);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la création de l’écriture : " + error.message });
   }
 };
 
-// UPDATE - Mettre à jour une écriture (version sans transactions)
+// Mettre à jour une écriture
 const updateEcriture = async (req, res) => {
   try {
     const { id } = req.params;
-    const { libelle, lignes } = req.body;
+    const { libelle, date, lignes } = req.body;
 
-    const ecriture = await EcritureComptable.findById(id).populate("lignes.compte");
-    if (!ecriture) return res.status(404).json({ message: "Écriture introuvable" });
+    // Validation des données
+    if (!libelle || !lignes || !Array.isArray(lignes) || lignes.length === 0) {
+      return res.status(400).json({ message: "Données invalides : libelle et lignes sont requis." });
+    }
 
-    // Restaurer les soldes avant mise à jour
-    for (const ligne of ecriture.lignes) {
+    // Récupérer l’écriture existante
+    const ecritureExistante = await EcritureComptable.findById(id);
+    if (!ecritureExistante) {
+      return res.status(404).json({ message: "Écriture non trouvée." });
+    }
+
+    // Annuler l’impact de l’ancienne écriture sur les soldes
+    for (const ligne of ecritureExistante.lignes) {
       const compte = await CompteComptable.findById(ligne.compte);
-      if (ligne.nature === "débit") compte.solde -= ligne.montant;
-      else if (ligne.nature === "crédit") compte.solde += ligne.montant;
+      if (ligne.nature === "débit") {
+        compte.solde += ligne.montant; // Annuler le débit (augmenter le solde)
+      } else if (ligne.nature === "crédit") {
+        compte.solde -= ligne.montant; // Annuler le crédit (diminuer le solde)
+      }
       await compte.save();
     }
 
-    // Mettre à jour les champs
-    if (libelle) ecriture.libelle = libelle;
-    if (lignes) {
-      const totalDebit = lignes.reduce((sum, ligne) => 
-        ligne.nature === "débit" ? sum + ligne.montant : sum, 0);
-      const totalCredit = lignes.reduce((sum, ligne) => 
-        ligne.nature === "crédit" ? sum + ligne.montant : sum, 0);
-      if (totalDebit !== totalCredit) {
-        return res.status(400).json({ message: "L’écriture n’est pas équilibrée : Débit ≠ Crédit" });
-      }
+    // Calculer la somme des débits et des crédits pour la nouvelle écriture
+    const totalDebit = lignes
+      .filter((ligne) => ligne.nature === "débit")
+      .reduce((sum, ligne) => sum + (ligne.montant || 0), 0);
+    const totalCredit = lignes
+      .filter((ligne) => ligne.nature === "crédit")
+      .reduce((sum, ligne) => sum + (ligne.montant || 0), 0);
 
-      // Vérifier les soldes pour les nouveaux crédits
-      for (const ligne of lignes) {
-        const compte = await CompteComptable.findById(ligne.compte);
-        if (!compte) return res.status(404).json({ message: `Compte ${ligne.compte} introuvable` });
-        if (ligne.nature === "crédit" && compte.type === "actif") {
-          if (compte.solde - ligne.montant < 0) {
-            return res.status(400).json({ message: `Pas assez d’argent sur ${compte.nom} (solde : ${compte.solde})` });
-          }
-        }
-      }
-      ecriture.lignes = lignes;
+    // Vérifier l’équilibrage
+    if (totalDebit !== totalCredit) {
+      return res.status(400).json({
+        message: `L’écriture n’est pas équilibrée : débit (${totalDebit}) ≠ crédit (${totalCredit})`,
+      });
     }
 
-    // Mettre à jour les soldes avec les nouvelles valeurs
-    for (const ligne of (lignes || ecriture.lignes)) {
+    // Vérifier que tous les comptes existent
+    for (const ligne of lignes) {
       const compte = await CompteComptable.findById(ligne.compte);
-      if (ligne.nature === "débit") compte.solde += ligne.montant;
-      else if (ligne.nature === "crédit") compte.solde -= ligne.montant;
+      if (!compte) {
+        return res.status(404).json({ message: `Compte avec ID ${ligne.compte} non trouvé.` });
+      }
+    }
+
+    // Mettre à jour l’écriture
+    ecritureExistante.libelle = libelle;
+    ecritureExistante.date = date || ecritureExistante.date;
+    ecritureExistante.lignes = lignes;
+    await ecritureExistante.save();
+
+    // Mettre à jour les soldes des comptes avec la nouvelle écriture
+    for (const ligne of lignes) {
+      const compte = await CompteComptable.findById(ligne.compte);
+      if (ligne.nature === "débit") {
+        compte.solde -= ligne.montant;
+      } else if (ligne.nature === "crédit") {
+        compte.solde += ligne.montant;
+      }
       await compte.save();
     }
 
-    await ecriture.save();
-    res.json(ecriture);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur lors de la mise à jour", error: err.message });
+    // Renvoyer l’écriture mise à jour avec les comptes peuplés
+    const ecriturePeuplee = await EcritureComptable.findById(id).populate("lignes.compte");
+    res.status(200).json(ecriturePeuplee);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la mise à jour de l’écriture : " + error.message });
   }
 };
 
-// DELETE - Supprimer une écriture (version sans transactions)
+// Supprimer une écriture
 const deleteEcriture = async (req, res) => {
   try {
     const { id } = req.params;
-    const ecriture = await EcritureComptable.findById(id).populate("lignes.compte");
-    if (!ecriture) return res.status(404).json({ message: "Écriture introuvable" });
 
-    // Restaurer les soldes
+    // Récupérer l’écriture existante
+    const ecriture = await EcritureComptable.findById(id);
+    if (!ecriture) {
+      return res.status(404).json({ message: "Écriture non trouvée." });
+    }
+
+    // Annuler l’impact de l’écriture sur les soldes
     for (const ligne of ecriture.lignes) {
       const compte = await CompteComptable.findById(ligne.compte);
-      if (ligne.nature === "débit") compte.solde -= ligne.montant;
-      else if (ligne.nature === "crédit") compte.solde += ligne.montant;
+      if (ligne.nature === "débit") {
+        compte.solde += ligne.montant; // Annuler le débit
+      } else if (ligne.nature === "crédit") {
+        compte.solde -= ligne.montant; // Annuler le crédit
+      }
       await compte.save();
     }
 
+    // Supprimer l’écriture
     await EcritureComptable.findByIdAndDelete(id);
-    res.json({ message: "Écriture supprimée avec succès" });
-  } catch (err) {
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(200).json({ message: "Écriture supprimée avec succès." });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression de l’écriture : " + error.message });
   }
 };
 
-module.exports = { getEcritures, createEcriture, updateEcriture, deleteEcriture };
+module.exports = {
+  getEcritures,
+  createEcriture,
+  updateEcriture,
+  deleteEcriture,
+};
