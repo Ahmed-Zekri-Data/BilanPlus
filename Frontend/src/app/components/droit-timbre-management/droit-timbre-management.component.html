@@ -1,0 +1,173 @@
+<div class="droit-timbre-container">
+  <h2>Gestion du Droit de Timbre</h2>
+
+  <div class="droit-timbre-content">
+    <mat-tab-group [selectedIndex]="activeTab === 'calcul' ? 0 : 1" (selectedIndexChange)="setActiveTab($event)">
+      <!-- Onglet Calcul du Droit de Timbre -->
+      <mat-tab label="Calcul du Droit de Timbre">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Calcul du Droit de Timbre</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="droitTimbreForm" (ngSubmit)="calculateDroitTimbre()">
+                <div class="form-row">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Date de début</mat-label>
+                    <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut">
+                    <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerDebut></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Date de fin</mat-label>
+                    <input matInput [matDatepicker]="pickerFin" formControlName="dateFin">
+                    <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFin></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Valeur du timbre (DT)</mat-label>
+                    <input matInput type="number" formControlName="valeurTimbre" step="0.01">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+                    Calculer le Droit de Timbre
+                  </button>
+                  <button mat-button type="button" (click)="resetCalculForm()" [disabled]="isLoading">
+                    Réinitialiser
+                  </button>
+                </div>
+              </form>
+
+              <!-- Message d'erreur -->
+              <div class="error-message" *ngIf="error">
+                <p>{{ error }}</p>
+              </div>
+
+              <!-- Indicateur de chargement -->
+              <div class="loading-spinner" *ngIf="isLoading">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Calcul en cours...</p>
+              </div>
+
+              <!-- Résultats du calcul -->
+              <div class="results" *ngIf="droitTimbreResults && !isLoading">
+                <h3>Résultats du calcul du Droit de Timbre</h3>
+                <div class="result-item">
+                  <span class="label">Période:</span>
+                  <span class="value">{{ droitTimbreResults.periode.debut | date }} au {{ droitTimbreResults.periode.fin | date }}</span>
+                </div>
+                <div class="result-item">
+                  <span class="label">Total des factures:</span>
+                  <span class="value">{{ droitTimbreResults.totalFactures }}</span>
+                </div>
+                <div class="result-item">
+                  <span class="label">Factures soumises au droit de timbre:</span>
+                  <span class="value">{{ droitTimbreResults.nombreFacturesSoumises }}</span>
+                </div>
+                <div class="result-item">
+                  <span class="label">Factures exonérées:</span>
+                  <span class="value">{{ droitTimbreResults.nombreFacturesExonerees }}</span>
+                </div>
+                <div class="result-item">
+                  <span class="label">Valeur unitaire du timbre:</span>
+                  <span class="value">{{ droitTimbreResults.valeurUnitaireTimbre | number:'1.2-2' }} DT</span>
+                </div>
+                <div class="result-item total">
+                  <span class="label">Total Droit de Timbre:</span>
+                  <span class="value">{{ droitTimbreResults.totalDroitTimbre | number:'1.2-2' }} DT</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Onglet Rapport du Droit de Timbre -->
+      <mat-tab label="Rapport du Droit de Timbre">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Rapport du Droit de Timbre</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="rapportForm" (ngSubmit)="generateRapport()">
+                <div class="form-row">
+                  <mat-form-field appearance="fill">
+                    <mat-label>Date de début</mat-label>
+                    <input matInput [matDatepicker]="pickerDebutRapport" formControlName="dateDebut">
+                    <mat-datepicker-toggle matSuffix [for]="pickerDebutRapport"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerDebutRapport></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill">
+                    <mat-label>Date de fin</mat-label>
+                    <input matInput [matDatepicker]="pickerFinRapport" formControlName="dateFin">
+                    <mat-datepicker-toggle matSuffix [for]="pickerFinRapport"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFinRapport></mat-datepicker>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="isLoadingRapport">
+                    Générer le Rapport
+                  </button>
+                  <button mat-button type="button" (click)="resetRapportForm()" [disabled]="isLoadingRapport">
+                    Réinitialiser
+                  </button>
+                </div>
+              </form>
+
+              <!-- Message d'erreur -->
+              <div class="error-message" *ngIf="error">
+                <p>{{ error }}</p>
+              </div>
+
+              <!-- Indicateur de chargement -->
+              <div class="loading-spinner" *ngIf="isLoadingRapport">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Génération du rapport en cours...</p>
+              </div>
+
+              <!-- Résultats du rapport -->
+              <div class="results" *ngIf="rapportResults && !isLoadingRapport">
+                <h3>Rapport du Droit de Timbre</h3>
+                <div class="result-item">
+                  <span class="label">Période:</span>
+                  <span class="value">{{ rapportResults.periode.debut | date }} au {{ rapportResults.periode.fin | date }}</span>
+                </div>
+
+                <h4>Répartition par type de document</h4>
+
+                <div class="document-type" *ngFor="let type of ['factures', 'contrats', 'quittances']">
+                  <h5>{{ type | titlecase }}</h5>
+                  <div class="result-item">
+                    <span class="label">Nombre:</span>
+                    <span class="value">{{ rapportResults.droitsParTypeDocument[type].nombre }}</span>
+                  </div>
+                  <div class="result-item">
+                    <span class="label">Montant total:</span>
+                    <span class="value">{{ rapportResults.droitsParTypeDocument[type].montantTotal | number:'1.2-2' }} DT</span>
+                  </div>
+                </div>
+
+                <div class="result-item total">
+                  <span class="label">Total des documents:</span>
+                  <span class="value">{{ rapportResults.totalDocuments }}</span>
+                </div>
+                <div class="result-item total">
+                  <span class="label">Total Droit de Timbre:</span>
+                  <span class="value">{{ rapportResults.totalDroitTimbre | number:'1.2-2' }} DT</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

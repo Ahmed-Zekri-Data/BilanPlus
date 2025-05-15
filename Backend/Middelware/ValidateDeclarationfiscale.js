@@ -7,14 +7,15 @@ const declarationFiscaleSchema = yup.object().shape({
     periode: yup
         .string()
         .required("La période est obligatoire")
-        .matches(/^\d{4}-(0[1-9]|1[0-2])$/, "La période doit être au format YYYY-MM (ex. 2025-03)"),
+        .matches(/^\d{4}-\d{2}-\d{2} - \d{4}-\d{2}-\d{2}$/, "La période doit être au format YYYY-MM-DD - YYYY-MM-DD"),
     montantTotal: yup
         .number()
-        .required("Le montant total est obligatoire"),
+        .required("Le montant total est obligatoire")
+        .min(0, "Le montant total ne peut pas être négatif"),
     statut: yup
         .string()
         .required("Le statut est obligatoire")
-        .oneOf(["brouillon", "soumis", "payé", "rejeté"], "Statut invalide"),
+        .oneOf(["brouillon", "soumise", "validée", "payé", "rejeté"], "Statut invalide"),
     compteComptable: yup
         .mixed()
         .required("Le compte comptable est obligatoire")
@@ -39,6 +40,29 @@ const declarationFiscaleSchema = yup.object().shape({
         .transform((value) => {
             return typeof value === "string" ? value : value._id;
         }),
+    type: yup
+        .string()
+        .required("Le type de déclaration est obligatoire")
+        .oneOf(["mensuelle", "trimestrielle", "annuelle"], "Type de déclaration invalide"),
+    totalTVACollectee: yup
+        .number()
+        .required("Le total TVA collectée est obligatoire")
+        .min(0, "Le total TVA collectée ne peut pas être négatif"),
+    totalTVADeductible: yup
+        .number()
+        .required("Le total TVA déductible est obligatoire")
+        .min(0, "Le total TVA déductible ne peut pas être négatif"),
+    totalTVADue: yup
+        .number()
+        .required("Le total TVA due est obligatoire"),
+    totalTCL: yup
+        .number()
+        .required("Le total TCL est obligatoire")
+        .min(0, "Le total TCL ne peut pas être négatif"),
+    totalDroitTimbre: yup
+        .number()
+        .required("Le total droit de timbre est obligatoire")
+        .min(0, "Le total droit de timbre ne peut pas être négatif"),
 });
 
 // Middleware pour valider les données avec Yup

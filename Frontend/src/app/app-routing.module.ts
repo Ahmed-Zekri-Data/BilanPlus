@@ -26,11 +26,13 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 
 // TVA / Déclarations fiscales
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tva-detail/tva-detail.component';
-import { TvaFormComponent } from './components/tva-form/tva-form.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
+import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
+import { DFTVAComponent } from './components/dftva/dftva.component';
 
 // Commandes & fournisseurs
 import { CommandesComponent } from './components/commandes/commandes.component';
@@ -88,9 +90,8 @@ const routes: Routes = [
   { path: 'add-declaration', component: DFFormComponent },
   { path: 'edit-declaration/:id', component: DFFormComponent },
   { path: 'get-declaration/:id', component: DFDetailComponent },
-
-  // Fallback
-  { path: '**', redirectTo: '' }
+  {path:'generer-df', component: GenerateDeclarationDialogComponent},
+  {path:'DFTVA',component: DFTVAComponent},
 ];
 
 @NgModule({

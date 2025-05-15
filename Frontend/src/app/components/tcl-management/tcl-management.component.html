@@ -1,0 +1,75 @@
+<div class="tcl-container">
+  <h2>Gestion de la TCL</h2>
+  
+  <div class="tcl-content">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Calcul de la TCL</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="tclForm" (ngSubmit)="calculateTCL()">
+          <div class="form-row">
+            <mat-form-field appearance="fill">
+              <mat-label>Date de début</mat-label>
+              <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut">
+              <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+              <mat-datepicker #pickerDebut></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Date de fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" formControlName="dateFin">
+              <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Taux TCL (%)</mat-label>
+              <input matInput type="number" formControlName="tauxTCL" step="0.01">
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+              Calculer la TCL
+            </button>
+            <button mat-button type="button" (click)="resetForm()" [disabled]="isLoading">
+              Réinitialiser
+            </button>
+          </div>
+        </form>
+
+        <!-- Indicateur de chargement -->
+        <div class="loading-spinner" *ngIf="isLoading">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <!-- Message d'erreur -->
+        <div class="error-message" *ngIf="error">
+          <p>{{ error }}</p>
+        </div>
+
+        <!-- Résultats du calcul -->
+        <div class="results" *ngIf="tclResults && !isLoading">
+          <h3>Résultats du calcul TCL</h3>
+          <div class="result-item">
+            <span class="label">Période:</span>
+            <span class="value">{{ tclResults.periode.debut | date }} au {{ tclResults.periode.fin | date }}</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Chiffre d'affaires HT:</span>
+            <span class="value">{{ tclResults.chiffreAffairesHT | number:'1.2-2' }} DT</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Taux TCL:</span>
+            <span class="value">{{ tclResults.tauxTCL }}%</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Montant TCL:</span>
+            <span class="value">{{ tclResults.montantTCL | number:'1.2-2' }} DT</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

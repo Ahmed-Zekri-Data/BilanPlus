@@ -1,0 +1,139 @@
+<div class="fiscal-statistics-container">
+  <div class="header">
+    <h2 class="section-title">Statistiques Fiscales</h2>
+    <div class="year-selector">
+      <label for="yearSelect">Année: </label>
+      <select id="yearSelect" [(ngModel)]="selectedYear" (change)="onYearChange()">
+        <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && !error && fiscalData" class="stats-container">
+    <!-- Répartition des charges fiscales -->
+    <div class="stats-card">
+      <h3>Répartition des charges fiscales</h3>
+      <div *ngIf="getTotalChargesFiscales() > 0" class="distribution-bars">
+        <div class="distribution-item">
+          <div class="distribution-label">TVA</div>
+          <div class="distribution-bar-container">
+            <div class="distribution-bar tva" [style.width.%]="getTVAPercentage() < 5 && getTVAPercentage() > 0 ? 5 : getTVAPercentage()"></div>
+          </div>
+          <div class="distribution-value">{{ getTVAAmount() | number:'1.2-2' }} DT ({{ getTVAPercentage() | number:'1.0-0' }}%)</div>
+        </div>
+        <div class="distribution-item">
+          <div class="distribution-label">TCL</div>
+          <div class="distribution-bar-container">
+            <div class="distribution-bar tcl" [style.width.%]="getTCLPercentage() < 5 && getTCLPercentage() > 0 ? 5 : getTCLPercentage()"></div>
+          </div>
+          <div class="distribution-value">{{ getTCLAmount() | number:'1.2-2' }} DT ({{ getTCLPercentage() | number:'1.0-0' }}%)</div>
+        </div>
+        <div class="distribution-item">
+          <div class="distribution-label">Droit de Timbre</div>
+          <div class="distribution-bar-container">
+            <div class="distribution-bar droit-timbre" [style.width.%]="getDroitTimbrePercentage() < 5 && getDroitTimbrePercentage() > 0 ? 5 : getDroitTimbrePercentage()"></div>
+          </div>
+          <div class="distribution-value">{{ getDroitTimbreAmount() | number:'1.2-2' }} DT ({{ getDroitTimbrePercentage() | number:'1.0-0' }}%)</div>
+        </div>
+        <div class="distribution-item total-item">
+          <div class="distribution-label">Total des charges fiscales</div>
+          <div class="distribution-value total-value">{{ getTotalChargesFiscales() | number:'1.2-2' }} DT</div>
+        </div>
+      </div>
+
+      <div *ngIf="getTotalChargesFiscales() === 0" class="no-data-message">
+        <p>Aucune donnée de charges fiscales disponible pour l'année sélectionnée.</p>
+        <p>Veuillez sélectionner une autre année ou contacter l'administrateur.</p>
+      </div>
+    </div>
+
+    <!-- Évolution mensuelle de la TVA -->
+    <div class="stats-card">
+      <h3>Évolution mensuelle de la TVA</h3>
+      <div class="monthly-data">
+        <table class="monthly-table">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>TVA Collectée</th>
+              <th>TVA Déductible</th>
+              <th>Solde TVA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let month of monthlyData">
+              <td>{{ month.nomMois }}</td>
+              <td>{{ month.tvaCollectee | number:'1.2-2' }} DT</td>
+              <td>{{ month.tvaDeductible | number:'1.2-2' }} DT</td>
+              <td [ngClass]="{'positive': month.soldeTVA > 0, 'negative': month.soldeTVA < 0}">
+                {{ month.soldeTVA | number:'1.2-2' }} DT
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Comparaison annuelle -->
+    <div class="stats-card">
+      <h3>Comparaison annuelle</h3>
+      <div class="yearly-comparison">
+        <table class="yearly-table">
+          <thead>
+            <tr>
+              <th>Année</th>
+              <th>TVA</th>
+              <th>TCL</th>
+              <th>Droit de Timbre</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let year of yearlyComparisonData.years; let i = index">
+              <td>{{ year }}</td>
+              <td>{{ yearlyComparisonData.tva[i] | number:'1.2-2' }} DT</td>
+              <td>{{ yearlyComparisonData.tcl[i] | number:'1.2-2' }} DT</td>
+              <td>{{ yearlyComparisonData.droitTimbre[i] | number:'1.2-2' }} DT</td>
+              <td>{{ yearlyComparisonData.tva[i] + yearlyComparisonData.tcl[i] + yearlyComparisonData.droitTimbre[i] | number:'1.2-2' }} DT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !error && fiscalData" class="insights-section">
+    <h3>Insights et Recommandations</h3>
+    <div class="insights-cards">
+      <div class="insight-card">
+        <div class="insight-icon">📈</div>
+        <h4>Tendance TVA</h4>
+        <p>
+          La TVA montre une tendance de {{ getTVATrend() | number:'1.1-1' }}%
+          {{ getTVATrend() >= 0 ? 'à la hausse' : 'à la baisse' }}
+          par rapport au mois précédent.
+        </p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🥇</div>
+        <h4>Pic d'activité</h4>
+        <p>Le mois de {{ getHighestTVAMonth() }} présente le montant de TVA le plus élevé, ce qui pourrait indiquer un pic d'activité commerciale.</p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">💡</div>
+        <h4>Optimisation fiscale</h4>
+        <p>La TVA représente {{ getTVAPercentage() | number:'1.0-0' }}% des charges fiscales ({{ getTVAAmount() | number:'1.2-2' }} DT). Une optimisation de la TVA déductible pourrait avoir un impact significatif.</p>
+      </div>
+    </div>
+  </div>
+</div>
