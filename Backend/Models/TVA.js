@@ -1,33 +1,27 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
-const TVASchema = new Schema({
-    taux: { 
-        type: Number, 
-        required: [true, "Le taux de TVA est obligatoire"], 
-        enum: [7, 13, 19], // Taux valides en Tunisie
-        validate: {
-            validator: function(v) {
-                return v > 0; // Le taux doit être positif
-            },
-            message: "Le taux doit être supérieur à 0"
+const TVASchema = new mongoose.Schema({
+    taux: {
+        type: Number,
+        required: [true, "Le taux de TVA est obligatoire"],
+        enum: {
+            values: [7, 13, 19],
+            message: "Le taux de TVA doit être 7%, 13% ou 19%"
         }
     },
-    montant: { 
-        type: Number, 
-        required: [true, "Le montant est obligatoire"], 
-        validate: {
-            validator: function(v) {
-                return v >= 0; // Le montant ne peut pas être négatif
-            },
-            message: "Le montant ne peut pas être négatif"
-        }
+    montant: {
+        type: Number,
+        required: [true, "Le montant de TVA est obligatoire"],
+        min: [0, "Le montant de TVA doit être positif"]
     },
-    declaration: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "DeclarationFiscale", 
-        required: [false, "La déclaration associée est obligatoire"]
+    declarations: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DeclarationFiscale"
+    }],
+    dateCreation: {
+        type: Date,
+        default: Date.now
     }
 });
 
-module.exports = mongoose.model("TVA", TVASchema);
+module.exports = mongoose.models.TVA || mongoose.model("TVA", TVASchema);

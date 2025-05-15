@@ -1,0 +1,52 @@
+
+<h2 class="dialog-title">Générer une déclaration</h2>
+<form [formGroup]="declarationForm" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Compte Comptable</mat-label>
+    <mat-select formControlName="compteComptable" required>
+      <mat-option *ngFor="let compte of comptes" [value]="compte._id">
+        {{ compte.nom }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="declarationForm.controls['compteComptable'].hasError('required')">
+      Le compte comptable est requis
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Date de début</mat-label>
+    <input matInput [matDatepicker]="debutPicker" formControlName="dateDebut" placeholder="Choisir la date de début">
+    <mat-datepicker-toggle matSuffix [for]="debutPicker"></mat-datepicker-toggle>
+    <mat-datepicker #debutPicker></mat-datepicker>
+    <mat-error *ngIf="declarationForm.controls['dateDebut'].hasError('required')">
+      La date de début est requise
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Date de fin</mat-label>
+    <input matInput [matDatepicker]="finPicker" formControlName="dateFin" placeholder="Choisir la date de fin">
+    <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+    <mat-datepicker #finPicker></mat-datepicker>
+    <mat-error *ngIf="declarationForm.controls['dateFin'].hasError('required')">
+      La date de fin est requise
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Type de déclaration</mat-label>
+    <mat-select formControlName="type" [disabled]="true" required>
+      <mat-option *ngFor="let type of declarationTypes" [value]="type">
+        {{ type | titlecase }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="declarationForm.controls['type'].hasError('required')">
+      Le type de déclaration est requis
+    </mat-error>
+  </mat-form-field>
+
+  <div class="dialog-actions">
+    <button mat-button type="button" (click)="onCancel()">Annuler</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="declarationForm.invalid">Générer</button>
+  </div>
+</form>

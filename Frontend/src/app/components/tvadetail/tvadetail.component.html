@@ -1,33 +1,125 @@
-<div *ngIf="tva; else loading">
-    <h2>TVA Details</h2>
-    <div class="tva-details">
-      <p><strong>ID:</strong> {{ tva!._id}}</p>
-      <p><strong>Taux (%):</strong> {{ tva!.taux }}</p>
-      <p><strong>Montant:</strong> {{ tva!.montant }}</p>
-      <p><strong>Declaration ID:</strong> {{ tva!.declaration }}</p>
+<div *ngIf="isLoading" class="loading-container">
+  <mat-spinner diameter="40"></mat-spinner>
+  <p>Chargement des détails de la TVA...</p>
+</div>
+
+<div *ngIf="!isLoading">
+  <div *ngIf="errors.length > 0" class="error-container">
+    <p class="error-title">Erreur(s) :</p>
+    <ul>
+      <li *ngFor="let error of errors" class="error">{{ error }}</li>
+    </ul>
+  </div>
+
+  <div *ngIf="tva; else noTVA" class="tva-container">
+    <div class="tva-header">
+      <h2>Détails de la TVA</h2>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Retour
+        </button>
+      </div>
     </div>
-  
-    <h3>Associated Declaration Fiscale</h3>
-    <div *ngIf="declaration; else noDeclaration">
-      <p><strong>Période:</strong> {{ declaration!.periode }}</p>
-      <p><strong>Montant Total:</strong> {{ declaration!.montantTotal }}</p>
-      <p><strong>Statut:</strong> {{ declaration!.statut }}</p>
-      <p><strong>Compte Comptable:</strong> {{ declaration!.compteComptable || 'N/A' }}</p>
+
+    <div class="tva-card">
+      <div class="tva-info">
+        <!-- L'identifiant a été masqué à la demande de l'utilisateur -->
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">calendar_today</mat-icon>
+            Date de création
+          </div>
+          <div class="tva-info-value">{{ tva.dateCreation ? (tva.dateCreation | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">percent</mat-icon>
+            Taux de TVA
+          </div>
+          <div class="tva-info-value highlight">{{ tva.taux }}%</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">attach_money</mat-icon>
+            Montant
+          </div>
+          <div class="tva-info-value highlight">{{ tva.montant | number:'1.2-2' }} TND</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">description</mat-icon>
+            Nombre de déclarations
+          </div>
+          <div class="tva-info-value">{{ declarations ? declarations.length : 0 }}</div>
+        </div>
+      </div>
     </div>
-    <ng-template #noDeclaration>
-      <p>No associated Declaration Fiscale found.</p>
-    </ng-template>
-  
-    <div class="actions">
-      <button mat-raised-button color="primary" (click)="editTva()">Edit TVA</button>
-      <button mat-raised-button color="warn" (click)="deleteTva()">Delete TVA</button>
-      <button mat-raised-button (click)="router.navigate(['/TVA'])">Back to List</button>
+
+    <div class="declarations-section">
+      <div class="declarations-header">
+        <h3 class="declarations-title">
+          <mat-icon class="section-icon">receipt_long</mat-icon>
+          Déclarations Fiscales Associées
+        </h3>
+        <div *ngIf="declarations && declarations.length > 0" class="declarations-count">
+          {{ declarations.length }}
+        </div>
+      </div>
+
+      <div *ngIf="declarations && declarations.length > 0; else noDeclarations">
+        <ul class="declarations-list">
+          <li *ngFor="let decl of declarations" class="declaration-item">
+            <div class="declaration-info">
+              <div class="declaration-period">{{ formatPeriode(decl.periode) }}</div>
+              <div class="declaration-details">
+                <div class="declaration-detail">
+                  <mat-icon class="detail-icon">account_balance</mat-icon>
+                  <span class="declaration-detail-label">Montant Total:</span>
+                  <span class="declaration-detail-value">{{ decl.montantTotal | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="declaration-detail">
+                  <mat-icon class="detail-icon">payments</mat-icon>
+                  <span class="declaration-detail-label">TVA Due:</span>
+                  <span class="declaration-detail-value">{{ decl.totalTVADue | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="declaration-detail">
+                  <mat-icon class="detail-icon">info</mat-icon>
+                  <span class="declaration-detail-label">Statut:</span>
+                  <span class="declaration-detail-value status-badge">{{ decl.statut }}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <ng-template #noDeclarations>
+        <div class="no-declarations">
+          <mat-icon>info</mat-icon>
+          <p>Aucune déclaration fiscale n'est associée à cette TVA</p>
+        </div>
+      </ng-template>
     </div>
   </div>
-  
-  <ng-template #loading>
-    <p *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
-    <ng-template #spinner>
-      <p>Loading TVA details...</p>
-    </ng-template>
+
+  <ng-template #noTVA>
+    <div class="tva-container">
+      <div class="tva-header">
+        <h2>TVA non trouvée</h2>
+      </div>
+      <div class="no-declarations">
+        <mat-icon>error</mat-icon>
+        <p>Aucune TVA correspondante n'a été trouvée dans la base de données.</p>
+      </div>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Retour à la liste
+        </button>
+      </div>
+    </div>
   </ng-template>
+</div>
