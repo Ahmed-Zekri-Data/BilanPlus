@@ -23,31 +23,48 @@
 
     <div class="tva-card">
       <div class="tva-info">
-        <div class="tva-info-item">
-          <div class="tva-info-label">Identifiant</div>
-          <div class="tva-info-value">{{ tva._id || 'N/A' }}</div>
-        </div>
+        <!-- L'identifiant a été masqué à la demande de l'utilisateur -->
 
         <div class="tva-info-item">
-          <div class="tva-info-label">Date de création</div>
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">calendar_today</mat-icon>
+            Date de création
+          </div>
           <div class="tva-info-value">{{ tva.dateCreation ? (tva.dateCreation | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</div>
         </div>
 
         <div class="tva-info-item">
-          <div class="tva-info-label">Taux de TVA</div>
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">percent</mat-icon>
+            Taux de TVA
+          </div>
           <div class="tva-info-value highlight">{{ tva.taux }}%</div>
         </div>
 
         <div class="tva-info-item">
-          <div class="tva-info-label">Montant</div>
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">attach_money</mat-icon>
+            Montant
+          </div>
           <div class="tva-info-value highlight">{{ tva.montant | number:'1.2-2' }} TND</div>
+        </div>
+
+        <div class="tva-info-item">
+          <div class="tva-info-label">
+            <mat-icon class="info-icon">description</mat-icon>
+            Nombre de déclarations
+          </div>
+          <div class="tva-info-value">{{ declarations ? declarations.length : 0 }}</div>
         </div>
       </div>
     </div>
 
     <div class="declarations-section">
       <div class="declarations-header">
-        <h3 class="declarations-title">Déclarations Fiscales Associées</h3>
+        <h3 class="declarations-title">
+          <mat-icon class="section-icon">receipt_long</mat-icon>
+          Déclarations Fiscales Associées
+        </h3>
         <div *ngIf="declarations && declarations.length > 0" class="declarations-count">
           {{ declarations.length }}
         </div>
@@ -60,16 +77,19 @@
               <div class="declaration-period">{{ formatPeriode(decl.periode) }}</div>
               <div class="declaration-details">
                 <div class="declaration-detail">
+                  <mat-icon class="detail-icon">account_balance</mat-icon>
                   <span class="declaration-detail-label">Montant Total:</span>
                   <span class="declaration-detail-value">{{ decl.montantTotal | number:'1.2-2' }} TND</span>
                 </div>
                 <div class="declaration-detail">
+                  <mat-icon class="detail-icon">payments</mat-icon>
                   <span class="declaration-detail-label">TVA Due:</span>
                   <span class="declaration-detail-value">{{ decl.totalTVADue | number:'1.2-2' }} TND</span>
                 </div>
                 <div class="declaration-detail">
+                  <mat-icon class="detail-icon">info</mat-icon>
                   <span class="declaration-detail-label">Statut:</span>
-                  <span class="declaration-detail-value">{{ decl.statut }}</span>
+                  <span class="declaration-detail-value status-badge">{{ decl.statut }}</span>
                 </div>
               </div>
             </div>

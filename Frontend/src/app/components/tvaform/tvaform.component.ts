@@ -171,9 +171,14 @@ export class TvaFormComponent implements OnInit {
       return;
     }
 
+    // Extraire les IDs des déclarations sélectionnées
+    const selectedIds = this.tva.declarations.map(decl =>
+      typeof decl === 'string' ? decl : decl._id
+    );
+
     // Trouver les déclarations correspondantes
     const selectedDeclarations = this.declarations.filter(decl =>
-      this.tva.declarations?.includes(decl._id!)
+      selectedIds.includes(decl._id!)
     );
 
     // Calculer la somme des TVA dues
@@ -188,5 +193,91 @@ export class TvaFormComponent implements OnInit {
 
     // Mettre à jour le montant
     this.tva.montant = totalAmount;
+  }
+
+  /**
+   * Récupère le libellé d'une déclaration à partir de son ID ou de l'objet déclaration
+   * @param declIdOrObj ID de la déclaration ou objet déclaration
+   * @returns Libellé formaté de la déclaration
+   */
+  getDeclarationLabel(declIdOrObj: string | DeclarationFiscale): string {
+    // Si c'est déjà un objet DeclarationFiscale
+    if (typeof declIdOrObj !== 'string') {
+      const declaration = declIdOrObj;
+      const montant = declaration.montantTotal !== undefined ? declaration.montantTotal : 0;
+      return `${this.formatPeriode(declaration.periode)} (${montant.toFixed(2)} DT)`;
+    }
+
+    // Si c'est un ID (string)
+    const declId = declIdOrObj;
+    const declaration = this.declarations.find(d => d._id === declId);
+    if (declaration) {
+      const montant = declaration.montantTotal !== undefined ? declaration.montantTotal : 0;
+      return `${this.formatPeriode(declaration.periode)} (${montant.toFixed(2)} DT)`;
+    }
+    return `Déclaration #${declId.substring(0, 8)}...`;
+  }
+
+  /**
+   * Supprime une déclaration de la liste des déclarations sélectionnées
+   * @param declIdOrObj ID de la déclaration ou objet déclaration à supprimer
+   */
+  removeDeclaration(declIdOrObj: string | DeclarationFiscale): void {
+    if (this.tva.declarations) {
+      // Déterminer l'ID à supprimer
+      const idToRemove = typeof declIdOrObj === 'string'
+        ? declIdOrObj
+        : declIdOrObj._id;
+
+      // Filtrer les déclarations
+      this.tva.declarations = this.tva.declarations.filter(item => {
+        const itemId = typeof item === 'string' ? item : item._id;
+        return itemId !== idToRemove;
+      });
+
+      this.onDeclarationsChange(); // Recalculer le montant
+    }
+  }
+
+  /**
+   * Formate une période de déclaration (ex: "2025-05-01 - 2025-05-31") en format lisible (ex: "Mai 2025")
+   * @param periode La période à formater
+   * @returns La période formatée
+   */
+  formatPeriode(periode: string | undefined): string {
+    if (!periode) return 'Période non spécifiée';
+
+    try {
+      // Extraire les dates de début et de fin
+      const dates = periode.split(' - ');
+      if (dates.length !== 2) return periode;
+
+      const dateDebut = new Date(dates[0]);
+      const dateFin = new Date(dates[1]);
+
+      // Vérifier si les dates sont valides
+      if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
+        return periode;
+      }
+
+      // Vérifier si les dates sont dans le même mois et la même année
+      if (dateDebut.getMonth() === dateFin.getMonth() && dateDebut.getFullYear() === dateFin.getFullYear()) {
+        // Formater en "Mois Année"
+        const mois = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+        const annee = dateDebut.getFullYear();
+        return `${mois.charAt(0).toUpperCase() + mois.slice(1)} ${annee}`;
+      }
+
+      // Si les dates couvrent plusieurs mois, formater en "Mois Année - Mois Année"
+      const moisDebut = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+      const anneeDebut = dateDebut.getFullYear();
+      const moisFin = dateFin.toLocaleString('fr-FR', { month: 'long' });
+      const anneeFin = dateFin.getFullYear();
+
+      return `${moisDebut.charAt(0).toUpperCase() + moisDebut.slice(1)} ${anneeDebut} - ${moisFin.charAt(0).toUpperCase() + moisFin.slice(1)} ${anneeFin}`;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la période:', error);
+      return periode;
+    }
   }
 }

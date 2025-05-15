@@ -28,6 +28,13 @@
   padding: 20px;
   margin-bottom: 20px;
   border-left: 4px solid #3f51b5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tva-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .tva-info {
@@ -38,10 +45,18 @@
 }
 
 .tva-info-item {
-  padding: 10px;
+  padding: 15px;
   background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.tva-info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-bottom: 2px solid #3f51b5;
 }
 
 .tva-info-label {
@@ -49,6 +64,16 @@
   color: #666;
   margin-bottom: 5px;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  margin-right: 8px;
+  color: #3f51b5;
 }
 
 .tva-info-value {
@@ -58,7 +83,8 @@
 
 .tva-info-value.highlight {
   color: #3f51b5;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 22px;
 }
 
 .declarations-section {
@@ -76,6 +102,15 @@
   font-size: 18px;
   color: #3f51b5;
   margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.section-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
 }
 
 .declarations-count {
@@ -134,6 +169,14 @@
   align-items: center;
 }
 
+.detail-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 6px;
+  color: #3f51b5;
+}
+
 .declaration-detail-label {
   margin-right: 5px;
 }
@@ -141,6 +184,16 @@
 .declaration-detail-value {
   font-weight: 500;
   color: #333;
+}
+
+.status-badge {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .no-declarations {
