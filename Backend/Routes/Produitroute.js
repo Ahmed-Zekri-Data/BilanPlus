@@ -1,10 +1,13 @@
-var express = require("express");
-var route = express.Router();
-var PRODController = require ("../Controller/ProduitController")
+const express = require('express');
+const router = express.Router();
+const { addProduit, getall, getbyid, deleteproduit, updateproduit, getStatistics } = require('../Controller/ProduitController');
+const produitValidators = require('../validators/validateproduct');
 
-route.post("/addProduit",PRODController.addProduit)
-route.get("/getall",PRODController.getall)
-route.get("/getbyid/:id",PRODController.getbyid)
-route.delete("/deleteproduit/:id",PRODController.deleteproduit)
-route.put("/updateproduit/:id",PRODController.updateproduit)
-module.exports = route;
+router.post('/', produitValidators.addProduit, addProduit);
+router.get('/', getall);
+router.get('/statistics', getStatistics); // Moved before /:id
+router.get('/:id', produitValidators.getById, getbyid);
+router.delete('/:id', produitValidators.deleteProduit, deleteproduit);
+router.put('/:id', produitValidators.updateProduit, updateproduit);
+
+module.exports = router;

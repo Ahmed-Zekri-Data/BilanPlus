@@ -1,58 +1,118 @@
 const yup = require("yup");
 const mongoose = require("mongoose");
-const DeclarationFiscaleController = require("../Controller/DeclarationFiscaleController");
+const DeclarationFiscale = require("../Models/DeclarationFiscale");
 
 // Schéma de validation pour TVA
 const tvaSchema = yup.object().shape({
     taux: yup
         .number()
-        .required("Le taux est obligatoire")
-        .oneOf([7, 13, 19], "Le taux doit être 7, 13 ou 19"),
+        .required("Veuillez saisir un taux de TVA valide")
+        .typeError("Le taux de TVA doit être un nombre (7, 13 ou 19)")
+        .oneOf([7, 13, 19], "Le taux de TVA doit être 7%, 13% ou 19%"),
     montant: yup
         .number()
-        .required("Le montant est obligatoire")
-        .min(0, "Le montant doit être positif ou nul"),
-    declaration: yup
-        .mixed()
-        .required("La déclaration est obligatoire")
-        .test("is-valid-declaration", "La déclaration doit être un ObjectId valide ou un objet avec un _id valide", (value) => {
-            if (typeof value === "string") {
-                return mongoose.isValidObjectId(value);
-            }
-            if (typeof value === "object" && value._id) {
-                return mongoose.isValidObjectId(value._id);
-            }
-            return false;
-        })
-        .test("declaration-exists", "La déclaration spécifiée n'existe pas", async (value) => {
-            try {
-                const id = typeof value === "string" ? value : value._id;
-                await DeclarationFiscaleController.findDeclarationById(id);
-                return true;
-            } catch (error) {
-                return false;
-            }
-        })
-        .transform((value) => {
-            return typeof value === "string" ? value : value._id;
-        }),
+        .required("Veuillez saisir un montant de TVA valide")
+        .typeError("Le montant de TVA doit être un nombre (ex: 150.50)")
+        .min(0, "Le montant de TVA doit être un nombre positif (ex: 150.50 DT)"),
+    declarations: yup
+        .array()
+        .of(
+            yup.mixed()
+                .test("is-valid-declaration", "L'identifiant de la déclaration fiscale n'est pas valide. Veuillez sélectionner une déclaration existante.", (value) => {
+                    // Si la valeur est null ou undefined, c'est valide
+                    if (value === null || value === undefined || value === '') {
+                        return true;
+                    }
+                    // Sinon, vérifier si c'est un ObjectId valide
+                    if (typeof value === "string") {
+                        return mongoose.isValidObjectId(value);
+                    }
+                    if (typeof value === "object" && value._id) {
+                        return mongoose.isValidObjectId(value._id);
+                    }
+                    return false;
+                })
+                .test("declaration-exists", "La déclaration fiscale sélectionnée n'existe pas dans la base de données. Veuillez sélectionner une déclaration existante.", async (value) => {
+                    // Si la valeur est null ou undefined, c'est valide
+                    if (value === null || value === undefined || value === '') {
+                        return true;
+                    }
+                    try {
+                        const id = typeof value === "string" ? value : value._id;
+                        const declaration = await DeclarationFiscale.findById(id);
+                        return !!declaration; // Retourne true si la déclaration existe, false sinon
+                    } catch (error) {
+                        return false;
+                    }
+                })
+                .transform((value) => {
+                    if (value === null || value === undefined || value === '') {
+                        return null;
+                    }
+                    return typeof value === "string" ? value : value._id;
+                })
+        )
+        .nullable()
+        .default([]),
 });
 
 // Middleware pour valider les données avec Yup
-const validateTVA = (schema) => async (req, res, next) => {
+const validateTVA = async (req, res, next) => {
     try {
-        await schema.validate(req.body, { abortEarly: false });
-        if (typeof req.body.declaration === "object" && req.body.declaration._id) {
-            req.body.declaration = req.body.declaration._id;
+        // Valider les données avec le schéma
+        await tvaSchema.validate(req.body, { abortEarly: false });
+
+        // Transformer les déclarations si ce sont des objets
+        if (req.body.declarations && Array.isArray(req.body.declarations)) {
+            req.body.declarations = req.body.declarations.map(decl => {
+                if (typeof decl === "object" && decl._id) {
+                    return decl._id;
+                }
+                return decl;
+            });
         }
+
+        // Passer au middleware suivant
         next();
     } catch (error) {
-        res.status(400).json({ errors: error.errors });
+        // Renvoyer les erreurs de validation avec des messages plus clairs
+        let errors = [];
+
+        if (error.inner && error.inner.length > 0) {
+            // Yup validation errors
+            errors = error.inner.map(err => {
+                // Personnaliser les messages d'erreur selon le champ
+                if (err.path === 'taux') {
+                    return `Taux de TVA : ${err.message}`;
+                } else if (err.path === 'montant') {
+                    return `Montant de TVA : ${err.message}`;
+                } else if (err.path === 'declarations') {
+                    return `Déclarations fiscales : ${err.message}`;
+                } else {
+                    return err.message;
+                }
+            });
+        } else if (error.errors) {
+            // Autres erreurs avec un tableau d'erreurs
+            errors = error.errors;
+        } else {
+            // Erreur simple
+            errors = [error.message || "Une erreur est survenue lors de la validation des données"];
+        }
+
+        // Ajouter un message d'aide général
+        errors.push("Veuillez vérifier les données saisies et réessayer.");
+
+        res.status(400).json({
+            success: false,
+            message: "Validation échouée",
+            errors: errors
+        });
     }
 };
 
 // Exporter le middleware de validation
 module.exports = {
-    validateTVA: validateTVA(tvaSchema),
+    validateTVA,
     tvaSchema,
 };

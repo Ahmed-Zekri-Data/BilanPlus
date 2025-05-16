@@ -25,11 +25,13 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
 
 // TVA / Déclarations fiscales
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
+import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
+import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
+import { DFTVAComponent } from './components/dftva/dftva.component';
 
 // Fournisseurs et Commandes
 import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
@@ -39,10 +41,15 @@ import { ListCommandesComponent } from './components/commandes/list-commandes/li
 import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
 import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
 
+// Dashboard for stock (from Gestion_de_stock)
+import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'home', component: HomeComponent },
-  
+
+  // Dashboard (stock-specific)
+  { path: 'dashboard', component: StockDashboardComponent },
+
   // Gestion comptable
   {
     path: 'gestion-comptable',
@@ -109,8 +116,10 @@ const routes: Routes = [
   { path: 'add-declaration', component: DFFormComponent },
   { path: 'edit-declaration/:id', component: DFFormComponent },
   { path: 'get-declaration/:id', component: DFDetailComponent },
+  { path: 'generer-df', component: GenerateDeclarationDialogComponent },
+  { path: 'DFTVA', component: DFTVAComponent },
 
-  // Fallback
+  // Wildcard route for unmatched paths
   { path: '**', redirectTo: '' }
 ];
 
@@ -118,4 +127,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

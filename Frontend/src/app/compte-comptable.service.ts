@@ -7,7 +7,7 @@ import { CompteComptable } from './Models/CompteComptable';
   providedIn: 'root'
 })
 export class CompteComptableService {
-  private apiUrl = 'http://localhost:4000/comptes';
+  private apiUrl = 'http://localhost:3000/comptes'; // Backend runs on port 3000
 
   constructor(private http: HttpClient) {}
 

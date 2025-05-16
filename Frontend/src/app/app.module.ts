@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgChartsModule } from 'ng2-charts';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -16,10 +17,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
@@ -42,7 +48,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTreeModule } from '@angular/material/tree';
 
 // Components
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './components/home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
@@ -74,6 +80,16 @@ import { UtilisateurDetailsComponent } from './components/utilisateur-details/ut
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
+import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
+import { GenerateTvaDialogComponent } from './components/generate-tva-dialog/generate-tva-dialog.component';
+import { DFTVAComponent } from './components/dftva/dftva.component';
+import { TvaManagementComponent } from './components/tva-management/tva-management.component';
+import { DfManagementComponent } from './components/df-management/df-management.component';
+import { FiscalDashboardComponent } from './components/fiscal-dashboard/fiscal-dashboard.component';
+import { SimulationFiscaleComponent } from './components/simulation-fiscale/simulation-fiscale.component';
+import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal-statistics.component';
+import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
+import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -109,22 +125,28 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     UtilisateurDetailsComponent,
     RoleComponent,
     AddRoleComponent,
-    RoleDetailsComponent
+    RoleDetailsComponent,
+    GenerateDeclarationDialogComponent,
+    GenerateTvaDialogComponent,
+    DFTVAComponent,
+    TvaManagementComponent,
+    DfManagementComponent,
+    FiscalDashboardComponent,
+    SimulationFiscaleComponent,
+    FiscalStatisticsComponent,
+    ShortenIdPipe,
+    StockDashboardComponent
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatOptionModule,
-    BrowserModule,
     CommonModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    NgChartsModule,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -135,22 +157,21 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatPaginatorModule,
+    MatSortModule,
     MatTableModule,
+    MatTabsModule,
     MatProgressSpinnerModule,
-    MatExpansionModule,
     MatMenuModule,
     MatDividerModule,
-    MatTabsModule,
-    MatDialogModule,
-    MatPaginatorModule,
     MatSortModule,
     MatCheckboxModule,
     MatRadioModule,
     MatSlideToggleModule,
     MatProgressBarModule,
-    MatTooltipModule,
     MatChipsModule,
     MatAutocompleteModule,
     MatBadgeModule,
@@ -158,9 +179,12 @@ import { RoleDetailsComponent } from './components/role-details/role-details.com
     MatButtonToggleModule,
     MatRippleModule,
     MatStepperModule,
-    MatTreeModule
+    MatTreeModule,
+    MatTooltipModule,
+    MatExpansionModule,
+    CommonModule
   ],
-  providers: [],
+  providers: [DecimalPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

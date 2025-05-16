@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { DeclarationFiscaleTVAService } from '../../services/declaration-fiscale-tva.service';
-import { CompteComptableService } from '../../compte-comptable.service';
 import { DeclarationFiscale } from '../../Models/DeclarationFiscale';
-import { CompteComptable } from '../../Models/CompteComptable';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 
 @Component({
-  selector: 'app-declaration-fiscale-form',
+  selector: 'app-df-form',
   templateUrl: './df-form.component.html',
   styleUrls: ['./df-form.component.css']
 })
@@ -14,135 +15,179 @@ export class DFFormComponent implements OnInit {
   declaration: DeclarationFiscale = {
     periode: '',
     montantTotal: 0,
-    statut: '',
+    totalTVACollectee: 0,
+    totalTVADeductible: 0,
+    totalTVADue: 0,
+    statut: 'brouillon',
     compteComptable: ''
   };
-  comptesComptables: CompteComptable[] = [];
+  isLoading: boolean = false;
   errors: string[] = [];
-  fieldErrors: { periode: string; montantTotal: string; statut: string; compteComptable: string } = {
-    periode: '',
-    montantTotal: '',
-    statut: '',
-    compteComptable: ''
-  };
+  isUpdate: boolean = false;
   isEditMode: boolean = false;
+  isGenerateMode: boolean = false;
+  selectedMonth: Date | null = null;
+  comptesComptables: any[] = []; // À remplir avec des données réelles via un service
+  fieldErrors: { [key: string]: string } = {};
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private declarationFiscaleTVAService: DeclarationFiscaleTVAService,
-    private compteComptableService: CompteComptableService
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    console.log('ngOnInit called');
     const id = this.route.snapshot.paramMap.get('id');
+    this.isGenerateMode = this.route.snapshot.queryParams['generate'] === 'true';
     if (id) {
+      this.isUpdate = true;
       this.isEditMode = true;
-      console.log('Edit mode, loading declaration with ID:', id);
-      this.loadDeclarationDetails(id);
-    } else {
-      console.log('Add mode, no ID provided');
+      this.loadDeclaration(id);
     }
-    this.loadComptesComptables();
+    // Simuler la récupération des comptes comptables (remplacer par un appel à un service si nécessaire)
+    this.comptesComptables = [
+      { _id: '6814f89e3de7102adae56669', nom: 'Compte 1' },
+      { _id: '67e065859f73ed38336c40a6', nom: 'Compte 2' }
+    ];
   }
 
-  loadDeclarationDetails(id: string): void {
+  loadDeclaration(id: string): void {
+    this.isLoading = true;
     this.declarationFiscaleTVAService.getDeclarationById(id).subscribe({
       next: (declaration) => {
         this.declaration = { ...declaration };
-        if (this.declaration.compteComptable && typeof this.declaration.compteComptable !== 'string') {
-          this.declaration.compteComptable = this.declaration.compteComptable._id!;
-        }
-        this.clearErrors();
+        this.isLoading = false;
       },
-      error: (errors: string[]) => {
-        console.error('Error loading declaration details:', errors);
+      error: (errors) => {
         this.errors = errors;
-        this.mapFieldErrors(errors);
-      }
-    });
-  }
-
-  loadComptesComptables(): void {
-    this.compteComptableService.getComptes().subscribe({
-      next: (comptes) => {
-        console.log('Comptes comptables loaded:', comptes);
-        this.comptesComptables = comptes;
-      },
-      error: (errors: string[]) => {
-        console.error('Error loading comptes comptables:', errors);
-        this.errors = errors;
-        this.mapFieldErrors(errors);
+        this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+        this.isLoading = false;
       }
     });
   }
 
   saveDeclaration(): void {
-    console.log('saveDeclaration called');
-    console.log('Form data:', this.declaration);
-  
-    this.clearErrors();
-
-    if (!this.declaration.periode || !this.declaration.montantTotal || !this.declaration.statut || !this.declaration.compteComptable) {
-      this.errors = ['Tous les champs sont requis'];
-      this.mapFieldErrors(this.errors);
-      console.log('Validation failed:', this.errors);
+    this.isLoading = true;
+    this.fieldErrors = {};
+    if (!this.isFormValid()) {
+      if (!this.declaration.periode) this.fieldErrors['periode'] = 'La période est requise';
+      if (this.declaration.totalTVACollectee === null || this.declaration.totalTVACollectee === undefined)
+        this.fieldErrors['totalTVACollectee'] = 'La TVA collectée est requise';
+      if (this.declaration.totalTVADeductible === null || this.declaration.totalTVADeductible === undefined)
+        this.fieldErrors['totalTVADeductible'] = 'La TVA déductible est requise';
+      if (!this.declaration.statut) this.fieldErrors['statut'] = 'Le statut est requis';
+      if (!this.declaration.compteComptable) this.fieldErrors['compteComptable'] = 'Le compte comptable est requis';
+      this.isLoading = false;
       return;
     }
-  
-    if (this.isEditMode) {
-      console.log('Updating declaration with ID:', this.declaration._id);
-      this.declarationFiscaleTVAService.updateDeclaration(String(this.declaration._id), this.declaration).subscribe({
-        next: (updatedDeclaration) => {
-          console.log('Declaration updated successfully:', updatedDeclaration);
-          this.clearErrors();
+
+    const declarationData = { ...this.declaration };
+    if (this.isUpdate) {
+      this.declarationFiscaleTVAService.updateDeclaration(this.declaration._id || '', declarationData).subscribe({
+        next: () => {
+          this.snackBar.open('Déclaration mise à jour avec succès', 'Fermer', { duration: 3000 });
           this.router.navigate(['/list-declarations']);
         },
-        error: (errors: string[]) => {
-          console.error('Update error:', errors);
+        error: (errors) => {
           this.errors = errors;
-          this.mapFieldErrors(errors);
+          this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+          this.isLoading = false;
         }
       });
     } else {
-      console.log('Creating new declaration');
-      this.declarationFiscaleTVAService.createDeclaration(this.declaration).subscribe({
-        next: (createdDeclaration) => {
-          console.log('Declaration created successfully:', createdDeclaration);
-          this.clearErrors();
+      this.declarationFiscaleTVAService.createDeclaration(declarationData).subscribe({
+        next: () => {
+          this.snackBar.open('Déclaration ajoutée avec succès', 'Fermer', { duration: 3000 });
           this.router.navigate(['/list-declarations']);
         },
-        error: (errors: string[]) => {
-          console.error('Create error:', errors);
+        error: (errors) => {
           this.errors = errors;
-          this.mapFieldErrors(errors);
+          this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
+          this.isLoading = false;
         }
       });
     }
   }
 
+  calculateTVA(): void {
+    if (this.declaration.totalTVACollectee !== undefined && this.declaration.totalTVADeductible !== undefined) {
+      this.declaration.totalTVADue = this.declaration.totalTVACollectee - this.declaration.totalTVADeductible;
+      this.declaration.totalTVADue = this.declaration.totalTVADue >= 0 ? this.declaration.totalTVADue : 0;
+      this.declaration.montantTotal = this.declaration.totalTVADue; // Mise à jour du montant total
+    }
+  }
+
+  isFormValid(): boolean {
+    return !(!this.declaration.periode || this.declaration.totalTVACollectee === null || this.declaration.totalTVADeductible === null);
+  }
+
+  monthPickerFilter = (d: Date | null): boolean => {
+    return true; // À ajuster selon vos besoins pour filtrer les mois
+  };
+
+  updatePeriode(): void {
+    if (this.selectedMonth) {
+      const year = this.selectedMonth.getFullYear();
+      const month = (this.selectedMonth.getMonth() + 1).toString().padStart(2, '0');
+      this.declaration.periode = `${year}-${month}`;
+    }
+  }
+
+  onMonthSelected(event: Date, picker: any): void {
+    this.selectedMonth = event;
+    this.updatePeriode();
+    picker.close();
+  }
+
+  exportToPDF(): void {
+    // Implémentation de l'export PDF (nécessite une bibliothèque comme jsPDF)
+    this.snackBar.open('Exportation en PDF non implémentée', 'Fermer', { duration: 3000 });
+  }
+
   goBack(): void {
-    this.clearErrors();
     this.router.navigate(['/list-declarations']);
   }
 
-  private clearErrors(): void {
-    this.errors = [];
-    this.fieldErrors = { periode: '', montantTotal: '', statut: '', compteComptable: '' };
-  }
+  /**
+   * Formate une période de déclaration (ex: "2025-05-01 - 2025-05-31") en format lisible (ex: "Mai 2025")
+   * @param periode La période à formater
+   * @returns La période formatée
+   */
+  formatPeriode(periode: string): string {
+    if (!periode) return 'Période non spécifiée';
 
-  private mapFieldErrors(errors: string[]): void {
-    errors.forEach(error => {
-      if (error.toLowerCase().includes('période') || error.toLowerCase().includes('periode')) {
-        this.fieldErrors.periode = error;
-      } else if (error.toLowerCase().includes('montant total') || error.toLowerCase().includes('montanttotal')) {
-        this.fieldErrors.montantTotal = error;
-      } else if (error.toLowerCase().includes('statut')) {
-        this.fieldErrors.statut = error;
-      } else if (error.toLowerCase().includes('compte comptable') || error.toLowerCase().includes('comptecomptable')) {
-        this.fieldErrors.compteComptable = error;
+    try {
+      // Extraire les dates de début et de fin
+      const dates = periode.split(' - ');
+      if (dates.length !== 2) return periode;
+
+      const dateDebut = new Date(dates[0]);
+      const dateFin = new Date(dates[1]);
+
+      // Vérifier si les dates sont valides
+      if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
+        return periode;
       }
-    });
+
+      // Vérifier si les dates sont dans le même mois et la même année
+      if (dateDebut.getMonth() === dateFin.getMonth() && dateDebut.getFullYear() === dateFin.getFullYear()) {
+        // Formater en "Mois Année"
+        const mois = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+        const annee = dateDebut.getFullYear();
+        return `${mois.charAt(0).toUpperCase() + mois.slice(1)} ${annee}`;
+      }
+
+      // Si les dates couvrent plusieurs mois, formater en "Mois Année - Mois Année"
+      const moisDebut = dateDebut.toLocaleString('fr-FR', { month: 'long' });
+      const anneeDebut = dateDebut.getFullYear();
+      const moisFin = dateFin.toLocaleString('fr-FR', { month: 'long' });
+      const anneeFin = dateFin.getFullYear();
+
+      return `${moisDebut.charAt(0).toUpperCase() + moisDebut.slice(1)} ${anneeDebut} - ${moisFin.charAt(0).toUpperCase() + moisFin.slice(1)} ${anneeFin}`;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la période:', error);
+      return periode;
+    }
   }
 }

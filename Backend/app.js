@@ -24,6 +24,7 @@ const ResultatRouter = require("./Routes/ResultatRoute");
 const DashboardRouter = require("./Routes/DashboardRoute");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
+const froutes = require("./Routes/fiscaliteRoutes"); // Kept from Gestion_des_Déclarations_et_TVA
 
 const config = require("./Config/db.json");
 
@@ -63,8 +64,9 @@ app.use("/balance", BalanceRouter);
 app.use("/bilan", BilanRouter);
 app.use("/resultat", ResultatRouter);
 app.use("/dashboard", DashboardRouter);
-// app.use("/clients", clientRoutes);
-// app.use("/factures", factureRoutes);
+app.use("/clients", clientRoutes);
+app.use("/factures", factureRoutes);
+app.use("/fiscalite", froutes); // Kept from Gestion_des_Déclarations_et_TVA
 
 const server = http.createServer(app);
 
