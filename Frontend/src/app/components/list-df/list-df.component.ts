@@ -53,6 +53,7 @@ export class ListDFComponent implements OnInit {
       },
       error: (errors: string[]) => {
         this.errors = errors;
+
         this.snackBar.open(errors.join(', '), 'Fermer', { duration: 3000 });
         this.isLoading = false;
       }
@@ -80,6 +81,7 @@ export class ListDFComponent implements OnInit {
       });
     }
   }
+
 
   addDeclaration(): void {
     const dialogRef = this.dialog.open(GenerateDeclarationDialogComponent, {
