@@ -28,7 +28,7 @@ export class FournisseurService {
   constructor(private http: HttpClient) { }
 
   getAllFournisseurs(): Observable<Fournisseur[]> {
-    return this.http.get<Fournisseur[]>(`${this.apiUrl}/all`);
+    return this.http.get<Fournisseur[]>(`${this.apiUrl}/`);
   }
 
   getFournisseursWithFilters(params: FournisseurFilterParams & { zoneGeo?: string }): Observable<any> {

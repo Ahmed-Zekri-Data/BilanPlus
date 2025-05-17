@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective  } from 'ng2-charts';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,10 +17,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -29,15 +27,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -48,7 +43,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTreeModule } from '@angular/material/tree';
 
 // Components
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
@@ -89,7 +84,7 @@ import { FiscalDashboardComponent } from './components/fiscal-dashboard/fiscal-d
 import { SimulationFiscaleComponent } from './components/simulation-fiscale/simulation-fiscale.component';
 import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal-statistics.component';
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
-import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+//import { DashboardComponent1 } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -135,7 +130,7 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     SimulationFiscaleComponent,
     FiscalStatisticsComponent,
     ShortenIdPipe,
-    StockDashboardComponent
+    //DashboardComponent1
   ],
   imports: [
     BrowserModule,
@@ -146,7 +141,7 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    NgChartsModule,
+    BaseChartDirective ,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -161,7 +156,6 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     MatDatepickerModule,
     MatNativeDateModule,
     MatPaginatorModule,
-    MatSortModule,
     MatTableModule,
     MatTabsModule,
     MatProgressSpinnerModule,

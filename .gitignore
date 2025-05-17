@@ -1,7 +1,15 @@
 
-/backend/.env
-/backend/node_modules/*
-/backend/package-lock.json
-/frontend/node_modules/*
-/frontend/package-lock.json
+/Backend/.env
+/Backend/node_modules/*
+/Backend/package-lock.json
+/Frontend/node_modules/*
+/Frontend/package-lock.json
 
+Backend/node_modules/*
+.vscode/*
+/Frontend/.vscode/*
+/Frontend/node_modules/*
+/Frontend/package-lock.json
+/Frontend/package.json
+/Frontend/tsconfig.json
+/Frontend/tsconfig.node.json

@@ -42,13 +42,13 @@ import { CommandeFormComponent } from './components/commandes/commande-form/comm
 import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
 
 // Dashboard for stock (from Gestion_de_stock)
-import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+//import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
 
   // Dashboard (stock-specific)
-  { path: 'dashboard', component: StockDashboardComponent },
+ //{ path: 'dashboard', component: StockDashboardComponent },
 
   // Gestion comptable
   {
