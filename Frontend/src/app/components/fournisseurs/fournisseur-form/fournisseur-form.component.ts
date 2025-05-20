@@ -26,7 +26,8 @@ export class FournisseurFormComponent implements OnInit {
       nom: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       contact: ['', Validators.required],
-      statut: ['actif', Validators.required]
+      adresse: ['', Validators.required],
+      categorie: ['', Validators.required]
     });
   }
 

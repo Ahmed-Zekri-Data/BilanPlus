@@ -1,137 +1,116 @@
 const Commande = require('../Models/CommandeAchat');
 const Produit = require('../Models/Produit');
 const Fournisseur = require('../Models/Fournisseur');
-
 const sendEmail = require('../Utils/sendEmail');
-
-const createCommande1 = async (req, res) => {
-  const { produit, quantite, statut, fournisseurID } = req.body;
+const createCommande = async (req, res) => {
   try {
-    const produitDoc = await Produit.findById(produit);
-    if (!produitDoc) return res.status(404).json({ message: "Produit non trouvé" });
-
-    // Vérification du stock supprimée pour permettre l'ajout dans tous les cas
-    /*
-    if (produitDoc.stock < quantite) {
-      return res.status(400).json({ message: `Stock insuffisant : ${produitDoc.stock} disponibles, ${quantite} demandés` });
-    }
-    */
-
-    const commande = new Commande({
+    const {   
       produit,
       quantite,
-      statut: statut || 'en attente',
-      fournisseurID
-    });
-    const newCommande = await commande.save();
-    res.status(201).json(newCommande);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-const getAllCommandes = async (req, res) => {
-  try {
-    const commandes = await Commande.find()
-      .populate('produit', 'nom')
-      .populate('fournisseurID');
-    res.status(200).json(commandes);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-const updateCommande = async (req, res) => {
-  const { id } = req.params;
-  const { produit, quantite, statut, fournisseurID } = req.body;
-  try {
-    const updatedCommande = await Commande.findByIdAndUpdate(
-      id,
-      { produit, quantite,statut, fournisseurID },
-      { new: true }
-    );
-    if (!updatedCommande) return res.status(404).json({ message: "Commande non trouvée" });
-    res.status(200).json(updatedCommande);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-const getCommandeById = async (req, res) => {
-  try {
-    const commandeId = req.params.id;
-
-    const commande = await Commande.findById(commandeId)
-      .populate('produit')         // récupère tous les champs du produit
-      .populate('fournisseurID');  // récupère tous les champs du fournisseur
-
-    if (!commande) {
-      return res.status(404).json({ message: 'Commande non trouvée' });
-    }
-
-    res.status(200).json(commande);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-const updateStatut = async (req, res) => {
-  const { id } = req.params;
-  const { statut } = req.body;
-  try {
-    const commande = await Commande.findById(id).populate('produit');
-    if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
-
-    // Vérification du stock supprimée pour permettre l'approbation dans tous les cas
-    /*
-    if (statut === "Approuvé" && commande.produit.stock < commande.quantite) {
-      return res.status(400).json({ message: `Stock insuffisant : ${commande.produit.stock} disponibles` });
-    }
-    */
-
-    // Mise à jour du stock supprimée pour garder le stock informatif
-    /*
-    if (statut === "Approuvé") {
-      commande.produit.stock -= commande.quantite;
-      await commande.produit.save();
-    }
-    */
-
-    commande.statut = statut;
-    const updatedCommande = await commande.save();
-    res.status(200).json(updatedCommande);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-const deleteCommande = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const deletedCommande = await Commande.findByIdAndDelete(id);
-    if (!deletedCommande) return res.status(404).json({ message: "Commande non trouvée" });
-    res.status(204).send();
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-const createCommande = async (req, res) => {
-  const { produit, quantite, statut, fournisseurID } = req.body;
-
-  try {
-    // Find all suppliers in the same category
+      type_livraison,
+      createdAt,
+      date_fin 
+    } = req.body;
+    
+    // Get product details to find matching suppliers
     const produitDoc = await Produit.findById(produit);
     if (!produitDoc) {
       return res.status(404).json({ message: "Produit non trouvé" });
     }
-    const categorie = produitDoc.categorie;
-    const fournisseurs = await Fournisseur.find({ categorie: categorie });
+
+    // Find suppliers matching product category
+    const fournisseurs = await Fournisseur.find({ categorie: produitDoc.categorie });
     if (!fournisseurs || fournisseurs.length === 0) {
       return res.status(404).json({ 
         message: "Aucun fournisseur trouvé dans cette catégorie",
-        categorie: categorie
+        categorie: produitDoc.categorie
       });
+    }
+
+    // Create command with suppliers list
+    const nouvelleCommande = new Commande({
+      produit,
+      quantite,
+      statut: 'En attente',
+      type_livraison,
+      createdAt,
+      date_fin,
+      fournisseurs: fournisseurs.map(f => ({
+        fournisseurID: f._id
+      }))
+    });
+    
+    const commandeSauvegardee = await nouvelleCommande.save();
+
+    // Calculate delivery days based on type_livraison
+    const deliveryDays = {
+      'SARL': 5,
+      'EURL': 4,
+      'SAS': 3,
+      'SA': 2,
+      'SCI': 6,
+      'Auto-entrepreneur': 7
+    }[type_livraison] || 5;
+
+    try {
+      // Call notify function with all required data
+      await notifySuppliers({
+        body: {
+          produit,
+          quantite,
+          type_livraison,
+          deliveryDays,
+          commandeId: commandeSauvegardee._id
+        }
+      }, null); // Pass null instead of res to prevent response sending
+
+      // Send success response with both command and notification info
+      res.status(201).json({
+        commande: commandeSauvegardee,
+        notification: {
+          status: 'success',
+          message: 'Commande créée et notifications envoyées avec succès'
+        }
+      });
+    } catch (notifyError) {
+      // If notification fails, still return the command but with notification error
+      console.error('Error sending notifications:', notifyError);
+      res.status(201).json({
+        commande: commandeSauvegardee,
+        notification: {
+          status: 'error',
+          message: 'Commande créée mais erreur lors de l\'envoi des notifications',
+          error: notifyError.message
+        }
+      });
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const notifySuppliers = async (req, res) => {
+  try {
+    const { produit, quantite, type_livraison, deliveryDays, commandeId } = req.body;
+    
+    const produitDoc = await Produit.findById(produit);
+    if (!produitDoc) {
+      if (res) {
+        return res.status(404).json({ message: "Produit non trouvé" });
+      }
+      throw new Error("Produit non trouvé");
+    }
+
+    const categorie = produitDoc.categorie;
+    const fournisseurs = await Fournisseur.find({ categorie: categorie });
+    if (!fournisseurs || fournisseurs.length === 0) {
+      if (res) {
+        return res.status(404).json({ 
+          message: "Aucun fournisseur trouvé dans cette catégorie",
+          categorie: categorie
+        });
+      }
+      throw new Error(`Aucun fournisseur trouvé dans la catégorie ${categorie}`);
     }
 
     const htmlTemplate = `
@@ -172,9 +151,11 @@ const createCommande = async (req, res) => {
             
             <div class="details">
               <h3>Détails de la commande:</h3>
-              <p><strong>Produit:</strong> ${produit}</p>
+              <p><strong>Produit:</strong> ${produitDoc.nom}</p>
               <p><strong>Quantité:</strong> ${quantite} unités</p>
               <p><strong>Catégorie:</strong> ${categorie}</p>
+              <p><strong>Type de livraison:</strong> ${type_livraison}</p>
+              <p><strong>Délai de livraison estimé:</strong> ${deliveryDays} jours</p>
             </div>
 
             <p>Merci de consulter et valider si vous êtes concerné par cette commande.</p>
@@ -189,32 +170,55 @@ const createCommande = async (req, res) => {
       </html>
     `;
 
-    // Get all supplier emails
     const supplierEmails = fournisseurs.map(f => f.email);
     
-    // Send email to all suppliers
     const emailResult = await sendEmail(
       supplierEmails,
       `Nouvelle commande - Catégorie : ${categorie}`,
-      `Bonjour,\n\nUne commande a été créée pour le produit "${produit}" (${quantite} unités).\nMerci de consulter et valider si vous êtes concerné.\n\nCordialement,\nBilan Plus.`,
+      `Bonjour,\n\nUne commande a été créée pour le produit "${produitDoc.nom}" (${quantite} unités).\nType de livraison: ${type_livraison}\nDélai estimé: ${deliveryDays} jours\nMerci de consulter et valider si vous êtes concerné.\n\nCordialement,\nBilan Plus.`,
       htmlTemplate
     );
 
     if (!emailResult.success) {
-      return res.status(400).json({ 
-        message: "Devis créé mais l'email n'a pas pu être envoyé",
-        error: emailResult.error 
-      });
+      if (res) {
+        return res.status(400).json({ 
+          message: "Commande créée mais l'email n'a pas pu être envoyé",
+          error: emailResult.error 
+        });
+      }
+      throw new Error(`Erreur d'envoi d'email: ${emailResult.error}`);
     }
 
-    res.status(201).json({ 
-      message: "Devis créé et emails envoyés avec succès",
+    const result = { 
+      success: true,
+      message: "Commande créée et emails envoyés avec succès",
       emailId: emailResult.messageId,
       fournisseursNotifies: fournisseurs.length
-    });
+    };
+
+    if (res) {
+      res.status(201).json(result);
+    }
+    return result;
   } catch (err) {
     console.error(err);
-    res.status(400).json({ message: err.message });
+    if (res) {
+      res.status(400).json({ message: err.message });
+    }
+    throw err;
+  }
+};
+
+const getAllCommandes = async (req, res) => {
+  try {
+    const commandes = await Commande.find()
+      .populate('produit', 'nom categorie')
+      .populate('fournisseurs.fournisseurID', 'nom email categorie')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(commandes);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -229,53 +233,148 @@ const getProductCategories = async (req, res) => {
 
 const getCommandesWithFilters = async (req, res) => {
   try {
-    const { startDate, endDate, fournisseurId, search, categorie } = req.query;
+    const { fournisseur, search, produit, page = 0, limit = 5 } = req.query;
     let query = {};
 
-    // Date range filter
-    if (startDate || endDate) {
-      query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
-    }
-
-    // Fournisseur filter
-    if (fournisseurId) {
-      query.fournisseurID = fournisseurId;
-    }
-
-    // Full text search
+    // Appliquer les filtres
     if (search) {
       query.$or = [
         { 'produit.nom': { $regex: search, $options: 'i' } },
-        { 'produit.categorie': { $regex: search, $options: 'i' } }
+        { 'fournisseurs.fournisseurID.nom': { $regex: search, $options: 'i' } }
       ];
     }
 
-    const commandes = await Commande.find(query)
-      .populate('produit', 'nom categorie')
-      .populate('fournisseurID', 'nom email')
-      .sort({ date: -1 });
-
-    // Correction : filtrer par catégorie après le populate
-    let filteredCommandes = commandes;
-    if (categorie) {
-      filteredCommandes = commandes.filter(cmd => cmd.produit && cmd.produit.categorie === categorie);
+    if (produit) {
+      query.produit = produit;
     }
 
-    res.status(200).json(filteredCommandes);
+    if (fournisseur) {
+      query['fournisseurs.fournisseurID.nom'] = fournisseur;
+    }
+
+    // Calculer le nombre total de commandes
+    const totalItems = await Commande.countDocuments(query);
+
+    // Récupérer les commandes avec pagination
+    const commandes = await Commande.find(query)
+      .populate('produit', 'nom categorie')
+      .populate('fournisseurs.fournisseurID', 'nom email categorie')
+      .sort({ createdAt: -1 })
+      .skip(page * limit)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      commandes,
+      totalItems,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalItems / limit)
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+const getAllProduits = async (req, res) => {
+  try {
+    const produits = await Produit.find().select('_id nom');
+    res.status(200).json(produits);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+const updateCommande = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const commande = await Commande.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('produit', 'nom categorie')
+     .populate('fournisseurID', 'nom email');
+
+    if (!commande) {
+      return res.status(404).json({ message: "Commande non trouvée" });
+    }
+
+    res.status(200).json(commande);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const deleteCommande = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const commande = await Commande.findByIdAndDelete(id);
+    
+    if (!commande) {
+      return res.status(404).json({ message: "Commande non trouvée" });
+    }
+
+    res.status(200).json({ message: "Commande supprimée avec succès" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getCommandeById = async (req, res) => {
+  try {
+    const commande = await Commande.findById(req.params.id)
+      .populate('produit', 'nom categorie')
+      .populate({
+        path: 'fournisseurs.fournisseurID',
+        select: 'nom email categorie'
+      });
+
+    if (!commande) {
+      return res.status(404).json({ message: "Commande non trouvée" });
+    }
+
+    res.status(200).json(commande);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const updateStatut = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statut } = req.body;
+
+    const commande = await Commande.findByIdAndUpdate(
+      id,
+      { statut },
+      { new: true, runValidators: true }
+    ).populate('produit', 'nom categorie')
+     .populate('fournisseurID', 'nom email');
+
+    if (!commande) {
+      return res.status(404).json({ message: "Commande non trouvée" });
+    }
+
+    res.status(200).json(commande);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
+
 module.exports = {
   createCommande,
-  getAllCommandes,
+  notifySuppliers,
+  getProductCategories,
+  getCommandesWithFilters,
+  getAllProduits,
   updateCommande,
   deleteCommande,
-  updateStatut,
+  getAllCommandes,
   getCommandeById,
-  getProductCategories,
-  getCommandesWithFilters
+  updateStatut
 };
+
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FournisseurService } from '../../../services/fournisseur.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -6,35 +6,43 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { PdfService } from '../../../services/pdf.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-list-fournisseurs',
   templateUrl: './list-fournisseurs.component.html',
   styleUrls: ['./list-fournisseurs.component.css']
 })
-export class ListFournisseursComponent implements OnInit {
+export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
+
   fournisseurs: any[] = [];
   dataSource: MatTableDataSource<any>;
   isLoading = false;
-  displayedColumns: string[] = ['id', 'nom', 'email', 'contact', 'statut', 'actions'];
+  displayedColumns: string[] = ['id', 'nom', 'email', 'contact', 'categorie', 'actions'];
   
   // Search and filter properties
   searchTerm: string = '';
-  selectedCategorie: string = '';
-  categories: string[] = ['categorie'];
   zoneGeo: string = '';
   
   // Pagination properties
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   totalItems: number = 0;
   pageSize: number = 5;
   currentPage: number = 0;
+
+  // Map properties
+  private map: L.Map | undefined;
+  private markers: L.Marker[] = [];
+  private mapInitialized = false;
+  showMap = false;
 
   constructor(
     private fournisseurService: FournisseurService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private cdr: ChangeDetectorRef
   ) {
     this.dataSource = new MatTableDataSource<any>([]);
   }
@@ -43,13 +51,89 @@ export class ListFournisseursComponent implements OnInit {
     this.loadFournisseurs();
   }
 
+  ngAfterViewInit(): void {
+    // Wait for the next tick to ensure the view is rendered
+    setTimeout(() => {
+      this.showMap = true;
+      this.cdr.detectChanges();
+      this.initializeMap();
+    }, 100);
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
+  private initializeMap(): void {
+    if (!this.mapContainer?.nativeElement) {
+      console.error('Map container not found');
+      return;
+    }
+
+    try {
+      // Initialize map with default center (France)
+      this.map = L.map(this.mapContainer.nativeElement).setView([46.603354, 1.888334], 6);
+      
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(this.map);
+
+      this.mapInitialized = true;
+
+      // If we already have fournisseurs data, update the map
+      if (this.fournisseurs.length > 0) {
+        this.updateMapMarkers();
+      }
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+  }
+
+  private updateMapMarkers(): void {
+    if (!this.map) {
+      console.error('Map not initialized');
+      return;
+    }
+
+    try {
+      // Clear existing markers
+      this.markers.forEach(marker => marker.remove());
+      this.markers = [];
+
+      // Add markers for each fournisseur with coordinates
+      this.fournisseurs.forEach(fournisseur => {
+        if (fournisseur.lat && fournisseur.long) {
+          const marker = L.marker([fournisseur.lat, fournisseur.long])
+            .bindPopup(`
+              <strong>${fournisseur.nom}</strong><br>
+              ${fournisseur.email}<br>
+              ${fournisseur.contact}
+            `);
+          marker.addTo(this.map!);
+          this.markers.push(marker);
+        }
+      });
+
+      // If we have markers, fit the map to show all of them
+      if (this.markers.length > 0) {
+        const group = L.featureGroup(this.markers);
+        this.map.fitBounds(group.getBounds().pad(0.1));
+      }
+    } catch (error) {
+      console.error('Error updating map markers:', error);
+    }
+  }
+
   loadFournisseurs(): void {
     this.isLoading = true;
     const params = {
       page: this.currentPage,
       limit: this.pageSize,
       search: this.searchTerm,
-      categorie: this.selectedCategorie,
       zoneGeo: this.zoneGeo
     };
 
@@ -64,6 +148,12 @@ export class ListFournisseursComponent implements OnInit {
           this.dataSource.data = this.fournisseurs;
           this.totalItems = response.total;
         }
+        
+        // Update map markers if map is initialized
+        if (this.mapInitialized) {
+          this.updateMapMarkers();
+        }
+        
         this.isLoading = false;
       },
       error: (err) => {
@@ -100,13 +190,13 @@ export class ListFournisseursComponent implements OnInit {
             headerRows: 1,
             widths: ['*', '*', '*', '*', '*'],
             body: [
-              ['ID', 'Nom', 'Email', 'Contact', 'Statut'],
+              ['ID', 'Nom', 'Email', 'Contact', 'Catégorie'],
               ...this.fournisseurs.map(fournisseur => [
                 fournisseur._id || '',
                 fournisseur.nom || '',
                 fournisseur.email || '',
                 fournisseur.contact || '',
-                fournisseur.statut || ''
+                fournisseur.categorie || ''
               ])
             ]
           }

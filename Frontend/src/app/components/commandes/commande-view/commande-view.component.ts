@@ -26,6 +26,16 @@ export class CommandeViewComponent implements OnInit {
     }
   }
 
+  calculateDuree(): number {
+    if (this.commande?.createdAt && this.commande?.date_fin) {
+      const dateDebut = new Date(this.commande.createdAt);
+      const dateFin = new Date(this.commande.date_fin);
+      const diffTime = Math.abs(dateFin.getTime() - dateDebut.getTime());
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    return 0;
+  }
+
   loadCommande(id: string): void {
     this.isLoading = true;
     this.commandesService.getCommandeById(id).subscribe({

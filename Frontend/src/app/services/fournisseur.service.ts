@@ -10,6 +10,8 @@ export interface Fournisseur {
   contact: string;
   statut: string;
   categorie?: string;
+  long?:number;
+  lat?:number;
 }
 
 export interface FournisseurFilterParams {

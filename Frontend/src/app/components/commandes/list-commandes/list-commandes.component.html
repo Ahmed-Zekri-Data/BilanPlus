@@ -15,33 +15,20 @@
   <div class="content-section">
     <mat-card class="main-card">
       <mat-card-content>
-        <!-- Search and Filter Section -->
+        <!-- Filters Section -->
         <div class="search-filter-container">
+          <!-- Produit Filter -->
           <mat-form-field class="filter-field">
-            <mat-label>Filtrer par catégorie</mat-label>
-            <mat-select [(ngModel)]="selectedCategorie" (selectionChange)="applyFilter()">
-              <mat-option value="">Toutes</mat-option>
-              <mat-option *ngFor="let categorie of categories" [value]="categorie">
-                {{categorie}}
+            <mat-label>Filtrer par produit</mat-label>
+            <mat-select [(ngModel)]="selectedProduit" (selectionChange)="applyFilter()">
+              <mat-option value="">Tous</mat-option>
+              <mat-option *ngFor="let produit of produits" [value]="produit._id">
+                {{produit.nom}} ({{produit.categorie}})
               </mat-option>
             </mat-select>
           </mat-form-field>
 
-          <!-- Date range filter -->
-          <mat-form-field class="date-field">
-            <mat-label>Date de création (début)</mat-label>
-            <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate" (dateChange)="applyFilter()">
-            <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
-            <mat-datepicker #pickerStart></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field class="date-field">
-            <mat-label>Date de création (fin)</mat-label>
-            <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate" (dateChange)="applyFilter()">
-            <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
-            <mat-datepicker #pickerEnd></mat-datepicker>
-          </mat-form-field>
-
-          <!-- Fournisseur filter -->
+          <!-- Fournisseur Filter -->
           <mat-form-field class="filter-field">
             <mat-label>Fournisseur</mat-label>
             <mat-select [(ngModel)]="selectedFournisseur" (selectionChange)="applyFilter()">
@@ -51,10 +38,12 @@
           </mat-form-field>
         </div>
 
+        <!-- Loading State -->
         <div *ngIf="isLoading" class="loading-container">
           <mat-spinner></mat-spinner>
         </div>
 
+        <!-- Table Section -->
         <div *ngIf="!isLoading" class="commandes-list">
           <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
             <!-- ID Column -->
@@ -66,19 +55,23 @@
             <!-- Produit Column -->
             <ng-container matColumnDef="produit">
               <th mat-header-cell *matHeaderCellDef>Produit</th>
-              <td mat-cell *matCellDef="let commande">{{ commande.produit?.nom }}</td>
+              <td mat-cell *matCellDef="let commande">{{ commande.produit?.nom || 'N/A' }}</td>
             </ng-container>
 
             <!-- Fournisseur Column -->
             <ng-container matColumnDef="fournisseur">
-              <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-              <td mat-cell *matCellDef="let commande">{{ commande.fournisseurID?.nom }}</td>
+              <th mat-header-cell *matHeaderCellDef>Fournisseurs</th>
+              <td mat-cell *matCellDef="let commande">
+                <div *ngFor="let f of commande.fournisseurs" class="fournisseur-item">
+                  <span class="fournisseur-nom">{{ f.fournisseurID?.nom || 'N/A' }}</span>
+                </div>
+              </td>
             </ng-container>
 
             <!-- Date Column -->
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let commande">{{ commande.date | date:'dd/MM/yyyy' }}</td>
+              <td mat-cell *matCellDef="let commande">{{ commande.createdAt | date:'dd/MM/yyyy' }}</td>
             </ng-container>
 
             <!-- Quantité Column -->
@@ -87,15 +80,18 @@
               <td mat-cell *matCellDef="let commande">{{ commande.quantite }}</td>
             </ng-container>
 
-            <!-- Prix Column -->
-            
+            <!-- Type Livraison Column -->
+            <ng-container matColumnDef="type_livraison">
+              <th mat-header-cell *matHeaderCellDef>Type de livraison</th>
+              <td mat-cell *matCellDef="let commande">{{ commande.type_livraison || 'N/A' }}</td>
+            </ng-container>
 
             <!-- Statut Column -->
             <ng-container matColumnDef="statut">
               <th mat-header-cell *matHeaderCellDef>Statut</th>
               <td mat-cell *matCellDef="let commande">
                 <span [ngClass]="'statut-badge ' + (commande.statut ? commande.statut.toLowerCase() : '')">
-                  {{ commande.statut }}
+                  {{ commande.statut || 'En attente' }}
                 </span>
               </td>
             </ng-container>
@@ -104,13 +100,13 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef style="width: 15rem;">Actions</th>
               <td mat-cell *matCellDef="let commande" style="width: 15rem;">
-                <button mat-icon-button color="primary" [routerLink]="['/commandes/view', commande._id]">
+                <button mat-icon-button color="primary" [routerLink]="['/commandes/view', commande._id]" matTooltip="Voir détails">
                   <mat-icon>visibility</mat-icon>
                 </button>
-                <button mat-icon-button color="accent" [routerLink]="['/commandes/edit', commande._id]">
+                <button mat-icon-button color="accent" [routerLink]="['/commandes/edit', commande._id]" matTooltip="Modifier">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteCommande(commande._id)">
+                <button mat-icon-button color="warn" (click)="deleteCommande(commande._id)" matTooltip="Supprimer">
                   <mat-icon>delete</mat-icon>
                 </button>
               </td>
@@ -120,14 +116,16 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
 
+          <!-- Pagination -->
           <mat-paginator 
             [length]="totalItems"
-            [pageSize]="5"
-            [pageSizeOptions]="[5, 10, 25, 100]"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
             (page)="onPageChange($event)"
             aria-label="Select page">
           </mat-paginator>
 
+          <!-- No Data Message -->
           <div *ngIf="dataSource.data.length === 0" class="no-data">
             <p>Aucune commande trouvée.</p>
           </div>

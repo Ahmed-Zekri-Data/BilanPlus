@@ -13,11 +13,73 @@ const getAllFournisseurs = async (req, res) => {
 // 📌 Ajouter un nouveau fournisseur
 const createFournisseur = async (req, res) => {
     try {
-        const nouveauFournisseur = new Fournisseur(req.body);
+        // Convert address to coordinates using a geocoding service
+        const address = req.body.adresse;
+        const coordinates = await geocodeAddress(address);
+        
+        // Create new fournisseur with coordinates
+        const nouveauFournisseur = new Fournisseur({
+            ...req.body,
+            lat: coordinates.lat,
+            long: coordinates.lng
+        });
+        console.log(coordinates);
         await nouveauFournisseur.save();
         res.status(201).json(nouveauFournisseur);
     } catch (error) {
         res.status(400).json({ message: "Erreur lors de l'ajout", error });
+    }
+};
+
+// Helper function to convert address to coordinates
+const geocodeAddress = async (address) => {
+    try {
+        // Add error handling for empty address
+        if (!address || address.trim() === '') {
+            throw new Error('Address is required');
+        }
+
+        // Use Nominatim API with proper headers and parameters
+        const encodedAddress = encodeURIComponent(address);
+        const url = `https://geocode.maps.co/search?q=${address}&api_key=${process.env.MAP_API_KEY}`;
+        
+        const axios = require('axios');
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'YourAppName/1.0',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+        });
+
+        if (!response.data) {
+            throw new Error('Geocoding service unavailable');
+        }
+
+        const data = response.data;
+        console.log('Geocoding result:', data); // Debug log
+
+        if (data && data.length > 0) {
+            const coordinates = {
+                lat: parseFloat(data[0].lat) || 0,
+                lng: parseFloat(data[0].lon) || 0
+            };
+            console.log('Coordinates:', coordinates); // Debug log
+            return coordinates;
+        }
+        
+        // Return default coordinates if geocoding fails
+        console.log('Geocoding failed, using default coordinates');
+        return {
+            lat: 0,
+            lng: 0
+        };
+    } catch (error) {
+        console.error('Geocoding error:', error); // Debug log
+        // Return default coordinates instead of throwing error
+        return {
+            lat: 0,
+            lng: 0
+        };
     }
 };
 
@@ -85,6 +147,7 @@ const searchFournisseurs = async (req, res) => {
             query.$or = [
                 { nom: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } },
+                { contact: { $regex: search, $options: 'i' } },
                 { categorie: { $regex: search, $options: 'i' } }
             ];
         }

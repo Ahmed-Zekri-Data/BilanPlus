@@ -26,29 +26,49 @@
           </div>
 
           <div class="detail-row">
-            <span class="label">Fournisseur:</span>
-            <span class="value">{{ commande.fournisseurID?.nom || 'Non spécifié' }}</span>
+            <span class="label">Catégorie:</span>
+            <span class="value">{{ commande.categorie || 'Non spécifiée' }}</span>
           </div>
 
           <div class="detail-row">
-            <span class="label">Date:</span>
-            <span class="value">{{ commande.date | date:'dd/MM/yyyy' }}</span>
+            <span class="label">Type de livraison:</span>
+            <span class="value">{{ commande.type_livraison || 'Non spécifié' }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Statut:</span>
+            <span class="value" [ngClass]="'statut-badge ' + (commande.statut ? commande.statut.toLowerCase() : '')">
+              {{ commande.statut || 'Non spécifié' }}
+            </span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Fournisseurs:</span>
+            <div class="value fournisseurs-list">
+              <div *ngFor="let f of commande.fournisseurs" class="fournisseur-item">
+                <span class="fournisseur-nom">{{ f.fournisseurID.nom }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Date de début:</span>
+            <span class="value">{{ commande.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Date de fin:</span>
+            <span class="value">{{ commande.date_fin ? (commande.date_fin | date:'dd/MM/yyyy') : 'Non spécifiée' }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="commande.createdAt && commande.date_fin">
+            <span class="label">Durée de la commande:</span>
+            <span class="value">{{ calculateDuree() }} jours</span>
           </div>
 
           <div class="detail-row">
             <span class="label">Quantité:</span>
             <span class="value">{{ commande.quantite }}</span>
-          </div>
-
-          
-
-          <div class="detail-row">
-            <span class="label">Statut:</span>
-            <span class="value">
-              <span [ngClass]="'statut-badge ' + (commande.statut ? commande.statut.toLowerCase() : '')">
-                {{ commande.statut || 'Non spécifié' }}
-              </span>
-            </span>
           </div>
         </div>
 

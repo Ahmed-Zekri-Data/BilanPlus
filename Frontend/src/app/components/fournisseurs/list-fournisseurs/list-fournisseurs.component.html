@@ -23,16 +23,6 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <mat-form-field class="filter-field">
-            <mat-label>Filtrer par catégorie</mat-label>
-            <mat-select [(ngModel)]="selectedCategorie" (selectionChange)="applyFilter()">
-              <mat-option value="">Toutes</mat-option>
-              <mat-option *ngFor="let categorie of categories" [value]="categorie">
-                {{categorie}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
           <mat-form-field class="search-field">
             <mat-label>Zone géographique</mat-label>
             <input matInput [(ngModel)]="zoneGeo" (keyup)="applyFilter()" placeholder="Ville, région, pays...">
@@ -70,12 +60,12 @@
               <td mat-cell *matCellDef="let fournisseur">{{ fournisseur.email }}</td>
             </ng-container>
 
-            <!-- Statut Column -->
-            <ng-container matColumnDef="statut">
-              <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <!-- Categorie Column -->
+            <ng-container matColumnDef="categorie">
+              <th mat-header-cell *matHeaderCellDef>Catégorie</th>
               <td mat-cell *matCellDef="let fournisseur">
-                <span [ngClass]="'statut-badge ' + (fournisseur.statut ? fournisseur.statut.toLowerCase() : '')">
-                  {{ fournisseur.statut }}
+                <span class="categorie-badge">
+                  {{ fournisseur.categorie }}
                 </span>
               </td>
             </ng-container>
@@ -111,6 +101,12 @@
           <div *ngIf="dataSource.data.length === 0" class="no-data">
             <p>Aucun fournisseur trouvé.</p>
           </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section" *ngIf="showMap">
+          <h3>Carte des Fournisseurs</h3>
+          <div #mapContainer class="map-frame"></div>
         </div>
       </mat-card-content>
     </mat-card>

@@ -5,10 +5,6 @@
     </mat-card-header>
     <mat-card-content>
       <div class="detail-row">
-        <span class="label">ID:</span>
-        <span class="value">{{ fournisseur.id }}</span>
-      </div>
-      <div class="detail-row">
         <span class="label">Nom:</span>
         <span class="value">{{ fournisseur.nom }}</span>
       </div>
@@ -20,9 +16,11 @@
         <span class="label">Contact:</span>
         <span class="value">{{ fournisseur.contact }}</span>
       </div>
-      <div class="detail-row">
-        <span class="label">Statut:</span>
-        <span class="value">{{ fournisseur.statut }}</span>
+      
+      <!-- Map Section -->
+      <div class="map-container" *ngIf="fournisseur.lat && fournisseur.long && showMap">
+        <h3>Localisation</h3>
+        <div #mapContainer class="map-frame"></div>
       </div>
     </mat-card-content>
     <mat-card-actions>

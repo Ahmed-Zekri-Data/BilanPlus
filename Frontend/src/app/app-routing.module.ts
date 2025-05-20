@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
 
 // Stock
 import { MSComponent } from './components/ms/ms.component';
@@ -34,12 +35,12 @@ import { GenerateDeclarationDialogComponent } from './components/generate-declar
 import { DFTVAComponent } from './components/dftva/dftva.component';
 
 // Fournisseurs et Commandes
-import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
-import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
-import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
 import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
 import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
 // Dashboard for stock (from Gestion_de_stock)
 //import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
@@ -74,6 +75,7 @@ const routes: Routes = [
   // Commandes
   {
     path: 'commandes',
+    component: SectionLayoutComponent,
     children: [
       { path: '', component: ListCommandesComponent },
       { path: 'add', component: CommandeFormComponent },
@@ -85,6 +87,7 @@ const routes: Routes = [
   // Fournisseurs
   {
     path: 'fournisseurs',
+    component: SectionLayoutComponent,
     children: [
       { path: '', component: ListFournisseursComponent },
       { path: 'add', component: FournisseurFormComponent },

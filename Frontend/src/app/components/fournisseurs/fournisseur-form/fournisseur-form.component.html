@@ -30,10 +30,10 @@
 
         <div class="form-row">
           <mat-form-field appearance="fill">
-            <mat-label>Adresse</mat-label>
-            <input matInput formControlName="adresse" required>
-            <mat-error *ngIf="fournisseurForm.get('adresse')?.hasError('required')">
-              L'adresse est requise
+            <mat-label>Contact</mat-label>
+            <input matInput formControlName="contact" required>
+            <mat-error *ngIf="fournisseurForm.get('contact')?.hasError('required')">
+              Le contact est requis
             </mat-error>
           </mat-form-field>
 
@@ -42,6 +42,16 @@
             <input matInput formControlName="categorie" required>
             <mat-error *ngIf="fournisseurForm.get('categorie')?.hasError('required')">
               La catégorie est requise
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Adresse</mat-label>
+            <input matInput formControlName="adresse" required>
+            <mat-error *ngIf="fournisseurForm.get('adresse')?.hasError('required')">
+              L'adresse est requise
             </mat-error>
           </mat-form-field>
         </div>

@@ -84,11 +84,15 @@ import { FiscalDashboardComponent } from './components/fiscal-dashboard/fiscal-d
 import { SimulationFiscaleComponent } from './components/simulation-fiscale/simulation-fiscale.component';
 import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal-statistics.component';
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
+import { NavBarComponent } from './components/shared/nav-bar/nav-bar.component';
+import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
 //import { DashboardComponent1 } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavBarComponent,
+    SectionLayoutComponent,
     HomeComponent,
     ListTVAComponent,
     TvaDetailComponent,

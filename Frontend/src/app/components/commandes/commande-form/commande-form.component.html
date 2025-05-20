@@ -26,37 +26,40 @@
     </mat-form-field>
 
     <mat-form-field appearance="fill">
-      <mat-label>Prix</mat-label>
-      <input matInput type="number" formControlName="prix" required>
-      <mat-error *ngIf="commandeForm.get('prix')?.hasError('required')">
-        Le prix est requis
-      </mat-error>
-      <mat-error *ngIf="commandeForm.get('prix')?.hasError('min')">
-        Le prix doit être supérieur à 0
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Statut</mat-label>
-      <mat-select formControlName="statut">
-        <mat-option value="En attente">En attente</mat-option>
-        <mat-option value="En cours">En cours</mat-option>
-        <mat-option value="Livrée">Livrée</mat-option>
-        <mat-option value="Annulée">Annulée</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Fournisseur</mat-label>
-      <mat-select formControlName="fournisseurID" required>
-        <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur._id">
-          {{fournisseur.nom}}
+      <mat-label>Type de livraison</mat-label>
+      <mat-select formControlName="type_livraison" required>
+        <mat-option *ngFor="let type of typesLivraison" [value]="type">
+          {{type}}
         </mat-option>
       </mat-select>
-      <mat-error *ngIf="commandeForm.get('fournisseurID')?.hasError('required')">
-        Le fournisseur est requis
+      <mat-error *ngIf="commandeForm.get('type_livraison')?.hasError('required')">
+        Le type de livraison est requis
       </mat-error>
     </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Date de début</mat-label>
+      <input matInput [matDatepicker]="debutPicker" formControlName="date_debut" required>
+      <mat-datepicker-toggle matSuffix [for]="debutPicker"></mat-datepicker-toggle>
+      <mat-datepicker #debutPicker></mat-datepicker>
+      <mat-error *ngIf="commandeForm.get('date_debut')?.hasError('required')">
+        La date de début est requise
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Date de fin</mat-label>
+      <input matInput [matDatepicker]="finPicker" formControlName="date_fin">
+      <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+      <mat-datepicker #finPicker></mat-datepicker>
+      <mat-error *ngIf="commandeForm.get('date_fin')?.hasError('dateFinBeforeDateDebut')">
+        La date de fin doit être postérieure à la date de début
+      </mat-error>
+    </mat-form-field>
+
+    <div *ngIf="commandeForm.get('date_debut')?.value && commandeForm.get('date_fin')?.value" class="duree-info">
+      <p>Durée de la commande : {{ calculateDuree() }} jours</p>
+    </div>
 
     <div class="button-container">
       <button mat-button type="button" (click)="cancel()">Annuler</button>

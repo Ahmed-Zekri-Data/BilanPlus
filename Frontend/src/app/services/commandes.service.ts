@@ -7,23 +7,31 @@ export interface CommandeAchat {
   produit?: {
     _id: string;
     nom: string;
+    categorie?: string;
   };
   quantite: number;
-  prix: number;
   categorie?: string;
   statut?: string;
-  fournisseurID?: {
-    _id: string;
-    nom: string;
-  };
-  date: Date;
+  type_livraison: string;
+  createdAt: Date;
+  date_fin: Date;
+  fournisseurs: {
+    fournisseurID: {
+      _id: string;
+      nom: string;
+      email: string;
+      categorie: string;
+    };
+    statut: string;
+  }[];
 }
 
 export interface CommandeFilterParams {
   page: number;
   limit: number;
   search?: string;
-  categorie?: string;
+  produit?: string;
+  fournisseur?: string;
 }
 
 @Injectable({
@@ -47,8 +55,11 @@ export class CommandesService {
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }
-    if (params.categorie) {
-      httpParams = httpParams.set('categorie', params.categorie);
+    if (params.produit) {
+      httpParams = httpParams.set('produit', params.produit);
+    }
+    if (params.fournisseur) {
+      httpParams = httpParams.set('fournisseur', params.fournisseur);
     }
 
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams });
@@ -80,5 +91,9 @@ export class CommandesService {
 
   getCategories(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/categories`);
+  }
+
+  getAllProduits(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/produits`);
   }
 }

@@ -35,4 +35,39 @@
   justify-content: center;
   align-items: center;
   height: 200px;
+}
+
+.map-container {
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.map-container h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.map-frame {
+  height: 300px;
+  width: 100%;
+  border-radius: 8px;
+  position: relative;
+  z-index: 1;
+  background-color: #f5f5f5;
+}
+
+/* Import Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+/* Fix for Leaflet marker icons */
+:host ::ng-deep .leaflet-default-icon-path {
+  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
+}
+
+:host ::ng-deep .leaflet-default-shadow-path {
+  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png);
 } 
