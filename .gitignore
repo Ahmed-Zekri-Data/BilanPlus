@@ -13,3 +13,12 @@ Backend/node_modules/*
 /Frontend/package.json
 /Frontend/tsconfig.json
 /Frontend/tsconfig.node.json
+
+Frontend/.vscode/*
+Frontend/node_modules/*
+Frontend/package-lock.json
+Frontend/package.json
+Frontend/tsconfig.json
+Frontend/tsconfig.node.json
+.angular
+.vscode
