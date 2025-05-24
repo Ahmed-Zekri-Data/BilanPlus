@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
+import { DevisComponent } from './components/devis/devis.component';
+import { ListDevisComponent } from './components/devis/list-devis.component';
 
 // Stock
 import { MSComponent } from './components/ms/ms.component';
@@ -122,6 +124,10 @@ const routes: Routes = [
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
 
+  // Devis
+  { path: 'devis/:commandeId/:fournisseurId', component: DevisComponent },
+  { path: 'devis', component: ListDevisComponent },
+
   // Wildcard route for unmatched paths
   { path: '**', redirectTo: '' }
 ];
@@ -131,3 +137,6 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
+
+
+

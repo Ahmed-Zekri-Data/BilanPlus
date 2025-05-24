@@ -86,6 +86,8 @@ import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
 import { NavBarComponent } from './components/shared/nav-bar/nav-bar.component';
 import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
+import { DevisComponent } from './components/devis/devis.component';
+import { ListDevisComponent } from './components/devis/list-devis.component';
 //import { DashboardComponent1 } from './dashboardproduit/dashboard.component';
 
 @NgModule({
@@ -134,6 +136,8 @@ import { SectionLayoutComponent } from './components/shared/layout/section-layou
     SimulationFiscaleComponent,
     FiscalStatisticsComponent,
     ShortenIdPipe,
+    DevisComponent,
+    ListDevisComponent,
     //DashboardComponent1
   ],
   imports: [

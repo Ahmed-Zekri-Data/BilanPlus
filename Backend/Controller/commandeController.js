@@ -2,6 +2,12 @@ const Commande = require('../Models/CommandeAchat');
 const Produit = require('../Models/Produit');
 const Fournisseur = require('../Models/Fournisseur');
 const sendEmail = require('../Utils/sendEmail');
+
+// Generate unique 8-digit ID
+const generateUniqueId = () => {
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
+};
+
 const createCommande = async (req, res) => {
   try {
     const {   
@@ -53,6 +59,9 @@ const createCommande = async (req, res) => {
     }[type_livraison] || 5;
 
     try {
+      // Generate unique ID for this notification
+      const customId = generateUniqueId();
+
       // Call notify function with all required data
       await notifySuppliers({
         body: {
@@ -60,7 +69,9 @@ const createCommande = async (req, res) => {
           quantite,
           type_livraison,
           deliveryDays,
-          commandeId: commandeSauvegardee._id
+          commandeId: commandeSauvegardee._id,
+          fournisseurs: fournisseurs.map(f => f._id),
+          customId
         }
       }, null); // Pass null instead of res to prevent response sending
 
@@ -69,7 +80,8 @@ const createCommande = async (req, res) => {
         commande: commandeSauvegardee,
         notification: {
           status: 'success',
-          message: 'Commande créée et notifications envoyées avec succès'
+          message: 'Commande créée et notifications envoyées avec succès',
+          notificationId
         }
       });
     } catch (notifyError) {
@@ -91,7 +103,7 @@ const createCommande = async (req, res) => {
 
 const notifySuppliers = async (req, res) => {
   try {
-    const { produit, quantite, type_livraison, deliveryDays, commandeId } = req.body;
+    const { produit, quantite, type_livraison, deliveryDays, commandeId, fournisseurs, notificationId } = req.body;
     
     const produitDoc = await Produit.findById(produit);
     if (!produitDoc) {
@@ -102,8 +114,8 @@ const notifySuppliers = async (req, res) => {
     }
 
     const categorie = produitDoc.categorie;
-    const fournisseurs = await Fournisseur.find({ categorie: categorie });
-    if (!fournisseurs || fournisseurs.length === 0) {
+    const fournisseursDocs = await Fournisseur.find({ _id: { $in: fournisseurs } });
+    if (!fournisseursDocs || fournisseursDocs.length === 0) {
       if (res) {
         return res.status(404).json({ 
           message: "Aucun fournisseur trouvé dans cette catégorie",
@@ -113,87 +125,82 @@ const notifySuppliers = async (req, res) => {
       throw new Error(`Aucun fournisseur trouvé dans la catégorie ${categorie}`);
     }
 
-    const htmlTemplate = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
-          .content { padding: 20px; }
-          .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
-          .button { 
-            display: inline-block; 
-            padding: 10px 20px; 
-            background-color: #4CAF50; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 5px; 
-            margin-top: 20px; 
-          }
-          .details { 
-            background-color: #f9f9f9; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin: 20px 0; 
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Nouvelle Commande - ${categorie}</h1>
-          </div>
-          <div class="content">
-            <p>Bonjour,</p>
-            <p>Une nouvelle commande a été créée pour votre catégorie.</p>
-            
-            <div class="details">
-              <h3>Détails de la commande:</h3>
-              <p><strong>Produit:</strong> ${produitDoc.nom}</p>
-              <p><strong>Quantité:</strong> ${quantite} unités</p>
-              <p><strong>Catégorie:</strong> ${categorie}</p>
-              <p><strong>Type de livraison:</strong> ${type_livraison}</p>
-              <p><strong>Délai de livraison estimé:</strong> ${deliveryDays} jours</p>
+    // Send individual emails to each supplier with their specific link
+    for (const fournisseur of fournisseursDocs) {
+      const htmlTemplate = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+            .button { 
+              display: inline-block; 
+              padding: 10px 20px; 
+              background-color: #4CAF50; 
+              color: white; 
+              text-decoration: none; 
+              border-radius: 5px; 
+              margin-top: 20px; 
+            }
+            .details { 
+              background-color: #f9f9f9; 
+              padding: 15px; 
+              border-radius: 5px; 
+              margin: 20px 0; 
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Nouvelle Commande - ${categorie}</h1>
             </div>
+            <div class="content">
+              <p>Bonjour,</p>
+              <p>Une nouvelle commande a été créée pour votre catégorie.</p>
+              
+              <div class="details">
+                <h3>Détails de la commande:</h3>
+                <p><strong>Produit:</strong> ${produitDoc.nom}</p>
+                <p><strong>Quantité:</strong> ${quantite} unités</p>
+                <p><strong>Catégorie:</strong> ${categorie}</p>
+                <p><strong>Type de livraison:</strong> ${type_livraison}</p>
+                <p><strong>Délai de livraison estimé:</strong> ${deliveryDays} jours</p>
+              </div>
 
-            <p>Merci de consulter et valider si vous êtes concerné par cette commande.</p>
-            
-            <a href="#" class="button">Voir la commande</a>
+              <p>Merci de consulter et valider si vous êtes concerné par cette commande.</p>
+              
+              <a href="${process.env.API_URL}/devis/${commandeId}/${fournisseur._id}" class="button">Voir la commande</a>
+            </div>
+            <div class="footer">
+              <p>Cordialement,<br>Bilan Plus</p>
+            </div>
           </div>
-          <div class="footer">
-            <p>Cordialement,<br>Bilan Plus</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+        </body>
+        </html>
+      `;
 
-    const supplierEmails = fournisseurs.map(f => f.email);
-    
-    const emailResult = await sendEmail(
-      supplierEmails,
-      `Nouvelle commande - Catégorie : ${categorie}`,
-      `Bonjour,\n\nUne commande a été créée pour le produit "${produitDoc.nom}" (${quantite} unités).\nType de livraison: ${type_livraison}\nDélai estimé: ${deliveryDays} jours\nMerci de consulter et valider si vous êtes concerné.\n\nCordialement,\nBilan Plus.`,
-      htmlTemplate
-    );
+      const emailResult = await sendEmail(
+        fournisseur.email,
+        `Nouvelle commande - Catégorie : ${categorie}`,
+        `Bonjour,\n\nUne commande a été créée pour le produit "${produitDoc.nom}" (${quantite} unités).\nType de livraison: ${type_livraison}\nDélai estimé: ${deliveryDays} jours\nMerci de consulter et valider si vous êtes concerné.\n\nCordialement,\nBilan Plus.`,
+        htmlTemplate
+      );
 
-    if (!emailResult.success) {
-      if (res) {
-        return res.status(400).json({ 
-          message: "Commande créée mais l'email n'a pas pu être envoyé",
-          error: emailResult.error 
-        });
+      if (!emailResult.success) {
+        console.error(`Failed to send email to ${fournisseur.email}:`, emailResult.error);
       }
-      throw new Error(`Erreur d'envoi d'email: ${emailResult.error}`);
     }
 
     const result = { 
       success: true,
       message: "Commande créée et emails envoyés avec succès",
-      emailId: emailResult.messageId,
-      fournisseursNotifies: fournisseurs.length
+      notificationId,
+      fournisseursNotifies: fournisseursDocs.length
     };
 
     if (res) {
@@ -294,7 +301,6 @@ const updateCommande = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).populate('produit', 'nom categorie')
-     .populate('fournisseurID', 'nom email');
 
     if (!commande) {
       return res.status(404).json({ message: "Commande non trouvée" });
@@ -364,6 +370,8 @@ const updateStatut = async (req, res) => {
 
 
 
+
+
 module.exports = {
   createCommande,
   notifySuppliers,
@@ -376,5 +384,4 @@ module.exports = {
   getCommandeById,
   updateStatut
 };
-
 

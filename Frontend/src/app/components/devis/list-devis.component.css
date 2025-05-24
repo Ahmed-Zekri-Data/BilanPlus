@@ -1,0 +1,225 @@
+.commandes-container {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.bilan-gradient {
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-card {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.search-filter-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 0 16px;
+}
+
+.filter-field {
+  flex: 1;
+  max-width: 300px;
+}
+
+.devis-list {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f44336;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 16px;
+}
+
+.error-message mat-icon {
+  margin-right: 10px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.statut-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-accepted {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.status-expired {
+  background-color: #eceff1;
+  color: #546e7a;
+}
+
+.expired-text {
+  color: #666;
+  font-style: italic;
+}
+
+.fournisseur-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.fournisseur-nom {
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-filter-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-field {
+    max-width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+
+.mat-toolbar {
+  margin-bottom: 20px;
+}
+
+.mat-card {
+  margin-bottom: 20px;
+}
+
+.mat-card-content {
+  padding: 20px;
+}
+
+.status-pending {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.status-accepted {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.status-rejected {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.status-expired {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.badge {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-group {
+  gap: 8px;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.text-muted {
+  font-style: italic;
+  color: #6c757d;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.alert {
+  margin-bottom: 1.5rem;
+} 

@@ -17,7 +17,7 @@ const CommandeAchatSchema = new mongoose.Schema({
     type: String, 
     enum: ['SARL', 'EURL', 'SAS', 'SA', 'SCI', 'Auto-entrepreneur'], 
     required: true 
-  },
+  }, 
   createdAt: { type: Date, default: Date.now },
   date_fin: { type: Date, required: true },
   fournisseurs: [{
@@ -30,7 +30,8 @@ const CommandeAchatSchema = new mongoose.Schema({
       type: String,
       enum: ['En attente', 'Acceptée', 'Refusée'],
       default: 'En attente'
-    }
+    },
+    id: { type: String }
   }],
 });
 module.exports = mongoose.model('CommandeAchat', CommandeAchatSchema);
