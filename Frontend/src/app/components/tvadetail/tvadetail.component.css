@@ -1,0 +1,253 @@
+.tva-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tva-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tva-header h2 {
+  margin: 0;
+  color: #3f51b5;
+  font-size: 24px;
+}
+
+.tva-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #3f51b5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tva-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tva-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.tva-info-item {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.tva-info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-bottom: 2px solid #3f51b5;
+}
+
+.tva-info-label {
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 5px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  margin-right: 8px;
+  color: #3f51b5;
+}
+
+.tva-info-value {
+  font-size: 18px;
+  color: #333;
+}
+
+.tva-info-value.highlight {
+  color: #3f51b5;
+  font-weight: 600;
+  font-size: 22px;
+}
+
+.declarations-section {
+  margin-top: 30px;
+}
+
+.declarations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.declarations-title {
+  font-size: 18px;
+  color: #3f51b5;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.section-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+.declarations-count {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.declarations-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.declaration-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.declaration-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.declaration-info {
+  flex: 1;
+}
+
+.declaration-period {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.declaration-details {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.declaration-detail {
+  display: flex;
+  align-items: center;
+}
+
+.detail-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 6px;
+  color: #3f51b5;
+}
+
+.declaration-detail-label {
+  margin-right: 5px;
+}
+
+.declaration-detail-value {
+  font-weight: 500;
+  color: #333;
+}
+
+.status-badge {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-declarations {
+  padding: 20px;
+  text-align: center;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #666;
+}
+
+.actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.error-container {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.error-title {
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.error {
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .tva-info {
+    grid-template-columns: 1fr;
+  }
+
+  .declaration-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .declaration-details {
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+  }
+}

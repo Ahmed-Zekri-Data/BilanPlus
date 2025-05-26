@@ -1,10 +1,12 @@
-var express = require("express");
-var route = express.Router();
-var MSController = require ("../Controller/MScontrolleur")
+const express = require("express");
+const router = express.Router();
+const MSController = require("../Controller/MScontrolleur");
+const mouvementStockValidators = require("../validators/MouvementStockValidators");
 
-route.post("/addMS",MSController.addMS)
-route.get("/getallMS",MSController.getallMS)
-route.get("/getbyid/:id",MSController.getbyid)
-route.delete("/deleteMS/:id",MSController.deleteMS)
-route.put("/updateMS/:id",MSController.updateMS)
-module.exports = route;
+router.post("/", mouvementStockValidators.addMS, MSController.addMS);
+router.get("/", MSController.getallMS);
+router.get("/:id", mouvementStockValidators.getById, MSController.getbyid);
+router.delete("/:id", mouvementStockValidators.deleteMS, MSController.deleteMS);
+router.put("/:id", mouvementStockValidators.updateMS, MSController.updateMS);
+
+module.exports = router;

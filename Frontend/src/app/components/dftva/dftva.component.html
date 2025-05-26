@@ -1,0 +1,38 @@
+<div class="fiscal-container">
+  <div class="header">
+    <h1 class="title">Gestion Fiscale</h1>
+  </div>
+
+  <!-- Navigation par onglets -->
+  <mat-tab-group [(selectedIndex)]="activeTabIndex" (selectedIndexChange)="setActiveTab($event)">
+    <!-- Onglet Tableau de bord -->
+    <mat-tab label="Tableau de bord">
+      <div class="tab-content">
+        <app-fiscal-dashboard></app-fiscal-dashboard>
+      </div>
+    </mat-tab>
+
+    <!-- Onglet Déclarations Fiscales -->
+    <mat-tab label="Déclarations Fiscales">
+      <div class="tab-content">
+        <app-df-management></app-df-management>
+      </div>
+    </mat-tab>
+
+    <!-- Onglet TVA -->
+    <mat-tab label="TVA">
+      <div class="tab-content">
+        <app-tva-management></app-tva-management>
+      </div>
+    </mat-tab>
+
+   
+
+    <!-- Onglet Simulations -->
+    <mat-tab label="Simulations">
+      <div class="tab-content">
+        <app-simulation-fiscale></app-simulation-fiscale>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

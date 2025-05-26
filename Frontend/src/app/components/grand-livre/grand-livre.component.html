@@ -1,0 +1,127 @@
+<div class="grand-livre-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Grand Livre</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="filtreForm" (ngSubmit)="appliquerFiltres()" class="filtres-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Compte</mat-label>
+          <mat-select formControlName="compteId">
+            <mat-option [value]="">Tous les comptes</mat-option>
+            <mat-option *ngFor="let compte of comptes" [value]="compte._id">
+              {{compte.numeroCompte}} - {{compte.nom}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Date de début</mat-label>
+          <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut">
+          <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDebut></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Date de fin</mat-label>
+          <input matInput [matDatepicker]="pickerFin" formControlName="dateFin">
+          <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFin></mat-datepicker>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit">Appliquer</button>
+          <button mat-button type="button" (click)="reinitialiserFiltres()">Réinitialiser</button>
+        </div>
+      </form>
+
+      <!-- Affichage du grand livre -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div *ngIf="!isLoading && grandLivre.length === 0" class="empty-state">
+        <p>Aucune donnée à afficher pour les critères sélectionnés.</p>
+      </div>
+
+      <div *ngIf="!isLoading && grandLivre.length > 0" class="grand-livre-content">
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let compteLivre of grandLivre">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{compteLivre.compte.numeroCompte}} - {{compteLivre.compte.nom}}
+              </mat-panel-title>
+              <mat-panel-description>
+                Solde: {{compteLivre.totaux.solde | currency:'EUR':'symbol':'1.2-2'}}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="compte-details">
+              <div class="compte-info">
+                <p><strong>Type:</strong> {{compteLivre.compte.type | titlecase}}</p>
+                <p><strong>Solde initial:</strong> {{compteLivre.compte.soldeInitial | currency:'EUR':'symbol':'1.2-2'}}</p>
+              </div>
+
+              <div class="mat-elevation-z2 compte-table-container">
+                <table mat-table [dataSource]="compteLivre.mouvements" class="compte-table">
+                  <!-- Date Column -->
+                  <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef>Date</th>
+                    <td mat-cell *matCellDef="let mouvement">{{mouvement.date | date:'dd/MM/yyyy'}}</td>
+                    <td mat-footer-cell *matFooterCellDef><strong>TOTAUX</strong></td>
+                  </ng-container>
+
+                  <!-- Libellé Column -->
+                  <ng-container matColumnDef="libelle">
+                    <th mat-header-cell *matHeaderCellDef>Libellé</th>
+                    <td mat-cell *matCellDef="let mouvement">{{mouvement.libelle}}</td>
+                    <td mat-footer-cell *matFooterCellDef></td>
+                  </ng-container>
+
+                  <!-- Débit Column -->
+                  <ng-container matColumnDef="debit">
+                    <th mat-header-cell *matHeaderCellDef>Débit</th>
+                    <td mat-cell *matCellDef="let mouvement">
+                      {{mouvement.debit > 0 ? (mouvement.debit | currency:'EUR':'symbol':'1.2-2') : ''}}
+                    </td>
+                    <td mat-footer-cell *matFooterCellDef>
+                      <strong>{{compteLivre.totaux.debit | currency:'EUR':'symbol':'1.2-2'}}</strong>
+                    </td>
+                  </ng-container>
+
+                  <!-- Crédit Column -->
+                  <ng-container matColumnDef="credit">
+                    <th mat-header-cell *matHeaderCellDef>Crédit</th>
+                    <td mat-cell *matCellDef="let mouvement">
+                      {{mouvement.credit > 0 ? (mouvement.credit | currency:'EUR':'symbol':'1.2-2') : ''}}
+                    </td>
+                    <td mat-footer-cell *matFooterCellDef>
+                      <strong>{{compteLivre.totaux.credit | currency:'EUR':'symbol':'1.2-2'}}</strong>
+                    </td>
+                  </ng-container>
+
+                  <!-- Solde Column -->
+                  <ng-container matColumnDef="solde">
+                    <th mat-header-cell *matHeaderCellDef>Solde progressif</th>
+                    <td mat-cell *matCellDef="let mouvement">
+                      {{mouvement.solde | currency:'EUR':'symbol':'1.2-2'}}
+                    </td>
+                    <td mat-footer-cell *matFooterCellDef>
+                      <strong>{{compteLivre.totaux.solde | currency:'EUR':'symbol':'1.2-2'}}</strong>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="['date', 'libelle', 'debit', 'credit', 'solde']; sticky: true"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['date', 'libelle', 'debit', 'credit', 'solde'];"></tr>
+                  <tr mat-footer-row *matFooterRowDef="['date', 'libelle', 'debit', 'credit', 'solde']; sticky: true"></tr>
+                </table>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

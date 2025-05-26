@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { StockManagementService } from '../services/gestion-de-stock.service';
 import { Produit } from '../Models/Produit';
 
@@ -8,13 +8,15 @@ import { Produit } from '../Models/Produit';
   styleUrls: ['./produit.component.css']
 })
 export class ProduitComponent implements OnInit {
+  @ViewChild('formContainer') formContainer!: ElementRef;
+
   produits: Produit[] = [];
-  filteredProduits: Produit[] = []; // Array for filtered products
+  filteredProduits: Produit[] = [];
   selectedProduit: Produit | null = null;
-  newProduit: Produit = { nom: '', categorie: '', prix: 0, stock: 0 };
+  newProduit: Produit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
   editMode: boolean = false;
   errorMessage: string | null = null;
-  searchTerm: string = ''; // Property for search term
+  searchTerm: string = '';
 
   constructor(private stockService: StockManagementService) {}
 
@@ -26,7 +28,7 @@ export class ProduitComponent implements OnInit {
     this.stockService.getProduits().subscribe({
       next: (produits) => {
         this.produits = produits;
-        this.filteredProduits = produits; // Initialize filteredProduits with all products
+        this.filteredProduits = produits;
         this.errorMessage = null;
       },
       error: (err) => {
@@ -49,13 +51,31 @@ export class ProduitComponent implements OnInit {
     });
   }
 
+  openAddProduitForm(): void {
+    this.editMode = true;
+    this.selectedProduit = null;
+    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
+
+    // Attendre que le DOM soit mis à jour
+    setTimeout(() => {
+      if (this.formContainer) {
+        this.formContainer.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  }
+
   addProduit(): void {
+    if (this.newProduit.prix! < 0 || this.newProduit.stock < 0 || this.newProduit.seuilAlerte < 0) {
+      this.errorMessage = 'Les valeurs de prix, stock et seuil d\'alerte doivent être positives.';
+      return;
+    }
     this.stockService.createProduit(this.newProduit).subscribe({
       next: (produit) => {
         this.produits.push(produit);
-        this.filteredProduits = this.produits; // Reset filtered list to show all products
-        this.searchTerm = ''; // Clear search term after adding
-        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0 };
+        this.filteredProduits = this.produits;
+        this.searchTerm = '';
+        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
+        this.editMode = false;
         this.errorMessage = null;
       },
       error: (err) => {
@@ -67,19 +87,30 @@ export class ProduitComponent implements OnInit {
 
   editProduit(produit: Produit): void {
     this.selectedProduit = { ...produit };
-    this.newProduit = { ...produit };
+    this.newProduit = { ...produit, seuilAlerte: produit.seuilAlerte || 0 };
     this.editMode = true;
+
+    // Attendre que le DOM soit mis à jour
+    setTimeout(() => {
+      if (this.formContainer) {
+        this.formContainer.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
   }
 
   updateProduit(): void {
     if (!this.selectedProduit || !this.selectedProduit._id) return;
+    if (this.newProduit.prix! < 0 || this.newProduit.stock < 0 || this.newProduit.seuilAlerte < 0) {
+      this.errorMessage = 'Les valeurs de prix, stock et seuil d\'alerte doivent être positives.';
+      return;
+    }
     this.stockService.updateProduit(this.newProduit).subscribe({
       next: (produit) => {
         this.produits = this.produits.map(p => p._id === produit._id ? produit : p);
-        this.filteredProduits = this.produits; // Reset filtered list to show all products
-        this.searchTerm = ''; // Clear search term after updating
+        this.filteredProduits = this.produits;
+        this.searchTerm = '';
         this.selectedProduit = null;
-        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0 };
+        this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
         this.editMode = false;
         this.errorMessage = null;
       },
@@ -91,30 +122,35 @@ export class ProduitComponent implements OnInit {
   }
 
   deleteProduit(id: string): void {
-    this.stockService.deleteProduit(id).subscribe({
-      next: () => {
-        console.log('Produit supprimé avec succès');
-        this.produits = this.produits.filter(p => p._id !== id);
-        this.filteredProduits = this.produits; // Reset filtered list to show all products
-        this.searchTerm = ''; // Clear search term after deleting
-        this.errorMessage = null;
-      },
-      error: (err) => {
-        this.errorMessage = 'Erreur lors de la suppression du produit: ' + err.message;
-        console.error('Erreur lors de la suppression du produit:', err);
-      }
-    });
+    if (!id) {
+      this.errorMessage = 'ID du produit invalide';
+      return;
+    }
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+      this.stockService.deleteProduit(id).subscribe({
+        next: () => {
+          this.produits = this.produits.filter(p => p._id !== id);
+          this.filteredProduits = this.produits;
+          this.searchTerm = '';
+          this.errorMessage = null;
+        },
+        error: (err) => {
+          this.errorMessage = 'Erreur lors de la suppression du produit : ' + err.message;
+          console.error('Erreur lors de la suppression du produit:', err);
+        }
+      });
+    }
   }
 
   cancelEdit(): void {
     this.selectedProduit = null;
-    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0 };
+    this.newProduit = { nom: '', categorie: '', prix: 0, stock: 0, seuilAlerte: 0 };
     this.editMode = false;
   }
 
   filterProduits(): void {
     if (!this.searchTerm) {
-      this.filteredProduits = this.produits; // Show all products if search term is empty
+      this.filteredProduits = this.produits;
       return;
     }
 

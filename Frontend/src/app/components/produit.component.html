@@ -1,64 +1,84 @@
-<div class="container">
-  <!-- Search bar at the top-right -->
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-    <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un produit..." name="searchTerm" style="padding: 5px; margin-right: 10px;">
-    <button (click)="filterProduits()" style="padding: 5px 10px;">Rechercher</button>
+<div class="ms-container">
+  <h2 class="page-title">Liste des Produits</h2>
+
+  <div class="controls-container">
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder="Rechercher par nom ou catégorie..."
+        [(ngModel)]="searchTerm"
+        (input)="filterProduits()"
+        class="search-input"
+      />
+    </div>
+    <div class="action-buttons">
+      <button (click)="openAddProduitForm()" class="btn btn-success">Ajouter un produit</button>
+      <a routerLink="/home" class="btn btn-primary">
+        <i class="fas fa-home"></i>
+      </a>
+    </div>
   </div>
 
-  <div class="form-container">
-    <h3>{{ editMode ? 'Modifier un produit' : 'Ajouter un produit' }}</h3>
-    <form (ngSubmit)="editMode ? updateProduit() : addProduit()">
-      <div>
-        <label>Nom: </label>
-        <input type="text" [(ngModel)]="newProduit.nom" name="nom" required>
-      </div>
-      <div>
-        <label>Catégorie: </label>
-        <input type="text" [(ngModel)]="newProduit.categorie" name="categorie" required>
-      </div>
-      <div>
-        <label>Prix: </label>
-        <input type="number" [(ngModel)]="newProduit.prix" name="prix" required min="0">
-      </div>
-      <div>
-        <label>Stock: </label>
-        <input type="number" [(ngModel)]="newProduit.stock" name="stock" required min="0">
-      </div>
-      <button type="submit">{{ editMode ? 'Mettre à jour' : 'Ajouter' }}</button>
-      <button *ngIf="editMode" type="button" (click)="cancelEdit()">Annuler</button>
-    </form>
-    <!-- Affichage des erreurs -->
-    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
   </div>
 
-  <!-- Moved "Liste des Produits" just above the table -->
-  <h2>Liste des Produits</h2>
-
-  <!-- Table always displayed -->
-  <table>
+  <table class="table" *ngIf="filteredProduits.length > 0">
     <thead>
       <tr>
         <th>Nom</th>
         <th>Catégorie</th>
         <th>Prix</th>
         <th>Stock</th>
+        <th>Alerte</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let produit of filteredProduits">
+      <tr *ngFor="let produit of filteredProduits" [class.alert-warning]="produit.stock !== undefined && produit.seuilAlerte !== undefined && produit.stock <= produit.seuilAlerte">
         <td>{{ produit.nom }}</td>
         <td>{{ produit.categorie }}</td>
-        <td>{{ produit.prix }}</td>
+        <td>{{ produit.prix | currency:'EUR' }}</td>
         <td>{{ produit.stock }}</td>
+        <td>{{ produit.seuilAlerte }}</td>
         <td>
-          <button (click)="editProduit(produit)">Modifier</button>
-          <button *ngIf="produit._id" (click)="deleteProduit(produit._id)">Supprimer</button>
+          <button (click)="editProduit(produit)" class="btn btn-info">Modifier</button>
+          <button (click)="deleteProduit(produit._id || '')" class="btn btn-danger">Supprimer</button>
+          <button [routerLink]="['/stock-movements']" [queryParams]="{ produitId: produit._id }" class="btn btn-info">Mouvement de Stock</button>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <!-- Message when no products match the search -->
-  <p *ngIf="filteredProduits.length === 0" class="no-products-message">Aucun produit trouvé</p>
+  <p *ngIf="filteredProduits.length === 0 && !errorMessage" class="no-results">Aucun produit trouvé.</p>
+
+  <div *ngIf="editMode" class="form-container" #formContainer>
+    <h3>{{ selectedProduit ? 'Modifier le produit' : 'Ajouter un produit' }}</h3>
+    <form (ngSubmit)="selectedProduit ? updateProduit() : addProduit()">
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" [(ngModel)]="newProduit.nom" name="nom" required />
+      </div>
+      <div class="form-group">
+        <label for="categorie">Catégorie</label>
+        <input type="text" id="categorie" [(ngModel)]="newProduit.categorie" name="categorie" required />
+      </div>
+      <div class="form-group">
+        <label for="prix">Prix</label>
+        <input type="number" id="prix" [(ngModel)]="newProduit.prix" name="prix" required min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label for="stock">Stock</label>
+        <input type="number" id="stock" [(ngModel)]="newProduit.stock" name="stock" required min="0" step="1" />
+      </div>
+      <div class="form-group">
+        <label for="seuilAlerte">Seuil d'Alerte</label>
+        <input type="number" id="seuilAlerte" [(ngModel)]="newProduit.seuilAlerte" name="seuilAlerte" required min="0" step="1" />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">{{ selectedProduit ? 'Enregistrer' : 'Ajouter' }}</button>
+        <button type="button" (click)="cancelEdit()" class="btn btn-secondary">Annuler</button>
+      </div>
+    </form>
+  </div>
 </div>

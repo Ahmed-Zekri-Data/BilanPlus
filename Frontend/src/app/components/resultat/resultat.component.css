@@ -1,0 +1,152 @@
+.resultat-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filtres-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.resultat-content {
+  margin-top: 20px;
+}
+
+.resultat-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.resultat-header h2 {
+  font-size: 1.8em;
+  color: #3f51b5;
+  margin: 0 0 8px 0;
+}
+
+.resultat-header p {
+  font-size: 1.1em;
+  color: #555;
+  margin: 0;
+}
+
+.resultat-columns {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.charges-column, .produits-column {
+  flex: 1;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 16px;
+}
+
+h3 {
+  color: #3f51b5;
+  text-align: center;
+  margin-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.categorie {
+  margin-bottom: 20px;
+}
+
+.categorie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.categorie-header h4 {
+  margin: 0;
+  color: #3f51b5;
+}
+
+.categorie-total {
+  font-weight: bold;
+}
+
+.comptes {
+  margin-left: 12px;
+}
+
+.compte {
+  margin-bottom: 6px;
+}
+
+.compte-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.compte-label {
+  color: #555;
+}
+
+.compte-montant {
+  color: #333;
+  font-weight: 500;
+}
+
+.total-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #e8eaf6;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.total-label {
+  color: #3f51b5;
+}
+
+.resultat-net {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-top: 20px;
+}
+
+.benefice {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.perte {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.resultat-net-montant {
+  font-size: 1.2em;
+}

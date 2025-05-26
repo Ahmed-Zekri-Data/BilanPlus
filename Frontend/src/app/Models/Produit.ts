@@ -1,8 +1,8 @@
 export interface Produit {
-    _id?: string;
-    nom: string;
-    categorie: string;
-    prix: number;
-    stock: number;
-  }
-  
+  _id?: string;
+  nom: string;
+  categorie: string;
+  prix: number;
+  stock: number;
+  seuilAlerte: number;
+}

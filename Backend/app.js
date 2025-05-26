@@ -1,46 +1,48 @@
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const path = require("path");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
-var express = require("express");
-var http = require("http");
-var bodyParser = require("body-parser");
-var path = require("path");
-var cors = require("cors"); // Middleware CORS pour autoriser les requêtes depuis le frontend
-
-var mongo = require("mongoose");
-var config = require("./Config/db.json");
+const config = require("./Config/db.json");
 
 // Importation des routes
-var TVArouter = require("./Routes/TVAroute");
-var Userrouter = require("./Routes/Utilisateur");
-var Rolerouter = require("./Routes/Roleroute");
-var PRODrouter = require("./Routes/Produitroute");
-var MSrouter = require("./Routes/MSroute");
-var DFrouter = require("./Routes/DeclarationFiscaleRoute");
-var CompteRouter = require("./Routes/CompteRoute");
-var EcritureRouter = require("./Routes/EcritureRoute");
+const TVArouter = require("./Routes/TVAroute");
+const Userrouter = require("./Routes/Utilisateur");
+const Rolerouter = require("./Routes/Roleroute");
+const PRODrouter = require("./Routes/Produitroute");
+const MSrouter = require("./Routes/MSroute");
+const DFrouter = require("./Routes/DeclarationFiscaleRoute");
+const CompteRouter = require("./Routes/CompteRoute");
+const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-var clientRoutes = require("./Routes/clientRoutes")
-var factureRoutes = require("./Routes/factureRoutes")
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
+const JournalRouter = require("./Routes/JournalRoute");
+const GrandLivreRouter = require("./Routes/GrandLivreRoute");
+const BalanceRouter = require("./Routes/BalanceRoute");
+const BilanRouter = require("./Routes/BilanRoute");
+const ResultatRouter = require("./Routes/ResultatRoute");
+const DashboardRouter = require("./Routes/DashboardRoute");
+const froutes = require("./Routes/fiscaliteRoutes"); // Fiscalité (Déclarations et TVA)
+
+const app = express();
 
 // Connexion à la base de données
-mongo
+mongoose
   .connect(config.url)
   .then(() => console.log("✅ Database connected successfully"))
   .catch((err) => console.error("❌ Database connection failed:", err));
-
-
-// Initialisation de l'application Express
-var app = express();
 
 // Middleware CORS pour autoriser les requêtes du frontend Angular
 app.use(cors({
   origin: 'http://localhost:4200'
 }));
 
-
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
-
 app.use(bodyParser.json());
 
 // Configuration des routes
@@ -57,7 +59,13 @@ app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/clients", clientRoutes);
 app.use("/factures", factureRoutes);
-
+app.use("/journal", JournalRouter);
+app.use("/grand-livre", GrandLivreRouter);
+app.use("/balance", BalanceRouter);
+app.use("/bilan", BilanRouter);
+app.use("/resultat", ResultatRouter);
+app.use("/dashboard", DashboardRouter);
+app.use("/fiscalite", froutes);
 
 const server = http.createServer(app);
 
@@ -66,4 +74,3 @@ server.listen(3000, () => {
 });
 
 module.exports = app;
-

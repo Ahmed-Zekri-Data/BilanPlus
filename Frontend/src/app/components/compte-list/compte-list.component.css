@@ -1,0 +1,32 @@
+.compte-list-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #3f51b5;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.compte-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compte-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.compte-item mat-card-content {
+  flex-grow: 1;
+}
+
+button {
+  margin: 10px 0;
+}

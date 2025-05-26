@@ -1,34 +1,77 @@
-<div>
-  <h2>Liste des Déclarations Fiscales</h2>
-  <button mat-raised-button color="primary" (click)="addNewDeclaration()">Ajouter une Nouvelle Déclaration</button>
-  <table *ngIf="declarations.length > 0; else noDeclarations" class="declaration-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Période</th>
-        <th>Montant Total</th>
-        <th>Statut</th>
-        <th>Compte Comptable</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let declaration of declarations">
-        <td>{{ declaration._id }}</td>
-        <td>{{ declaration.periode }}</td>
-        <td>{{ declaration.montantTotal }}</td>
-        <td>{{ declaration.statut }}</td>
-        <td>{{ declaration.compteComptable }}</td>
-        <td>
-          <button mat-raised-button color="primary" (click)="editDeclaration(declaration._id!)">Modifier</button>
-          <button mat-raised-button color="accent" (click)="viewDetails(declaration._id!)">Détails</button>
-          <button mat-raised-button color="warn" (click)="deleteDeclaration(declaration._id!)">Supprimer</button>
+<div class="Achour-container">
+  <div class="header-container">
+    <span>Liste des Déclarations Fiscales</span>
+  </div>
+  <div class="body-container">
+    <div class="actions-container">
+      <button mat-raised-button class="actions-button" color="primary" (click)="addDeclaration()">Ajouter une Déclaration</button>
+    </div>
+
+    <div *ngIf="errors.length > 0" class="error-container">
+      <p class="error-title">Erreur(s) :</p>
+      <ul>
+        <li *ngFor="let error of errors" class="error">{{ error }}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="declarations.length === 0 && errors.length === 0">
+      <p>Aucune déclaration trouvée.</p>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" [hidden]="declarations.length === 0">
+      <ng-container matColumnDef="periode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Période</th>
+        <td mat-cell *matCellDef="let declaration">{{ formatPeriode(declaration.periode) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="montantTotal">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Montant Total (TND)</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.montantTotal | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalTVACollectee">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>TVA Collectée (TND)</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.totalTVACollectee !== undefined ? (declaration.totalTVACollectee | number:'1.2-2') : 'N/A' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalTVADeductible">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>TVA Déductible (TND)</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.totalTVADeductible !== undefined ? (declaration.totalTVADeductible | number:'1.2-2')  : 'N/A' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalTVADue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>TVA Nette (TND)</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.totalTVADue !== undefined ? (declaration.totalTVADue | number:'1.2-2')  : 'N/A' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="statut">
+        <th mat-header-cell mat-sort-header *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.statut }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td mat-cell *matCellDef="let declaration">{{ declaration.type || 'N/A' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let declaration">
+          <button mat-icon-button color="primary" (click)="viewDetails(declaration._id)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editDeclaration(declaration._id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteDeclaration(declaration._id)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </td>
-      </tr>
-    </tbody>
-  </table>
-  <ng-template #noDeclarations>
-    <p>Aucune déclaration disponible.</p>
-  </ng-template>
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
 </div>
