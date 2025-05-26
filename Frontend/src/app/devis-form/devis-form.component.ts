@@ -23,40 +23,43 @@ export class DevisFormComponent implements OnInit {
       statut: ['Brouillon']
     });
   }
-  dateInférieureOuÉgaleAujourdhui(control: AbstractControl): ValidationErrors | null {
-    const valeur = control.value;
-    if (!valeur) return null;
-  
-    const today = new Date();
-    const inputDate = new Date(valeur);
-  
-    inputDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-  
-    return inputDate <= today ? null : { dateInvalide: true };
-  }
-  
+
+dateSuperieureOuEgaleAujourdhui(control: AbstractControl): ValidationErrors | null {
+  const valeur = control.value;
+  if (!valeur) return null;
+
+  const today = new Date();
+  const inputDate = new Date(valeur);
+
+  inputDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  // Renvoie une erreur si la date est strictement inférieure à aujourd’hui
+  return inputDate < today ? { dateInvalide: true } : null;
+}
+
+
 
   ngOnInit(): void {
     const storedClients = localStorage.getItem('clients');
     if (storedClients) {
       this.clients = JSON.parse(storedClients);
     }
-  
+
     this.produitsList = [
       { _id: 'prod1', nom: 'Produit A', prix: 100 },
       { _id: 'prod2', nom: 'Produit B', prix: 200 },
       { _id: 'prod3', nom: 'Produit C', prix: 150 }
     ];
-  
-    this.devisForm.get('echeance')?.setValidators([
-      Validators.required,
-      this.dateInférieureOuÉgaleAujourdhui
-    ]);
-  
+
+this.devisForm.get('echeance')?.setValidators([
+  Validators.required,
+  this.dateSuperieureOuEgaleAujourdhui.bind(this)
+]);
+
+
     this.addProduit();
   }
-  
 
   get produitsArray() {
     return this.devisForm.get('produits') as FormArray;
@@ -80,7 +83,7 @@ export class DevisFormComponent implements OnInit {
       const produitGroup = this.produitsArray.at(i) as FormGroup;
       const produitId = produitGroup.get('produitId')?.value;
       const quantite = produitGroup.get('quantite')?.value || 0;
-      
+
       const produit = this.produitsList.find(p => p._id === produitId);
       if (produit) {
         total += produit.prix * quantite;
@@ -99,7 +102,22 @@ export class DevisFormComponent implements OnInit {
     return this.calculerTotalHT() + this.calculerMontantTVA();
   }
 
+  isReferenceUnique(reference: string): boolean {
+    const existingDevis = JSON.parse(localStorage.getItem('devis') || '[]');
+    return !existingDevis.some((devis: any) => devis.reference === reference);
+  }
+
   onSubmit() {
+    const referenceControl = this.devisForm.get('reference');
+    const reference = referenceControl?.value;
+
+    if (!this.isReferenceUnique(reference)) {
+      referenceControl?.setErrors({ referenceExistante: true });
+      referenceControl?.markAsTouched();
+      this.message = '';
+      return;
+    }
+
     if (this.devisForm.valid) {
       const newDevis = {
         ...this.devisForm.value,
@@ -109,7 +127,6 @@ export class DevisFormComponent implements OnInit {
         montantTTC: this.calculerTotalTTC()
       };
 
-      // Récupérer les devis existants du localStorage
       const existingDevis = JSON.parse(localStorage.getItem('devis') || '[]');
       existingDevis.push(newDevis);
       localStorage.setItem('devis', JSON.stringify(existingDevis));
@@ -119,8 +136,7 @@ export class DevisFormComponent implements OnInit {
         statut: 'Brouillon',
         tva: ''
       });
-      
-      // Réinitialiser les produits
+
       while (this.produitsArray.length) {
         this.produitsArray.removeAt(0);
       }

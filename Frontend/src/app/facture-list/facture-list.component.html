@@ -1,230 +1,229 @@
 <div class="list-container">
-    <h2>Liste des Factures</h2>
-  
-    <!-- Champ de recherche -->
-    <input
-      type="text"
-      [(ngModel)]="searchTerm"
-      name="search"
-      placeholder="🔍 Rechercher par référence ou client..."
-      class="search-input"
-    />
-  
-    <div class="filter-section">
-      <label>Filtrer par statut:</label>
-      <select [(ngModel)]="statusFilter">
-        <option value="">Tous</option>
-        <option value="Validée">Validée</option>
-        <option value="Payée">Payée</option>
-        <option value="Paiement Partiel">Paiement Partiel</option>
-        <option value="En retard">En retard</option>
-      </select>
+  <h2>Liste des Factures</h2>
+
+  <!-- Champ de recherche -->
+  <input
+    type="text"
+    [(ngModel)]="searchTerm"
+    name="search"
+    placeholder="🔍 Rechercher par référence ou client..."
+    class="search-input"
+  />
+
+  <div class="filter-section">
+    <label>Filtrer par statut:</label>
+    <select [(ngModel)]="statusFilter">
+      <option value="">Tous</option>
+      <option value="Validée">Validée</option>
+      <option value="Payée">Payée</option>
+      <option value="Paiement Partiel">Paiement Partiel</option>
+      <option value="En retard">En retard</option>
+    </select>
+  </div>
+
+  <table *ngIf="filteredFactures.length > 0; else noFactures" class="facture-table">
+    <thead>
+      <tr>
+        <th>Référence</th>
+        <th>Client</th>
+        <th>Date Émission</th>
+        <th>Échéance</th>
+        <th>Montant TTC</th>
+        <th>Statut</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let facture of filteredFactures; let i = index" [ngClass]="{
+        'highlight-warning': isNearDueDate(facture),
+        'highlight-danger': isOverdue(facture)
+      }">
+        <td>{{ facture.reference }}</td>
+        <td>{{ getClientName(facture.client) }}</td>
+        <td>{{ facture.dateEmission | date:'dd/MM/yyyy' }}</td>
+        <td>{{ facture.echeance | date:'dd/MM/yyyy' }}</td>
+        <td>{{ facture.montantTTC | currency:'EUR' }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="'status-' + facture.statut.toLowerCase().replace(' ', '-')">
+            {{ facture.statut }}
+          </span>
+        </td>
+        <td class="actions-col">
+          <button class="btn view" (click)="viewFacture(i)">Détails</button>
+          <button class="btn payment" *ngIf="facture.statut !== 'Payée'" (click)="addPayment(i)">
+            Ajouter Paiement
+          </button>
+          <button class="btn reminder" *ngIf="facture.statut === 'En retard'" (click)="sendReminder(i)">
+            Relancer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noFactures>
+    <p>Aucune facture ne correspond à la recherche.</p>
+  </ng-template>
+
+  <!-- Modal de détails de la facture -->
+  <div *ngIf="selectedFacture" class="modal">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h3>Détails de la Facture - {{ selectedFacture.reference }}</h3>
+      
+      <div class="facture-details">
+        <div class="detail-section">
+          <h4>Informations Générales</h4>
+          <p><strong>Référence:</strong> {{ selectedFacture.reference }}</p>
+          <p><strong>Client:</strong> {{ getClientName(selectedFacture.client) }}</p>
+          <p><strong>Date d'émission:</strong> {{ selectedFacture.dateEmission | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Date d'échéance:</strong> {{ selectedFacture.echeance | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Statut:</strong> 
+            <span class="status-badge" [ngClass]="'status-' + selectedFacture.statut.toLowerCase().replace(' ', '-')">
+              {{ selectedFacture.statut }}
+            </span>
+          </p>
+        </div>
+        
+        <div class="detail-section">
+          <h4>Produits</h4>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Total HT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let produit of selectedFactureProduits">
+                <td>{{ produit.nom }}</td>
+                <td>{{ produit.quantite }}</td>
+                <td>{{ produit.prix | currency:'EUR' }}</td>
+                <td>{{ produit.prix * produit.quantite | currency:'EUR' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="detail-section totals">
+          <p><strong>Total HT:</strong> {{ selectedFacture.montantHT | currency:'EUR' }}</p>
+          <p><strong>TVA ({{ selectedFacture.tva }}%):</strong> {{ selectedFacture.montantTVA | currency:'EUR' }}</p>
+          <p class="grand-total"><strong>Total TTC:</strong> {{ selectedFacture.montantTTC | currency:'EUR' }}</p>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedFacturePaiements.length > 0">
+          <h4>Historique des Paiements</h4>
+          <table class="payments-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Montant</th>
+                <th>Mode de paiement</th>
+                <th>Référence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let paiement of selectedFacturePaiements">
+                <td>{{ paiement.date | date:'dd/MM/yyyy' }}</td>
+                <td>{{ paiement.montant | currency:'EUR' }}</td>
+                <td>{{ paiement.modePaiement }}</td>
+                <td>{{ paiement.reference }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="remaining" *ngIf="getRemainingAmount() > 0">
+            <strong>Reste à payer:</strong> {{ getRemainingAmount() | currency:'EUR' }}
+          </p>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedFactureRelances.length > 0">
+          <h4>Historique des Relances</h4>
+          <table class="reminders-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Moyen</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let relance of selectedFactureRelances">
+                <td>{{ relance.date | date:'dd/MM/yyyy' }}</td>
+                <td>{{ relance.type }}</td>
+                <td>{{ relance.moyen }}</td>
+                <td>{{ relance.statut }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="action-buttons">
+          <button *ngIf="selectedFacture.statut !== 'Payée'" class="btn payment" (click)="addPaymentToSelected()">
+            Ajouter Paiement
+          </button>
+          <button *ngIf="selectedFacture.statut === 'En retard'" class="btn reminder" (click)="sendReminderToSelected()">
+            Envoyer Relance
+          </button>
+          <button class="btn print" (click)="convertToPDF()">Convertir</button>
+        </div>
+      </div>
     </div>
-  
-    <table *ngIf="filteredFactures.length > 0; else noFactures" class="facture-table">
-      <thead>
-        <tr>
-          <th>Référence</th>
-          <th>Client</th>
-          <th>Date Émission</th>
-          <th>Échéance</th>
-          <th>Montant TTC</th>
-          <th>Statut</th>
-          <th class="actions-col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let facture of filteredFactures; let i = index" [ngClass]="{
-            'highlight-warning': isNearDueDate(facture),
-            'highlight-danger': isOverdue(facture)
-          }">
-            <td>{{ facture.reference }}</td>
-            <td>{{ getClientName(facture.client) }}</td>
-            <td>{{ facture.dateEmission | date:'dd/MM/yyyy' }}</td>
-            <td>{{ facture.echeance | date:'dd/MM/yyyy' }}</td>
-            <td>{{ facture.montantTTC | currency:'EUR' }}</td>
-            <td>
-              <span class="status-badge" [ngClass]="'status-' + facture.statut.toLowerCase().replace(' ', '-')">
-                {{ facture.statut }}
-              </span>
-            </td>
-            <td class="actions-col">
-              <button class="btn view" (click)="viewFacture(i)">Détails</button>
-              <button class="btn payment" *ngIf="facture.statut !== 'Payée'" (click)="addPayment(i)">
-                Ajouter Paiement
-              </button>
-              <button class="btn reminder" *ngIf="facture.statut === 'En retard'" (click)="sendReminder(i)">
-                Relancer
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    
-      <ng-template #noFactures>
-        <p>Aucune facture ne correspond à la recherche.</p>
-      </ng-template>
-    
-      <!-- Modal de détails de la facture -->
-      <div *ngIf="selectedFacture" class="modal">
-        <div class="modal-content">
-          <span class="close" (click)="closeModal()">&times;</span>
-          <h3>Détails de la Facture - {{ selectedFacture.reference }}</h3>
-          
-          <div class="facture-details">
-            <div class="detail-section">
-              <h4>Informations Générales</h4>
-              <p><strong>Référence:</strong> {{ selectedFacture.reference }}</p>
-              <p><strong>Client:</strong> {{ getClientName(selectedFacture.client) }}</p>
-              <p><strong>Date d'émission:</strong> {{ selectedFacture.dateEmission | date:'dd/MM/yyyy' }}</p>
-              <p><strong>Date d'échéance:</strong> {{ selectedFacture.echeance | date:'dd/MM/yyyy' }}</p>
-              <p><strong>Statut:</strong> 
-                <span class="status-badge" [ngClass]="'status-' + selectedFacture.statut.toLowerCase().replace(' ', '-')">
-                  {{ selectedFacture.statut }}
-                </span>
-              </p>
-            </div>
-            
-            <div class="detail-section">
-              <h4>Produits</h4>
-              <table class="products-table">
-                <thead>
-                  <tr>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Prix unitaire</th>
-                    <th>Total HT</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let produit of selectedFactureProduits">
-                    <td>{{ produit.nom }}</td>
-                    <td>{{ produit.quantite }}</td>
-                    <td>{{ produit.prix | currency:'EUR' }}</td>
-                    <td>{{ produit.prix * produit.quantite | currency:'EUR' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="detail-section totals">
-              <p><strong>Total HT:</strong> {{ selectedFacture.montantHT | currency:'EUR' }}</p>
-              <p><strong>TVA ({{ selectedFacture.tva }}%):</strong> {{ selectedFacture.montantTVA | currency:'EUR' }}</p>
-              <p class="grand-total"><strong>Total TTC:</strong> {{ selectedFacture.montantTTC | currency:'EUR' }}</p>
-            </div>
-    
-            <div class="detail-section" *ngIf="selectedFacturePaiements.length > 0">
-              <h4>Historique des Paiements</h4>
-              <table class="payments-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Montant</th>
-                    <th>Mode de paiement</th>
-                    <th>Référence</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let paiement of selectedFacturePaiements">
-                    <td>{{ paiement.date | date:'dd/MM/yyyy' }}</td>
-                    <td>{{ paiement.montant | currency:'EUR' }}</td>
-                    <td>{{ paiement.modePaiement }}</td>
-                    <td>{{ paiement.reference }}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <p class="remaining" *ngIf="getRemainingAmount() > 0">
-                <strong>Reste à payer:</strong> {{ getRemainingAmount() | currency:'EUR' }}
-              </p>
-            </div>
-    
-            <div class="detail-section" *ngIf="selectedFactureRelances.length > 0">
-              <h4>Historique des Relances</h4>
-              <table class="reminders-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Moyen</th>
-                    <th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let relance of selectedFactureRelances">
-                    <td>{{ relance.date | date:'dd/MM/yyyy' }}</td>
-                    <td>{{ relance.type }}</td>
-                    <td>{{ relance.moyen }}</td>
-                    <td>{{ relance.statut }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-    
-            <div class="action-buttons">
-              <button *ngIf="selectedFacture.statut !== 'Payée'" class="btn payment" (click)="addPaymentToSelected()">
-                Ajouter Paiement
-              </button>
-              <button *ngIf="selectedFacture.statut === 'En retard'" class="btn reminder" (click)="sendReminderToSelected()">
-                Envoyer Relance
-              </button>
-              <button class="btn print" (click)="printFacture()">Imprimer</button>
-            </div>
+  </div>
+
+  <!-- Modal d'ajout de paiement -->
+  <div *ngIf="showPaymentModal" class="modal">
+    <div class="modal-content payment-modal">
+      <span class="close" (click)="closePaymentModal()">&times;</span>
+      <h3>Ajouter un Paiement</h3>
+      
+      <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
+        <div class="form-group">
+          <label for="montant">Montant</label>
+          <input 
+            type="number" 
+            id="montant" 
+            formControlName="montant" 
+            placeholder="Montant du paiement"
+            [max]="currentRemainingAmount"
+          >
+          <div *ngIf="paymentForm.get('montant')?.invalid && paymentForm.get('montant')?.touched" class="error-message">
+            <div *ngIf="paymentForm.get('montant')?.errors?.['required']">Le montant est requis.</div>
+            <div *ngIf="paymentForm.get('montant')?.errors?.['min']">Le montant doit être supérieur à 0.</div>
+            <div *ngIf="paymentForm.get('montant')?.errors?.['max']">Le montant ne peut pas dépasser le reste à payer.</div>
           </div>
         </div>
-      </div>
-    
-      <!-- Modal d'ajout de paiement -->
-      <div *ngIf="showPaymentModal" class="modal">
-        <div class="modal-content payment-modal">
-          <span class="close" (click)="closePaymentModal()">&times;</span>
-          <h3>Ajouter un Paiement</h3>
-          
-          <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
-            <div class="form-group">
-              <label for="montant">Montant</label>
-              <input 
-                type="number" 
-                id="montant" 
-                formControlName="montant" 
-                placeholder="Montant du paiement"
-                [max]="currentRemainingAmount"
-              >
-              <div *ngIf="paymentForm.get('montant')?.invalid && paymentForm.get('montant')?.touched" class="error-message">
-                <div *ngIf="paymentForm.get('montant')?.errors?.['required']">Le montant est requis.</div>
-                <div *ngIf="paymentForm.get('montant')?.errors?.['min']">Le montant doit être supérieur à 0.</div>
-                <div *ngIf="paymentForm.get('montant')?.errors?.['max']">Le montant ne peut pas dépasser le reste à payer.</div>
-              </div>
-            </div>
-    
-            <div class="form-group">
-              <label for="modePaiement">Mode de paiement</label>
-              <select id="modePaiement" formControlName="modePaiement">
-                <option value="">Sélectionner un mode</option>
-                <option value="Virement">Virement bancaire</option>
-                <option value="Carte">Carte bancaire</option>
-                <option value="Chèque">Chèque</option>
-                <option value="Espèces">Espèces</option>
-              </select>
-              <div *ngIf="paymentForm.get('modePaiement')?.invalid && paymentForm.get('modePaiement')?.touched" class="error-message">
-                Veuillez sélectionner un mode de paiement.
-              </div>
-            </div>
-    
-            <div class="form-group">
-              <label for="reference">Référence de transaction</label>
-              <input 
-                type="text" 
-                id="reference" 
-                formControlName="reference" 
-                placeholder="Référence de transaction (optionnel)"
-              >
-            </div>
-    
-            <div class="form-group">
-              <button type="submit" [disabled]="paymentForm.invalid">Enregistrer le paiement</button>
-            </div>
-          </form>
+
+        <div class="form-group">
+          <label for="modePaiement">Mode de paiement</label>
+          <select id="modePaiement" formControlName="modePaiement">
+            <option value="">Sélectionner un mode</option>
+            <option value="Virement">Virement bancaire</option>
+            <option value="Carte">Carte bancaire</option>
+            <option value="Chèque">Chèque</option>
+            <option value="Espèces">Espèces</option>
+          </select>
+          <div *ngIf="paymentForm.get('modePaiement')?.invalid && paymentForm.get('modePaiement')?.touched" class="error-message">
+            Veuillez sélectionner un mode de paiement.
+          </div>
         </div>
-      </div>
+
+        <div class="form-group">
+          <label for="reference">Référence de transaction</label>
+          <input 
+            type="text" 
+            id="reference" 
+            formControlName="reference" 
+            placeholder="Référence de transaction (optionnel)"
+          >
+        </div>
+
+        <div class="form-group">
+          <button type="submit" [disabled]="paymentForm.invalid">Enregistrer le paiement</button>
+        </div>
+      </form>
     </div>
-    
+  </div>
+</div>

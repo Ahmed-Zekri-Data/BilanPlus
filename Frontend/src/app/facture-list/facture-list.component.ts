@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { v4 as uuidv4 } from 'uuid';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-facture-list',
@@ -37,33 +39,34 @@ export class FactureListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Chargement des factures
     const storedFactures = localStorage.getItem('factures');
     if (storedFactures) {
       this.factures = JSON.parse(storedFactures);
+      this.factures = this.factures.map(facture => ({
+        ...facture,
+        _id: facture._id || uuidv4(),
+        montantTTC: Number(facture.montantTTC) || 0 // Assurer que montantTTC est un nombre
+      }));
+      localStorage.setItem('factures', JSON.stringify(this.factures));
       this.updateFacturesStatus();
     }
 
-    // Chargement des clients
     const storedClients = localStorage.getItem('clients');
     if (storedClients) {
       this.clients = JSON.parse(storedClients);
     }
 
-    // Pour la démo, produits fictifs
     this.produitsList = [
       { _id: 'prod1', nom: 'Produit A', prix: 100 },
       { _id: 'prod2', nom: 'Produit B', prix: 200 },
       { _id: 'prod3', nom: 'Produit C', prix: 150 }
     ];
 
-    // Chargement des paiements
     const storedPaiements = localStorage.getItem('paiements');
     if (storedPaiements) {
       this.paiements = JSON.parse(storedPaiements);
     }
 
-    // Chargement des relances
     const storedRelances = localStorage.getItem('relances');
     if (storedRelances) {
       this.relances = JSON.parse(storedRelances);
@@ -91,11 +94,9 @@ export class FactureListComponent implements OnInit {
     const today = new Date();
     
     this.factures.forEach(facture => {
-      // Calcul du total des paiements pour cette facture
-      const facturePayments = this.paiements.filter(p => p.factureId === facture._id || p.factureRef === facture.reference);
-      const totalPaid = facturePayments.reduce((sum, payment) => sum + payment.montant, 0);
+      const facturePayments = this.paiements.filter(p => p.factureId === facture._id);
+      const totalPaid = facturePayments.reduce((sum, payment) => sum + Number(payment.montant), 0);
       
-      // Vérification de l'état de paiement
       if (totalPaid >= facture.montantTTC) {
         facture.statut = 'Payée';
       } else if (totalPaid > 0) {
@@ -132,7 +133,6 @@ export class FactureListComponent implements OnInit {
     this.selectedFactureIndex = index;
     this.selectedFacture = { ...this.factures[index] };
     
-    // Récupération des informations détaillées des produits
     this.selectedFactureProduits = [];
     for (const item of this.selectedFacture.produits) {
       const produit = this.produitsList.find(p => p._id === item.produitId);
@@ -145,15 +145,8 @@ export class FactureListComponent implements OnInit {
       }
     }
 
-    // Récupération des paiements de cette facture
-    this.selectedFacturePaiements = this.paiements.filter(
-      p => p.factureId === this.selectedFacture._id || p.factureRef === this.selectedFacture.reference
-    );
-
-    // Récupération des relances de cette facture
-    this.selectedFactureRelances = this.relances.filter(
-      r => r.factureId === this.selectedFacture._id || r.factureRef === this.selectedFacture.reference
-    );
+    this.selectedFacturePaiements = this.paiements.filter(p => p.factureId === this.selectedFacture._id);
+    this.selectedFactureRelances = this.relances.filter(r => r.factureId === this.selectedFacture._id);
   }
 
   closeModal() {
@@ -162,25 +155,56 @@ export class FactureListComponent implements OnInit {
   }
 
   getRemainingAmount(): number {
-    if (!this.selectedFacture) return 0;
+    if (!this.selectedFacture || !this.selectedFacture.montantTTC) {
+      console.warn('Facture non définie ou montantTTC manquant:', this.selectedFacture);
+      return 0;
+    }
     
-    const totalPaid = this.selectedFacturePaiements.reduce((sum, payment) => sum + payment.montant, 0);
-    return Math.max(0, this.selectedFacture.montantTTC - totalPaid);
+    const totalPaid = this.selectedFacturePaiements.reduce((sum, payment) => sum + Number(payment.montant || 0), 0);
+    const remaining = Number(this.selectedFacture.montantTTC) - totalPaid;
+    
+    if (isNaN(remaining)) {
+      console.error('Calcul du reste à payer invalide:', {
+        montantTTC: this.selectedFacture.montantTTC,
+        totalPaid
+      });
+      return 0;
+    }
+    
+    return Math.max(0, remaining);
   }
 
   addPayment(index: number) {
     this.selectedFactureIndex = index;
     this.selectedFacture = { ...this.factures[index] };
     
-    // Calcul du montant restant à payer
-    this.selectedFacturePaiements = this.paiements.filter(
-      p => p.factureId === this.selectedFacture._id || p.factureRef === this.selectedFacture.reference
-    );
+    // Vérifier que la facture est valide
+    if (!this.selectedFacture._id || !this.selectedFacture.montantTTC) {
+      console.error('Facture invalide:', this.selectedFacture);
+      alert('Erreur : La facture sélectionnée est invalide.');
+      return;
+    }
+    
+    this.selectedFacturePaiements = this.paiements.filter(p => p.factureId === this.selectedFacture._id);
     this.currentRemainingAmount = this.getRemainingAmount();
     
-    // Mise à jour du validateur de montant maximum
+    // Vérifier si currentRemainingAmount est valide
+    if (this.currentRemainingAmount <= 0 && this.selectedFacture.statut !== 'Payée') {
+      console.warn('Reste à payer incohérent:', {
+        facture: this.selectedFacture,
+        currentRemainingAmount: this.currentRemainingAmount
+      });
+      this.currentRemainingAmount = Number(this.selectedFacture.montantTTC);
+    }
+    
+    this.paymentForm.reset({
+      montant: '',
+      modePaiement: '',
+      reference: ''
+    });
+    
     this.paymentForm.get('montant')?.setValidators([
-      Validators.required, 
+      Validators.required,
       Validators.min(0.01),
       Validators.max(this.currentRemainingAmount)
     ]);
@@ -195,35 +219,47 @@ export class FactureListComponent implements OnInit {
 
   closePaymentModal() {
     this.showPaymentModal = false;
-    this.paymentForm.reset();
+    this.paymentForm.reset({
+      montant: '',
+      modePaiement: '',
+      reference: ''
+    });
+    this.paymentForm.get('montant')?.setValidators([
+      Validators.required,
+      Validators.min(0.01)
+    ]);
+    this.paymentForm.get('montant')?.updateValueAndValidity();
   }
 
   submitPayment() {
     if (this.paymentForm.valid && this.selectedFacture) {
+      const montant = Number(this.paymentForm.value.montant);
+      if (montant > this.currentRemainingAmount) {
+        this.paymentForm.get('montant')?.setErrors({ max: true });
+        return;
+      }
+
       const newPayment = {
-        factureRef: this.selectedFacture.reference,
         factureId: this.selectedFacture._id,
-        montant: parseFloat(this.paymentForm.value.montant),
+        montant: montant,
         modePaiement: this.paymentForm.value.modePaiement,
         reference: this.paymentForm.value.reference || `PAY-${Date.now().toString().slice(-6)}`,
         date: new Date()
       };
 
-      // Ajout du paiement
       this.paiements.push(newPayment);
       localStorage.setItem('paiements', JSON.stringify(this.paiements));
 
-      // Mise à jour de la liste des paiements de la facture sélectionnée
       this.selectedFacturePaiements.push(newPayment);
       
-      // Mise à jour du statut de la facture
       this.updateFacturesStatus();
       this.selectedFacture = { ...this.factures[this.selectedFactureIndex] };
       
-      // Fermeture du modal
       this.closePaymentModal();
       
       alert('Paiement enregistré avec succès !');
+    } else {
+      this.paymentForm.markAllAsTouched();
     }
   }
 
@@ -236,17 +272,13 @@ export class FactureListComponent implements OnInit {
       return;
     }
     
-    // Détermination du type de relance en fonction du nombre de relances déjà envoyées
-    const factureRelances = this.relances.filter(
-      r => r.factureRef === facture.reference
-    );
+    const factureRelances = this.relances.filter(r => r.factureId === facture._id);
     
     let type = '1ère Relance';
     if (factureRelances.length === 1) type = '2ème Relance';
     else if (factureRelances.length >= 2) type = 'Mise en Demeure';
     
     const newRelance = {
-      factureRef: facture.reference,
       factureId: facture._id,
       client: client.nom,
       email: client.email,
@@ -256,11 +288,9 @@ export class FactureListComponent implements OnInit {
       statut: 'Envoyée'
     };
     
-    // Ajout de la relance
     this.relances.push(newRelance);
     localStorage.setItem('relances', JSON.stringify(this.relances));
     
-    // Si la facture est ouverte dans le modal, mettre à jour la liste des relances
     if (this.selectedFactureIndex === index) {
       this.selectedFactureRelances.push(newRelance);
     }
@@ -272,8 +302,22 @@ export class FactureListComponent implements OnInit {
     this.sendReminder(this.selectedFactureIndex);
   }
 
-  printFacture() {
-    alert(`Impression de la facture ${this.selectedFacture.reference}`);
-    // En situation réelle, cela déclencherait une fonction d'impression ou de génération de PDF
+convertToPDF() {
+  if (!this.selectedFacture) {
+    alert('Aucune facture sélectionnée.');
+    return;
   }
+
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text(`Facture: ${this.selectedFacture.reference}`, 10, 20);
+  doc.text(`Client: ${this.getClientName(this.selectedFacture.client)}`, 10, 30);
+  doc.text(`Date d'émission: ${new Date(this.selectedFacture.dateEmission).toLocaleDateString()}`, 10, 40);
+  doc.text(`Échéance: ${new Date(this.selectedFacture.echeance).toLocaleDateString()}`, 10, 50);
+  doc.text(`Total HT: ${this.selectedFacture.montantHT} €`, 10, 60);
+  doc.text(`TVA (${this.selectedFacture.tva}%): ${this.selectedFacture.montantTVA} €`, 10, 70);
+  doc.text(`Total TTC: ${this.selectedFacture.montantTTC} €`, 10, 80);
+
+  doc.save(`${this.selectedFacture.reference}.pdf`);
+}
 }

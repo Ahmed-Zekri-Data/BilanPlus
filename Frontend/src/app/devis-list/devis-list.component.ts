@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-devis-list',
@@ -18,19 +19,16 @@ export class DevisListComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    // Chargement des devis
     const storedDevis = localStorage.getItem('devis');
     if (storedDevis) {
       this.devis = JSON.parse(storedDevis);
     }
 
-    // Chargement des clients
     const storedClients = localStorage.getItem('clients');
     if (storedClients) {
       this.clients = JSON.parse(storedClients);
     }
 
-    // Pour la démo, produits fictifs
     this.produitsList = [
       { _id: 'prod1', nom: 'Produit A', prix: 100 },
       { _id: 'prod2', nom: 'Produit B', prix: 200 },
@@ -56,7 +54,6 @@ export class DevisListComponent implements OnInit {
   }
 
   isHighlighted(devis: any): boolean {
-    // Mise en évidence des devis qui approchent de leur date d'échéance
     if (devis.statut === 'Envoyé') {
       const echeance = new Date(devis.echeance);
       const today = new Date();
@@ -71,7 +68,6 @@ export class DevisListComponent implements OnInit {
     this.selectedDevisIndex = index;
     this.selectedDevis = { ...this.devis[index] };
     
-    // Récupération des informations détaillées des produits
     this.selectedDevisProduits = [];
     for (const item of this.selectedDevis.produits) {
       const produit = this.produitsList.find(p => p._id === item.produitId);
@@ -91,13 +87,7 @@ export class DevisListComponent implements OnInit {
   }
 
   editDevis(index: number) {
-    // Pour une démo simple, cela redirige vers le formulaire de modification
     alert(`Édition du devis ${this.devis[index].reference}`);
-  }
-
-  editSelectedDevis() {
-    this.editDevis(this.selectedDevisIndex);
-    this.closeModal();
   }
 
   sendDevis(index: number) {
@@ -118,8 +108,7 @@ export class DevisListComponent implements OnInit {
 
   convertToFacture(index: number) {
     const devisToConvert = this.devis[index];
-    
-    // Création de la facture à partir du devis
+
     const newFacture = {
       reference: `FAC-${devisToConvert.reference.substring(4)}`,
       dateEmission: new Date(),
@@ -134,16 +123,25 @@ export class DevisListComponent implements OnInit {
       devisOrigine: devisToConvert.reference
     };
 
-    // Enregistrement de la facture
     const factures = JSON.parse(localStorage.getItem('factures') || '[]');
     factures.push(newFacture);
     localStorage.setItem('factures', JSON.stringify(factures));
 
-    // Mise à jour du statut du devis
-    this.devis[index].statut = 'Converti';
     localStorage.setItem('devis', JSON.stringify(this.devis));
 
-    alert(`Le devis ${devisToConvert.reference} a été converti en facture ${newFacture.reference}`);
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text(`Facture: ${newFacture.reference}`, 10, 20);
+    doc.text(`Client: ${this.getClientName(newFacture.client)}`, 10, 30);
+    doc.text(`Date d'émission: ${new Date(newFacture.dateEmission).toLocaleDateString()}`, 10, 40);
+    doc.text(`Échéance: ${new Date(newFacture.echeance).toLocaleDateString()}`, 10, 50);
+    doc.text(`Total HT: ${newFacture.montantHT} €`, 10, 60);
+    doc.text(`TVA (${newFacture.tva}%): ${newFacture.montantTVA} €`, 10, 70);
+    doc.text(`Total TTC: ${newFacture.montantTTC} €`, 10, 80);
+
+    doc.save(`${newFacture.reference}.pdf`);
+
+    alert(`Le devis ${devisToConvert.reference} a été converti en facture et téléchargé.`);
   }
 
   convertSelectedDevisToFacture() {

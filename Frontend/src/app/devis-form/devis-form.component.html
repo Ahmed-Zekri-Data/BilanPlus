@@ -5,6 +5,10 @@
       <div class="form-group">
         <label for="reference">Référence :</label>
         <input type="text" id="reference" formControlName="reference" placeholder="Référence du devis">
+        <div *ngIf="devisForm.get('reference')?.hasError('referenceExistante')" class="error-message">
+         Cette référence existe déjà. Veuillez en choisir une autre.
+        </div>
+
         <div *ngIf="devisForm.get('reference')?.invalid && devisForm.get('reference')?.touched" class="error-message">
           Référence requise.
         </div>
@@ -40,9 +44,9 @@
         <label for="tva">Taux de TVA (%) :</label>
         <select id="tva" formControlName="tva">
           <option value="">Sélectionner un taux</option>
-          <option value="20">20%</option>
-          <option value="10">10%</option>
-          <option value="5.5">5.5%</option>
+          <option value="7">7%</option>
+          <option value="13">13%</option>
+          <option value="19">19%</option>
         </select>
         <div *ngIf="devisForm.get('tva')?.invalid && devisForm.get('tva')?.touched" class="error-message">
           Veuillez sélectionner un taux de TVA.
@@ -62,9 +66,9 @@
       </div>
   
       <div class="summary">
-        <p>Total HT: {{ calculerTotalHT() | currency:'EUR' }}</p>
-        <p>TVA: {{ calculerMontantTVA() | currency:'EUR' }}</p>
-        <p>Total TTC: {{ calculerTotalTTC() | currency:'EUR' }}</p>
+        <p>Total HT: {{ calculerTotalHT() | currency:'DT' }}</p>
+        <p>TVA: {{ calculerMontantTVA() | currency:'DT' }}</p>
+        <p>Total TTC: {{ calculerTotalTTC() | currency:'DT' }}</p>
       </div>
   
       <div class="form-group">
