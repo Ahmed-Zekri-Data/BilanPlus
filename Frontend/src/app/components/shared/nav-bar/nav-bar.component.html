@@ -1,0 +1,11 @@
+<nav class="nav-container">
+  <div class="nav-items">
+    <button mat-button 
+            *ngFor="let item of navItems" 
+            [routerLink]="item.route"
+            [class.active]="isActive(item.route)"
+            class="nav-button">
+      {{ item.label }}
+    </button>
+  </div>
+</nav> 

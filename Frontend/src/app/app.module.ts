@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective  } from 'ng2-charts';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,19 +17,33 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTreeModule } from '@angular/material/tree';
 
 // Components
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './home/home.component';
 import { ListTVAComponent } from './components/list-tva/list-tva.component';
 import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
 import { TvaFormComponent } from './components/tvaform/tvaform.component';
@@ -45,8 +59,12 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { CommandesComponent } from './components/commandes/commandes.component';
+import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
+import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
+import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
@@ -66,11 +84,17 @@ import { FiscalDashboardComponent } from './components/fiscal-dashboard/fiscal-d
 import { SimulationFiscaleComponent } from './components/simulation-fiscale/simulation-fiscale.component';
 import { FiscalStatisticsComponent } from './components/fiscal-statistics/fiscal-statistics.component';
 import { ShortenIdPipe } from './components/ms/shorten-id.pipe';
-import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+import { NavBarComponent } from './components/shared/nav-bar/nav-bar.component';
+import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
+import { DevisComponent } from './components/devis/devis.component';
+import { ListDevisComponent } from './components/devis/list-devis.component';
+//import { DashboardComponent1 } from './dashboardproduit/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavBarComponent,
+    SectionLayoutComponent,
     HomeComponent,
     ListTVAComponent,
     TvaDetailComponent,
@@ -87,8 +111,12 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     BilanComponent,
     ResultatComponent,
     DashboardComponent,
-    FournisseursComponent,
-    CommandesComponent,
+    ListCommandesComponent,
+    ListFournisseursComponent,
+    FournisseurFormComponent,
+    FournisseurViewComponent,
+    CommandeFormComponent,
+    CommandeViewComponent,
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
@@ -108,16 +136,20 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     SimulationFiscaleComponent,
     FiscalStatisticsComponent,
     ShortenIdPipe,
-    StockDashboardComponent
+    DevisComponent,
+    ListDevisComponent,
+    //DashboardComponent1
   ],
   imports: [
     BrowserModule,
+    MatOptionModule,
+    CommonModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    NgChartsModule,
+    BaseChartDirective ,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -132,10 +164,24 @@ import { StockDashboardComponent } from './dashboardproduit/dashboard.component'
     MatDatepickerModule,
     MatNativeDateModule,
     MatPaginatorModule,
-    MatSortModule,
     MatTableModule,
     MatTabsModule,
     MatProgressSpinnerModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatSortModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatSlideToggleModule,
+    MatProgressBarModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    MatBadgeModule,
+    MatBottomSheetModule,
+    MatButtonToggleModule,
+    MatRippleModule,
+    MatStepperModule,
+    MatTreeModule,
     MatTooltipModule,
     MatExpansionModule,
     CommonModule
