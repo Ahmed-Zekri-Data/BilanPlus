@@ -1,0 +1,139 @@
+<div class="automation-container">
+    <h2>Configuration des Relances Automatiques</h2>
+  
+    <div class="settings-section">
+      <form [formGroup]="relanceForm" (ngSubmit)="saveSettings()">
+        <h3>Paramètres des Relances</h3>
+  
+        <div class="settings-grid">
+          <div class="form-group">
+            <label for="avantEcheance">Jours avant échéance</label>
+            <input type="number" id="avantEcheance" formControlName="avantEcheance" min="1" max="30" />
+            <div class="help-text">Envoi d'un rappel X jours avant la date d'échéance</div>
+          </div>
+  
+          <div class="form-group">
+            <label for="premierRappel">Premier rappel (jours)</label>
+            <input type="number" id="premierRappel" formControlName="premierRappel" min="1" max="30" />
+            <div class="help-text">Jours après échéance pour le 1er rappel</div>
+          </div>
+  
+          <div class="form-group">
+            <label for="deuxiemeRappel">Deuxième rappel (jours)</label>
+            <input type="number" id="deuxiemeRappel" formControlName="deuxiemeRappel" min="1" max="30" />
+            <div class="help-text">Jours après le 1er rappel</div>
+          </div>
+  
+          <div class="form-group">
+            <label for="derniereRelance">Dernière relance (jours)</label>
+            <input type="number" id="derniereRelance" formControlName="derniereRelance" min="1" max="30" />
+            <div class="help-text">Jours après le 2ème rappel</div>
+          </div>
+        </div>
+  
+        <h3>Moyens de Communication</h3>
+  
+        <div class="form-group">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" formControlName="emailActif" />
+              Email
+            </label>
+            <label>
+              <input type="checkbox" formControlName="smsActif" />
+              SMS
+            </label>
+
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="emailTemplate">Modèle d'Email</label>
+          <textarea id="emailTemplate" formControlName="emailTemplate" rows="6"></textarea>
+          <div class="help-text">
+            Utilisez les variables: {{ '{' }}CLIENT{{ '}' }}, {{ '{' }}MONTANT{{ '}' }}, {{ '{' }}FACTURE{{ '}' }}, {{ '{' }}ECHEANCE{{ '}' }}
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <button type="submit" [disabled]="!relanceForm.valid">Enregistrer les Paramètres</button>
+        </div>
+      </form>
+    </div>
+  
+    <div class="preview-section">
+      <h3>Aperçu de la Prochaine Exécution</h3>
+  
+      <div class="preview-info">
+        <p><strong>Nombre de factures à relancer prochainement:</strong> {{ upcomingReminders.length }}</p>
+        <button class="btn preview" (click)="showPreview()">Voir le détail</button>
+      </div>
+  
+      <div *ngIf="previewVisible" class="reminder-preview">
+        <h4>Détail des prochaines relances</h4>
+  
+        <table *ngIf="upcomingReminders.length > 0" class="preview-table">
+          <thead>
+            <tr>
+              <th>Date prévue</th>
+              <th>Facture</th>
+              <th>Client</th>
+              <th>Type de relance</th>
+              <th>Moyen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reminder of upcomingReminders">
+              <td>{{ reminder.date | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ reminder.factureRef }}</td>
+              <td>{{ reminder.client }}</td>
+              <td>{{ reminder.type }}</td>
+              <td>{{ reminder.moyen }}</td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <p *ngIf="upcomingReminders.length === 0">
+          Aucune relance programmée pour les prochains jours.
+        </p>
+      </div>
+  
+ 
+    </div>
+  
+    <div class="history-section">
+      <h3>Historique des Relances</h3>
+  
+      <table *ngIf="relanceHistory.length > 0" class="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Facture</th>
+            <th>Client</th>
+            <th>Type</th>
+            <th>Moyen</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let relance of relanceHistory">
+            <td>{{ relance.date | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ relance.factureRef }}</td>
+            <td>{{ relance.client }}</td>
+            <td>{{ relance.type }}</td>
+            <td>{{ relance.moyen }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'status-' + relance.statut.toLowerCase()">
+                {{ relance.statut }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <p *ngIf="relanceHistory.length === 0">
+        Aucune relance envoyée récemment.
+      </p>
+    </div>
+  </div>
+  

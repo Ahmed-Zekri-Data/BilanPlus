@@ -1,3 +1,4 @@
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, DecimalPipe } from '@angular/common';
@@ -117,6 +118,7 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     FournisseurViewComponent,
     CommandeFormComponent,
     CommandeViewComponent,
+
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
@@ -124,6 +126,17 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     UtilisateurComponent,
     AddUtilisateurComponent,
     UtilisateurDetailsComponent,
+
+    // Client / Facturation (gestion_facturation_client)
+    ClientListComponent,
+    ClientFormComponent,
+    DevisFormComponent,
+    DevisListComponent,
+    FactureListComponent,
+    RelanceAutomationComponent,
+    ReportingComponent,
+
+    // Rôles & Fiscalité (main)
     RoleComponent,
     AddRoleComponent,
     RoleDetailsComponent,
@@ -140,6 +153,7 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     ListDevisComponent,
     //DashboardComponent1
   ],
+
   imports: [
     BrowserModule,
     MatOptionModule,

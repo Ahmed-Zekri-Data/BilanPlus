@@ -1,0 +1,79 @@
+<div class="form-container">
+    <h2>Création d'un Devis</h2>
+    <form [formGroup]="devisForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-group">
+        <label for="reference">Référence :</label>
+        <input type="text" id="reference" formControlName="reference" placeholder="Référence du devis">
+        <div *ngIf="devisForm.get('reference')?.hasError('referenceExistante')" class="error-message">
+         Cette référence existe déjà. Veuillez en choisir une autre.
+        </div>
+
+        <div *ngIf="devisForm.get('reference')?.invalid && devisForm.get('reference')?.touched" class="error-message">
+          Référence requise.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="client">Client :</label>
+        <select id="client" formControlName="client">
+          <option value="">Sélectionner un client</option>
+          <option *ngFor="let client of clients" [value]="client._id || client.nom">{{ client.nom }}</option>
+        </select>
+        <div *ngIf="devisForm.get('client')?.invalid && devisForm.get('client')?.touched" class="error-message">
+          Veuillez sélectionner un client.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <h3>Produits</h3>
+        <div formArrayName="produits">
+          <div *ngFor="let produit of produitsArray.controls; let i = index" [formGroupName]="i" class="produit-item">
+            <select formControlName="produitId">
+              <option value="">Sélectionner un produit</option>
+              <option *ngFor="let produit of produitsList" [value]="produit._id">{{ produit.nom }} - {{ produit.prix }}DT</option>
+            </select>
+            <input type="number" formControlName="quantite" placeholder="Quantité" min="1">
+            <button type="button" class="btn delete" (click)="removeProduit(i)">Supprimer</button>
+          </div>
+          <button type="button" class="btn edit" (click)="addProduit()">Ajouter un produit</button>
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="tva">Taux de TVA (%) :</label>
+        <select id="tva" formControlName="tva">
+          <option value="">Sélectionner un taux</option>
+          <option value="7">7%</option>
+          <option value="13">13%</option>
+          <option value="19">19%</option>
+        </select>
+        <div *ngIf="devisForm.get('tva')?.invalid && devisForm.get('tva')?.touched" class="error-message">
+          Veuillez sélectionner un taux de TVA.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="echeance">Date d'échéance :</label>
+        <input type="date" id="echeance" formControlName="echeance">
+        <div *ngIf="devisForm.get('echeance')?.invalid && devisForm.get('echeance')?.touched" class="error-message">
+         
+        </div>
+        <div class="error" *ngIf="devisForm.get('echeance')?.hasError('dateInvalide')">
+            La date d'échéance ne peut pas être dans le futur.
+          </div>
+          
+      </div>
+  
+      <div class="summary">
+        <p>Total HT: {{ calculerTotalHT() | currency:'DT' }}</p>
+        <p>TVA: {{ calculerMontantTVA() | currency:'DT' }}</p>
+        <p>Total TTC: {{ calculerTotalTTC() | currency:'DT' }}</p>
+      </div>
+  
+      <div class="form-group">
+        <button type="submit" [disabled]="devisForm.invalid">Enregistrer le Devis</button>
+      </div>
+    </form>
+  </div>
+  

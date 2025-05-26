@@ -36,6 +36,15 @@ import { DFDetailComponent } from './components/df-detail/df-detail.component';
 import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
 import { DFTVAComponent } from './components/dftva/dftva.component';
 
+// Client / Facturation
+import { ClientFormComponent } from './components/client-form/client-form.component';
+import { ClientListComponent } from './components/client-list/client-list.component';
+import { DevisFormComponent } from './devis-form/devis-form.component';
+import { DevisListComponent } from './devis-list/devis-list.component';
+import { FactureListComponent } from './facture-list/facture-list.component';
+import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
+import { ReportingComponent } from './reporting/reporting.component';
+
 // Fournisseurs et Commandes
 import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
 import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
@@ -45,10 +54,12 @@ import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-
 import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
 // Dashboard for stock (from Gestion_de_stock)
-//import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+// import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
+
 
   // Dashboard (stock-specific)
  //{ path: 'dashboard', component: StockDashboardComponent },
@@ -73,6 +84,7 @@ const routes: Routes = [
   // Stock
   { path: 'produit', component: ProduitComponent },
   { path: 'stock-movements', component: MSComponent },
+  { path: 'dashboard-stock', component: StockDashboardComponent },
 
   // Commandes
   {
@@ -136,8 +148,18 @@ const routes: Routes = [
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
 
+// Clients / Factures
+{ path: 'clientform', component: ClientFormComponent },
+{ path: 'clientlist', component: ClientListComponent },
+{ path: 'clientdevis', component: DevisFormComponent },
+{ path: 'clientdevislist', component: DevisListComponent },
+{ path: 'facturelist', component: FactureListComponent },
+{ path: 'relance', component: RelanceAutomationComponent },
+{ path: 'reporting', component: ReportingComponent },
 
-  // Wildcard route for unmatched paths
+// Wildcard route for unmatched paths
+{ path: '**', redirectTo: 'clientlist' }  // Par exemple, rediriger vers clientlist ou une page 404
+
   { path: '**', redirectTo: '' }
 ];
 
@@ -146,6 +168,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
-
-
 
