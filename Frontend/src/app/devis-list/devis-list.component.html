@@ -38,7 +38,7 @@
         <td>{{ getClientName(devis.client) }}</td>
         <td>{{ devis.dateEmission | date:'dd/MM/yyyy' }}</td>
         <td>{{ devis.echeance | date:'dd/MM/yyyy' }}</td>
-        <td>{{ devis.montantTTC | currency:'EUR' }}</td>
+        <td>{{ devis.montantTTC | currency:'DT' }}</td>
         <td>
           <span class="status-badge" [ngClass]="'status-' + devis.statut.toLowerCase().replace(' ', '-')">
             {{ devis.statut }}

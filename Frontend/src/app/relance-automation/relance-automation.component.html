@@ -43,10 +43,7 @@
               <input type="checkbox" formControlName="smsActif" />
               SMS
             </label>
-            <label>
-              <input type="checkbox" formControlName="appelActif" />
-              Appel Téléphonique
-            </label>
+
           </div>
         </div>
   
@@ -101,13 +98,7 @@
         </p>
       </div>
   
-      <div class="manual-execution">
-        <h3>Exécution Manuelle</h3>
-        <button class="btn execute" (click)="executeReminders()">Exécuter les Relances Maintenant</button>
-        <p class="last-run" *ngIf="lastExecution">
-          Dernière exécution: {{ lastExecution | date: 'dd/MM/yyyy HH:mm' }}
-        </p>
-      </div>
+ 
     </div>
   
     <div class="history-section">

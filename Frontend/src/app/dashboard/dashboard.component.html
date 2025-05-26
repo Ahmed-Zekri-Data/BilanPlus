@@ -16,13 +16,13 @@
       
       <div class="stat-card">
         <div class="stat-icon">💰</div>
-        <div class="stat-value">{{ totalAmount | currency:'EUR' }}</div>
-        <div class="stat-label">Montant total</div>
+        <div class="stat-value">{{ totalAmount | currency:'DT' }}</div>
+        <div class="stat-label">Total impayé </div>
       </div>
       
       <div class="stat-card">
         <div class="stat-icon">✅</div>
-        <div class="stat-value">{{ totalPaid | currency:'EUR' }}</div>
+        <div class="stat-value">{{ totalPaid | currency:'DT' }}</div>
         <div class="stat-label">Total encaissé</div>
       </div>
     </div>
@@ -58,27 +58,6 @@
       </div>
     </div>
   
-    <div class="action-row">
-      <h3>Actions Rapides</h3>
-      <div class="action-buttons">
-        <button class="action-btn" (click)="navigateToClients()">
-          <span class="action-icon">👥</span>
-          <span class="action-text">Clients</span>
-        </button>
-        <button class="action-btn" (click)="navigateToDevis()">
-          <span class="action-icon">📋</span>
-          <span class="action-text">Devis</span>
-        </button>
-        <button class="action-btn" (click)="navigateToFactures()">
-          <span class="action-icon">📑</span>
-          <span class="action-text">Factures</span>
-        </button>
-        <button class="action-btn" (click)="navigateToRelances()">
-          <span class="action-icon">🔔</span>
-          <span class="action-text">Relances</span>
-        </button>
-      </div>
-    </div>
   
     <div class="alertes-section">
       <h3>Alertes et Notifications</h3>
@@ -90,9 +69,6 @@
             <div class="alert-title">{{ alert.title }}</div>
             <div class="alert-description">{{ alert.description }}</div>
           </div>
-          <div class="alert-actions">
-            <button class="btn view-details" (click)="viewAlertDetails(alert)">Voir détails</button>
-          </div>
         </div>
       </div>
       
@@ -101,4 +77,3 @@
       </p>
     </div>
   </div>
-  

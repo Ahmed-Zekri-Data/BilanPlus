@@ -31,7 +31,7 @@
           <div *ngFor="let produit of produitsArray.controls; let i = index" [formGroupName]="i" class="produit-item">
             <select formControlName="produitId">
               <option value="">Sélectionner un produit</option>
-              <option *ngFor="let produit of produitsList" [value]="produit._id">{{ produit.nom }} - {{ produit.prix }}€</option>
+              <option *ngFor="let produit of produitsList" [value]="produit._id">{{ produit.nom }} - {{ produit.prix }}DT</option>
             </select>
             <input type="number" formControlName="quantite" placeholder="Quantité" min="1">
             <button type="button" class="btn delete" (click)="removeProduit(i)">Supprimer</button>

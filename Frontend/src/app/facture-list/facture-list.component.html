@@ -42,7 +42,7 @@
         <td>{{ getClientName(facture.client) }}</td>
         <td>{{ facture.dateEmission | date:'dd/MM/yyyy' }}</td>
         <td>{{ facture.echeance | date:'dd/MM/yyyy' }}</td>
-        <td>{{ facture.montantTTC | currency:'EUR' }}</td>
+        <td>{{ facture.montantTTC | currency:'DT' }}</td>
         <td>
           <span class="status-badge" [ngClass]="'status-' + facture.statut.toLowerCase().replace(' ', '-')">
             {{ facture.statut }}
