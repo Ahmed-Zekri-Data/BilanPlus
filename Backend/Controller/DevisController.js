@@ -242,7 +242,20 @@ const createDevis = async (req, res) => {
 // Get all devis
 const getAllDevis = async (req, res) => {
   try {
-    const devis = await Devis.find()
+    const { categorie, fournisseur } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    
+    if (categorie) {
+      filter['commandeID.produit.categorie'] = categorie;
+    }
+    
+    if (fournisseur) {
+      filter['fournisseurID._id'] = fournisseur;
+    }
+
+    const devis = await Devis.find(filter)
       .populate({
         path: 'fournisseurID',
         select: 'nom email'

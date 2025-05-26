@@ -240,29 +240,18 @@ const getProductCategories = async (req, res) => {
 
 const getCommandesWithFilters = async (req, res) => {
   try {
-    const { fournisseur, search, produit, page = 0, limit = 5 } = req.query;
+    const { produit, page = 0, limit = 5 } = req.query;
     let query = {};
 
-    // Appliquer les filtres
-    if (search) {
-      query.$or = [
-        { 'produit.nom': { $regex: search, $options: 'i' } },
-        { 'fournisseurs.fournisseurID.nom': { $regex: search, $options: 'i' } }
-      ];
-    }
-
+    // Apply filters
     if (produit) {
-      query.produit = produit;
+      query['produit'] = produit;
     }
 
-    if (fournisseur) {
-      query['fournisseurs.fournisseurID.nom'] = fournisseur;
-    }
-
-    // Calculer le nombre total de commandes
+    // Calculate total number of commands
     const totalItems = await Commande.countDocuments(query);
 
-    // Récupérer les commandes avec pagination
+    // Get commands with pagination
     const commandes = await Commande.find(query)
       .populate('produit', 'nom categorie')
       .populate('fournisseurs.fournisseurID', 'nom email categorie')

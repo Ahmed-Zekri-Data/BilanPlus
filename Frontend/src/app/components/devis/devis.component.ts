@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DevisService } from '../../services/devis.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-devis',
@@ -12,13 +14,30 @@ export class DevisComponent implements OnInit {
   loading = false;
   error: string | null = null;
   displayedColumns: string[] = ['produit', 'fournisseur', 'prix', 'date', 'date_fin', 'statut', 'actions'];
+  devisForm: FormGroup;
+  commandeId: string = '';
+  fournisseurId: string = '';
+  existingDevis: any = null;
+  commandeDetails: any = null;
+  fournisseurDetails: any = null;
 
   constructor(
     private devisService: DevisService,
-    private snackBar: MatSnackBar
-  ) { }
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {
+    this.devisForm = this.fb.group({
+      prix: ['', [Validators.required, Validators.min(0)]]
+    });
+  }
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.commandeId = params['commandeId'];
+      this.fournisseurId = params['fournisseurId'];
+      this.loadCommandeDetails();
+    });
     this.loadDevis();
   }
 
@@ -36,6 +55,52 @@ export class DevisComponent implements OnInit {
         this.showSnackBar('Erreur lors du chargement des devis', 'error');
       }
     });
+  }
+
+  loadCommandeDetails(): void {
+    this.loading = true;
+    this.error = null;
+    this.devisService.getCommandeDetails(this.commandeId, this.fournisseurId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.commandeDetails = response.data.commande;
+          this.fournisseurDetails = response.data.fournisseur;
+          this.existingDevis = response.data.devisExistant;
+          if (this.existingDevis) {
+            this.showSnackBar('Vous avez déjà soumis un prix pour cette commande', 'info');
+          }
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Erreur lors du chargement des détails';
+        this.loading = false;
+        this.showSnackBar('Erreur lors du chargement des détails', 'error');
+      }
+    });
+  }
+
+  onSubmit(): void {
+    if (this.devisForm.valid) {
+      this.loading = true;
+      const prix = this.devisForm.get('prix')?.value;
+
+      this.devisService.createDevis(this.commandeId, this.fournisseurId, prix).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.showSnackBar('Prix soumis avec succès', 'success');
+            this.existingDevis = response.devis;
+            this.devisForm.reset();
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Erreur lors de la soumission du prix';
+          this.loading = false;
+          this.showSnackBar('Erreur lors de la soumission du prix', 'error');
+        }
+      });
+    }
   }
 
   getStatusClass(statut: string): string {
@@ -124,10 +189,12 @@ export class DevisComponent implements OnInit {
       });
   }
 
-  private showSnackBar(message: string, type: 'success' | 'error'): void {
+  private showSnackBar(message: string, type: 'success' | 'error' | 'info'): void {
     this.snackBar.open(message, 'Fermer', {
       duration: 3000,
-      panelClass: type === 'success' ? ['success-snackbar'] : ['error-snackbar']
+      panelClass: type === 'success' ? ['success-snackbar'] : 
+                 type === 'error' ? ['error-snackbar'] : 
+                 ['info-snackbar']
     });
   }
 } 

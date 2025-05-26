@@ -19,6 +19,16 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
   private mapInitialized = false;
   showMap = false;
 
+  // Custom red marker icon
+  private customIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -35,7 +45,6 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   ngAfterViewInit(): void {
-    // Wait for the next tick to ensure the view is rendered
     setTimeout(() => {
       this.showMap = true;
       this.cdr.detectChanges();
@@ -50,7 +59,6 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private initializeMap(): void {
-    // Wait for the next tick to ensure the view is rendered
     setTimeout(() => {
       if (!this.mapContainer?.nativeElement) {
         console.error('Map container not found');
@@ -58,10 +66,8 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
       }
 
       try {
-        // Initialize map with default center
         this.map = L.map(this.mapContainer.nativeElement).setView([0, 0], 2);
         
-        // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -69,7 +75,6 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
 
         this.mapInitialized = true;
 
-        // If we already have fournisseur data, update the map
         if (this.fournisseur?.lat && this.fournisseur?.long) {
           this.updateMapPosition(this.fournisseur.lat, this.fournisseur.long);
         }
@@ -78,8 +83,6 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
       }
     }, 0);
   }
- 
-  
 
   loadFournisseur(id: string): void {
     this.isLoading = true;
@@ -90,7 +93,6 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
           if (this.mapInitialized) {
             this.updateMapPosition(fournisseur.lat, fournisseur.long);
           } else {
-            // If map is not initialized yet, try to initialize it
             this.initializeMap();
           }
         }
@@ -113,21 +115,41 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     try {
-      // Update map center
       this.map.setView([lat, lng], 15);
 
-      // Remove existing marker if any
       if (this.marker) {
         this.marker.remove();
       }
 
-      // Add new marker
-      this.marker = L.marker([lat, lng]).addTo(this.map);
+      // Create marker with red icon and improved visibility
+      this.marker = L.marker([lat, lng], { 
+        icon: this.customIcon,
+        riseOnHover: true,
+        zIndexOffset: 1000 // Ensure marker is always on top
+      }).addTo(this.map);
       
-      // Add popup with fournisseur name
-      if (this.fournisseur?.nom) {
-        this.marker.bindPopup(this.fournisseur.nom).openPopup();
-      }
+      // Create a custom popup with improved styling
+      const popupContent = `
+        <div class="popup-content">
+          <div class="popup-header">
+            <h3>${this.fournisseur?.nom}</h3>
+          </div>
+          <div class="popup-body">
+            <p><strong>Email:</strong> ${this.fournisseur?.email || 'Non renseigné'}</p>
+            <p><strong>Contact:</strong> ${this.fournisseur?.contact || 'Non renseigné'}</p>
+            <p><strong>Adresse:</strong> ${this.fournisseur?.adresse || 'Non renseigné'}</p>
+          </div>
+        </div>
+      `;
+      
+      this.marker.bindPopup(popupContent, {
+        maxWidth: 300,
+        minWidth: 200,
+        className: 'custom-popup',
+        closeButton: true,
+        autoClose: false,
+        closeOnEscapeKey: true
+      }).openPopup();
     } catch (error) {
       console.error('Error updating map position:', error);
     }
@@ -139,9 +161,9 @@ export class FournisseurViewComponent implements OnInit, AfterViewInit, OnDestro
     }
   }
 
-  deleteFournisseur(): void {
-    if (this.fournisseur && confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
-      this.fournisseurService.deleteFournisseur(this.fournisseur.id).subscribe({
+  deleteFournisseur(id: string): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+      this.fournisseurService.deleteFournisseur(id).subscribe({
         next: () => {
           this.snackBar.open('Fournisseur supprimé avec succès', 'Fermer', {
             duration: 3000

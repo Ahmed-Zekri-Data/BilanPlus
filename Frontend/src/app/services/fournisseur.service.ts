@@ -33,6 +33,12 @@ export class FournisseurService {
     return this.http.get<Fournisseur[]>(`${this.apiUrl}/`);
   }
 
+  searchFournisseurs(searchTerm: string): Observable<Fournisseur[]> {
+    return this.http.get<Fournisseur[]>(`${this.apiUrl}/search`, {
+      params: new HttpParams().set('search', searchTerm)
+    });
+  }
+
   getFournisseursWithFilters(params: FournisseurFilterParams & { zoneGeo?: string }): Observable<any> {
     let httpParams = new HttpParams()
       .set('page', params.page.toString())

@@ -24,8 +24,8 @@
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="editFournisseur()">Modifier</button>
-      <button mat-raised-button color="warn" (click)="deleteFournisseur()">Supprimer</button>
+      <button mat-raised-button color="primary" routerLink="/fournisseurs/edit/{{fournisseur._id}}">Modifier</button>
+      <button mat-raised-button color="warn" (click)="deleteFournisseur(fournisseur._id)">Supprimer</button>
       <button mat-raised-button routerLink="/fournisseurs">Retour</button>
     </mat-card-actions>
   </mat-card>

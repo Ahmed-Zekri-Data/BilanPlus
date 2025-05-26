@@ -13,6 +13,7 @@ export class NavBarComponent {
     { label: 'Facturation', route: '/facturation' },
     { label: 'Fournisseurs', route: '/fournisseurs' },
     { label: 'Commandes', route: '/commandes' },
+    { label: 'Devis', route: '/devis' },
     { label: 'Gérer produit', route: '/produits' },
     { label: 'Mouvement de Stock', route: '/mouvements' },
     { label: 'Gestion Comptable', route: '/comptabilite' },

@@ -37,15 +37,7 @@
       </mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Date de début</mat-label>
-      <input matInput [matDatepicker]="debutPicker" formControlName="date_debut" required>
-      <mat-datepicker-toggle matSuffix [for]="debutPicker"></mat-datepicker-toggle>
-      <mat-datepicker #debutPicker></mat-datepicker>
-      <mat-error *ngIf="commandeForm.get('date_debut')?.hasError('required')">
-        La date de début est requise
-      </mat-error>
-    </mat-form-field>
+
 
     <mat-form-field appearance="fill">
       <mat-label>Date de fin</mat-label>

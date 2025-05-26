@@ -98,6 +98,18 @@ const routes: Routes = [
     ]
   },
 
+  {
+    path: 'devis',
+    component: SectionLayoutComponent,
+    children: [
+      { path: ':commandeId/:fournisseurId', component: DevisComponent },
+      { path: '', component: ListDevisComponent }
+    ]
+  },
+  // Devis
+  { path: 'devis/:commandeId/:fournisseurId', component: DevisComponent },
+  { path: 'devis', component: ListDevisComponent },
+
   // Utilisateurs
   { path: 'utilisateurs', component: UtilisateurComponent },
   { path: 'utilisateur/add', component: AddUtilisateurComponent },
@@ -124,9 +136,6 @@ const routes: Routes = [
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
 
-  // Devis
-  { path: 'devis/:commandeId/:fournisseurId', component: DevisComponent },
-  { path: 'devis', component: ListDevisComponent },
 
   // Wildcard route for unmatched paths
   { path: '**', redirectTo: '' }

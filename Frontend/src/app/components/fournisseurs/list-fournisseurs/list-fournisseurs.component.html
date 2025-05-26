@@ -23,11 +23,10 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <mat-form-field class="search-field">
-            <mat-label>Zone géographique</mat-label>
-            <input matInput [(ngModel)]="zoneGeo" (keyup)="applyFilter()" placeholder="Ville, région, pays...">
-            <mat-icon matSuffix>location_on</mat-icon>
-          </mat-form-field>
+          <button mat-raised-button color="primary" class="geo-filter-btn" (click)="openMapModal()">
+            <mat-icon>location_on</mat-icon>
+            Filtrer par zone
+          </button>
         </div>
 
         <div *ngIf="isLoading" class="loading-container">
@@ -107,6 +106,21 @@
         <div class="map-section" *ngIf="showMap">
           <h3>Carte des Fournisseurs</h3>
           <div #mapContainer class="map-frame"></div>
+        </div>
+
+        <!-- Map Modal -->
+        <div class="map-modal" *ngIf="isMapModalOpen" (click)="closeMapModal($event)">
+          <div class="map-modal-content" (click)="$event.stopPropagation()">
+            <div class="map-modal-header">
+              <h2>Carte des Fournisseurs</h2>
+              <button mat-icon-button (click)="closeMapModal($event)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="map-modal-body">
+              <div #mapContainer class="map-frame"></div>
+            </div>
+          </div>
         </div>
       </mat-card-content>
     </mat-card>

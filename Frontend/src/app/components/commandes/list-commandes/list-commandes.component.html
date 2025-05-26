@@ -27,15 +27,6 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-
-          <!-- Fournisseur Filter -->
-          <mat-form-field class="filter-field">
-            <mat-label>Fournisseur</mat-label>
-            <mat-select [(ngModel)]="selectedFournisseur" (selectionChange)="applyFilter()">
-              <mat-option value="">Tous</mat-option>
-              <mat-option *ngFor="let f of fournisseurs" [value]="f._id">{{f.nom}}</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
 
         <!-- Loading State -->

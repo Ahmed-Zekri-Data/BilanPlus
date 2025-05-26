@@ -19,8 +19,16 @@ export class DevisService {
     return this.http.post(`${this.apiUrl}/${commandeId}/${fournisseurId}`, { prix });
   }
 
-  getAllDevis(): Observable<any> {
-    return this.http.get(`${this.apiUrl}`).pipe(
+  getAllDevis(params?: { categorie?: string; fournisseur?: string }): Observable<any> {
+    let url = `${this.apiUrl}`;
+    if (params) {
+      const queryParams = new URLSearchParams();
+      if (params.categorie) queryParams.append('categorie', params.categorie);
+      if (params.fournisseur) queryParams.append('fournisseur', params.fournisseur);
+      url += `?${queryParams.toString()}`;
+    }
+    
+    return this.http.get(url).pipe(
       map((response: any) => {
         if (response.success) {
           return response.devis;

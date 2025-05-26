@@ -86,6 +86,103 @@ pre {
   margin-bottom: 20px;
 }
 
+/* Welcome Section */
+.welcome-section {
+  margin-bottom: 30px;
+}
+
+.welcome-title {
+  color: #1976D2;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* Product Details */
+.product-details {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.product-card {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-card mat-card-header {
+  margin-bottom: 20px;
+}
+
+.product-card mat-card-title {
+  color: #1976D2;
+  font-size: 20px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.detail-row mat-icon {
+  color: #1976D2;
+  margin-right: 16px;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-content h3 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.detail-content .category {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.detail-content p {
+  margin: 0;
+  color: #333;
+}
+
+.detail-content strong {
+  color: #1976D2;
+}
+
+/* Message Box */
+.message-box {
+  display: flex;
+  align-items: center;
+  background-color: #E3F2FD;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.message-box mat-icon {
+  color: #1976D2;
+  margin-right: 16px;
+  font-size: 24px;
+}
+
+.message-box p {
+  margin: 0;
+  color: #1565C0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Loading and Error States */
 .loading-container {
   display: flex;
   justify-content: center;
@@ -104,6 +201,100 @@ pre {
 
 .error-message mat-icon {
   margin-right: 10px;
+}
+
+/* Price Form */
+.price-form {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* Info Message */
+.info-message {
+  display: flex;
+  align-items: flex-start;
+  color: #1976D2;
+  padding: 20px;
+  margin: 20px 0;
+  background-color: #E3F2FD;
+  border-radius: 4px;
+}
+
+.info-message mat-icon {
+  margin-right: 16px;
+  margin-top: 4px;
+}
+
+.message-content h3 {
+  margin: 0 0 8px 0;
+  color: #1565C0;
+}
+
+.message-content p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Snackbar styles */
+.success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+.error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+.info-snackbar {
+  background: #2196F3;
+  color: white;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .commandes-container {
+    padding: 10px;
+  }
+
+  .welcome-title {
+    font-size: 20px;
+  }
+
+  .product-card mat-card-title {
+    font-size: 18px;
+  }
+
+  .detail-content h3 {
+    font-size: 16px;
+  }
+
+  .message-box {
+    padding: 15px;
+  }
+
+  .message-box p {
+    font-size: 14px;
+  }
+
+  .price-form {
+    padding: 10px;
+  }
+
+  .info-message {
+    padding: 15px;
+  }
 }
 
 .devis-list {
@@ -162,17 +353,6 @@ table {
   text-align: center;
   padding: 20px;
   color: #757575;
-}
-
-/* Snackbar styles */
-.success-snackbar {
-  background: #4caf50;
-  color: white;
-}
-
-.error-snackbar {
-  background: #f44336;
-  color: white;
 }
 
 /* Table styles */

@@ -11,6 +11,38 @@
   <div class="content-section">
     <mat-card class="main-card">
       <mat-card-content>
+        <!-- Filters Section -->
+        <div class="search-filter-container">
+          <!-- Categorie Filter -->
+          <mat-form-field class="filter-field">
+            <mat-label>Filtrer par catégorie</mat-label>
+            <mat-select [(ngModel)]="selectedCategorie" (selectionChange)="applyFilter()">
+              <mat-option value="">Toutes les catégories</mat-option>
+              <mat-option *ngFor="let categorie of categories" [value]="categorie">
+                {{categorie}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Fournisseur Filter -->
+          <mat-form-field class="filter-field">
+            <mat-label>Filtrer par fournisseur</mat-label>
+            <mat-select [(ngModel)]="selectedFournisseur" (selectionChange)="applyFilter()">
+              <mat-option value="">Tous les fournisseurs</mat-option>
+              <mat-option *ngFor="let f of fournisseurs" [value]="f._id">
+                {{f.nom}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Global Auto Accept Button -->
+          <button mat-raised-button color="accent" (click)="autoAcceptAllLowestPrices()" 
+                  [disabled]="loading || !hasPendingDevis()">
+            <mat-icon>auto_fix_high</mat-icon>
+            Accepter les meilleurs prix
+          </button>
+        </div>
+
         <!-- Loading State -->
         <div *ngIf="loading" class="loading-container">
           <mat-spinner></mat-spinner>
@@ -24,11 +56,17 @@
 
         <!-- Table Section -->
         <div *ngIf="!loading" class="devis-list">
-          <table mat-table [dataSource]="devis" class="mat-elevation-z8">
+          <table mat-table [dataSource]="filteredDevis" class="mat-elevation-z8">
             <!-- Produit Column -->
             <ng-container matColumnDef="produit">
               <th mat-header-cell *matHeaderCellDef>Produit</th>
               <td mat-cell *matCellDef="let devis">{{ devis.commandeID?.produit?.nom || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Categorie Column -->
+            <ng-container matColumnDef="categorie">
+              <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+              <td mat-cell *matCellDef="let devis">{{ devis.commandeID?.produit?.categorie || 'N/A' }}</td>
             </ng-container>
 
             <!-- Fournisseur Column -->
@@ -40,7 +78,7 @@
             <!-- Prix Column -->
             <ng-container matColumnDef="prix">
               <th mat-header-cell *matHeaderCellDef>Prix</th>
-              <td mat-cell *matCellDef="let devis">{{ devis.prix }} €</td>
+              <td mat-cell *matCellDef="let devis">{{ devis.prix }} TND</td>
             </ng-container>
 
             <!-- Date Column -->
@@ -76,6 +114,10 @@
                   <button mat-icon-button color="warn" (click)="rejectDevis(devis._id)" matTooltip="Refuser">
                     <mat-icon>close</mat-icon>
                   </button>
+                  <button mat-icon-button color="accent" (click)="acceptLowestPriceForCommande(devis.commandeID?._id)" 
+                          matTooltip="Accepter le meilleur prix">
+                    <mat-icon>auto_fix_high</mat-icon>
+                  </button>
                 </div>
                 <span *ngIf="isCommandeExpired(devis.commandeID?.date_fin)" class="expired-text">
                   Commande expirée
@@ -88,7 +130,7 @@
           </table>
 
           <!-- No Data Message -->
-          <div *ngIf="devis.length === 0" class="no-data">
+          <div *ngIf="filteredDevis.length === 0" class="no-data">
             <p>Aucun devis trouvé.</p>
           </div>
         </div>

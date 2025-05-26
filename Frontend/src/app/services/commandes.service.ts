@@ -31,7 +31,6 @@ export interface CommandeFilterParams {
   limit: number;
   search?: string;
   produit?: string;
-  fournisseur?: string;
 }
 
 @Injectable({
@@ -57,9 +56,6 @@ export class CommandesService {
     }
     if (params.produit) {
       httpParams = httpParams.set('produit', params.produit);
-    }
-    if (params.fournisseur) {
-      httpParams = httpParams.set('fournisseur', params.fournisseur);
     }
 
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams });

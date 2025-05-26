@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommandesService, CommandeAchat } from '../../../services/commandes.service';
-import { FournisseurService, Fournisseur } from '../../../services/fournisseur.service';
 import { StockManagementService } from '../../../services/gestion-de-stock.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -27,8 +26,6 @@ export class ListCommandesComponent implements OnInit {
   searchTerm: string = '';
   selectedProduit: string = '';
   produits: Produit[] = [];
-  selectedFournisseur: string = '';
-  fournisseurs: Fournisseur[] = [];
   
   // Pagination properties
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -39,7 +36,6 @@ export class ListCommandesComponent implements OnInit {
 
   constructor(
     private commandesService: CommandesService,
-    private fournisseurService: FournisseurService,
     private stockService: StockManagementService,
     private snackBar: MatSnackBar,
     private router: Router,
@@ -74,7 +70,6 @@ export class ListCommandesComponent implements OnInit {
 
   private loadFilterData(): void {
     this.loadProduits();
-    this.loadFournisseurs();
   }
 
   private loadProduits(): void {
@@ -88,13 +83,6 @@ export class ListCommandesComponent implements OnInit {
     });
   }
 
-  private loadFournisseurs(): void {
-    this.fournisseurService.getAllFournisseurs().subscribe({
-      next: (fournisseurs) => this.fournisseurs = fournisseurs,
-      error: () => this.fournisseurs = []
-    });
-  }
-
   // Data loading methods
   loadCommandes(): void {
     this.isLoading = true;
@@ -102,8 +90,7 @@ export class ListCommandesComponent implements OnInit {
       page: this.currentPage,
       limit: this.pageSize,
       search: this.searchTerm,
-      produit: this.selectedProduit,
-      fournisseur: this.selectedFournisseur || undefined
+      produit: this.selectedProduit
     };
 
     this.commandesService.getCommandesWithFilters(params).subscribe({
@@ -201,7 +188,7 @@ export class ListCommandesComponent implements OnInit {
     y = this.addPDFFilters(doc, margin, y);
     y += 5;
 
-    const headers = ['ID', 'Produit', 'Fournisseur', 'Date', 'Quantité', 'Type Livraison', 'Statut'];
+    const headers = [ 'Produit', 'Fournisseur', 'Date', 'Quantité', 'Type Livraison', 'Statut'];
     const columnWidths = [15, 40, 40, 30, 20, 25, 20];
     
     y = this.addPDFTableHeaders(doc, headers, columnWidths, margin, y);
@@ -214,6 +201,7 @@ export class ListCommandesComponent implements OnInit {
 
   private addPDFHeader(doc: jsPDF, pageWidth: number, y: number): void {
     doc.setFontSize(16);
+    doc.text('Bilan Plus', pageWidth / 1.5, y, { align: 'center' });
     doc.text('Liste des Commandes', pageWidth / 2, y, { align: 'center' });
   }
 
@@ -225,10 +213,6 @@ export class ListCommandesComponent implements OnInit {
     }
     if (this.selectedProduit) {
       doc.text(`Produit: ${this.selectedProduit}`, margin, y);
-      y += 5;
-    }
-    if (this.selectedFournisseur) {
-      doc.text(`Fournisseur: ${this.selectedFournisseur}`, margin, y);
       y += 5;
     }
     return y;
@@ -260,7 +244,6 @@ export class ListCommandesComponent implements OnInit {
   private addRowToPDF(doc: jsPDF, commande: CommandeAchat, y: number, margin: number, columnWidths: number[]): void {
     let x = margin;
     const data = [
-      commande._id?.toString() || '',
       commande.produit?.nom || '',
       commande.fournisseurs[0]?.fournisseurID?.nom || '',
       new Date(commande.createdAt).toLocaleDateString(),

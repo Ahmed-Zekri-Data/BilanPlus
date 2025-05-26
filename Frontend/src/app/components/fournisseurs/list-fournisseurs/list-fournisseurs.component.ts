@@ -7,6 +7,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { PdfService } from '../../../services/pdf.service';
 import * as L from 'leaflet';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-list-fournisseurs',
@@ -35,7 +37,20 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
   private map: L.Map | undefined;
   private markers: L.Marker[] = [];
   private mapInitialized = false;
+  isMapModalOpen = false;
   showMap = false;
+
+  // Custom red marker icon
+  private customIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  private searchSubject = new Subject<string>();
 
   constructor(
     private fournisseurService: FournisseurService,
@@ -45,6 +60,26 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
     private cdr: ChangeDetectorRef
   ) {
     this.dataSource = new MatTableDataSource<any>([]);
+    
+    // Configure custom filter predicate
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const searchStr = filter.toLowerCase();
+      return (
+        (data.nom && data.nom.toLowerCase().includes(searchStr)) ||
+        (data.email && data.email.toLowerCase().includes(searchStr)) ||
+        (data.contact && data.contact.toLowerCase().includes(searchStr)) ||
+        (data.categorie && data.categorie.toLowerCase().includes(searchStr))
+      );
+    };
+    
+    // Setup search debounce
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.applyFilter();
+    });
   }
 
   ngOnInit(): void {
@@ -52,12 +87,8 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   ngAfterViewInit(): void {
-    // Wait for the next tick to ensure the view is rendered
-    setTimeout(() => {
-      this.showMap = true;
-      this.cdr.detectChanges();
-      this.initializeMap();
-    }, 100);
+    this.dataSource.paginator = this.paginator;
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -66,9 +97,27 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
+  openMapModal(): void {
+    this.isMapModalOpen = true;
+    // Initialize map after modal is opened
+    setTimeout(() => {
+      this.initializeMap();
+    }, 100);
+  }
+
+  closeMapModal(event: Event): void {
+    event.stopPropagation();
+    this.isMapModalOpen = false;
+    // Clean up map when modal is closed
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+      this.mapInitialized = false;
+    }
+  }
+
   private initializeMap(): void {
-    if (!this.mapContainer?.nativeElement) {
-      console.error('Map container not found');
+    if (!this.mapContainer?.nativeElement || this.mapInitialized) {
       return;
     }
 
@@ -88,6 +137,11 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
       if (this.fournisseurs.length > 0) {
         this.updateMapMarkers();
       }
+
+      // Trigger a resize event to ensure the map renders correctly in the modal
+      setTimeout(() => {
+        this.map?.invalidateSize();
+      }, 100);
     } catch (error) {
       console.error('Error initializing map:', error);
     }
@@ -107,12 +161,37 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
       // Add markers for each fournisseur with coordinates
       this.fournisseurs.forEach(fournisseur => {
         if (fournisseur.lat && fournisseur.long) {
-          const marker = L.marker([fournisseur.lat, fournisseur.long])
-            .bindPopup(`
-              <strong>${fournisseur.nom}</strong><br>
-              ${fournisseur.email}<br>
-              ${fournisseur.contact}
-            `);
+          // Create marker with red icon and improved visibility
+          const marker = L.marker([fournisseur.lat, fournisseur.long], {
+            icon: this.customIcon,
+            riseOnHover: true,
+            zIndexOffset: 1000
+          });
+
+          // Create a custom popup with improved styling
+          const popupContent = `
+            <div class="popup-content">
+              <div class="popup-header">
+                <h3>${fournisseur.nom}</h3>
+              </div>
+              <div class="popup-body">
+                <p><strong>Email:</strong> ${fournisseur.email || 'Non renseigné'}</p>
+                <p><strong>Contact:</strong> ${fournisseur.contact || 'Non renseigné'}</p>
+                <p><strong>Adresse:</strong> ${fournisseur.adresse || 'Non renseigné'}</p>
+                <p><strong>Catégorie:</strong> ${fournisseur.categorie || 'Non renseigné'}</p>
+              </div>
+            </div>
+          `;
+
+          marker.bindPopup(popupContent, {
+            maxWidth: 300,
+            minWidth: 200,
+            className: 'custom-popup',
+            closeButton: true,
+            autoClose: false,
+            closeOnEscapeKey: true
+          });
+
           marker.addTo(this.map!);
           this.markers.push(marker);
         }
@@ -167,11 +246,16 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   applyFilter(): void {
-    this.currentPage = 0;
+    // Apply filter to the dataSource
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    
+    // Reset pagination
     if (this.paginator) {
       this.paginator.firstPage();
     }
-    this.loadFournisseurs();
+    
+    // Update total items count
+    this.totalItems = this.dataSource.filteredData.length;
   }
 
   onPageChange(event: PageEvent): void {
@@ -243,5 +327,9 @@ export class ListFournisseursComponent implements OnInit, AfterViewInit, OnDestr
 
   addFournisseur(): void {
     this.router.navigate(['/fournisseurs/add']);
+  }
+
+  onSearchChange(searchTerm: string): void {
+    this.searchSubject.next(searchTerm);
   }
 } 
