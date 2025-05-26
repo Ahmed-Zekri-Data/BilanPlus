@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
+import { DevisComponent } from './components/devis/devis.component';
+import { ListDevisComponent } from './components/devis/list-devis.component';
 
 // Stock
 import { MSComponent } from './components/ms/ms.component';
 import { ProduitComponent } from './components/produit.component';
-import { ProduitsComponent } from './components/produits/produits.component';
 
 // Main / Comptabilité / Utilisateurs / Rôles
 import { HomeComponent } from './home/home.component';
@@ -43,15 +45,24 @@ import { FactureListComponent } from './facture-list/facture-list.component';
 import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
 import { ReportingComponent } from './reporting/reporting.component';
 
-// Commandes & fournisseurs
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
+// Fournisseurs et Commandes
+import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
+import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
+import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
+import { ListFournisseursComponent } from './components/fournisseurs/list-fournisseurs/list-fournisseurs.component';
+import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
+import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
-// Dashboard for stock
-import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+// Dashboard for stock (from Gestion_de_stock)
+// import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
+
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
+
+
+  // Dashboard (stock-specific)
+ //{ path: 'dashboard', component: StockDashboardComponent },
 
   // Gestion comptable
   {
@@ -71,14 +82,45 @@ const routes: Routes = [
   },
 
   // Stock
-  { path: 'produits', component: ProduitsComponent },
   { path: 'produit', component: ProduitComponent },
   { path: 'stock-movements', component: MSComponent },
   { path: 'dashboard-stock', component: StockDashboardComponent },
 
-  // Commandes & fournisseurs
-  { path: 'commandes', component: CommandesComponent },
-  { path: 'fournisseurs', component: FournisseursComponent },
+  // Commandes
+  {
+    path: 'commandes',
+    component: SectionLayoutComponent,
+    children: [
+      { path: '', component: ListCommandesComponent },
+      { path: 'add', component: CommandeFormComponent },
+      { path: 'edit/:id', component: CommandeFormComponent },
+      { path: 'view/:id', component: CommandeViewComponent }
+    ]
+  },
+
+  // Fournisseurs
+  {
+    path: 'fournisseurs',
+    component: SectionLayoutComponent,
+    children: [
+      { path: '', component: ListFournisseursComponent },
+      { path: 'add', component: FournisseurFormComponent },
+      { path: 'edit/:id', component: FournisseurFormComponent },
+      { path: 'view/:id', component: FournisseurViewComponent }
+    ]
+  },
+
+  {
+    path: 'devis',
+    component: SectionLayoutComponent,
+    children: [
+      { path: ':commandeId/:fournisseurId', component: DevisComponent },
+      { path: '', component: ListDevisComponent }
+    ]
+  },
+  // Devis
+  { path: 'devis/:commandeId/:fournisseurId', component: DevisComponent },
+  { path: 'devis', component: ListDevisComponent },
 
   // Utilisateurs
   { path: 'utilisateurs', component: UtilisateurComponent },
@@ -106,16 +148,18 @@ const routes: Routes = [
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
 
-  // Clients / Factures
-  { path: 'clientform', component: ClientFormComponent },
-  { path: 'clientlist', component: ClientListComponent },
-  { path: 'clientdevis', component: DevisFormComponent },
-  { path: 'clientdevislist', component: DevisListComponent },
-  { path: 'facturelist', component: FactureListComponent },
-  { path: 'relance', component: RelanceAutomationComponent },
-  { path: 'reporting', component: ReportingComponent },
+// Clients / Factures
+{ path: 'clientform', component: ClientFormComponent },
+{ path: 'clientlist', component: ClientListComponent },
+{ path: 'clientdevis', component: DevisFormComponent },
+{ path: 'clientdevislist', component: DevisListComponent },
+{ path: 'facturelist', component: FactureListComponent },
+{ path: 'relance', component: RelanceAutomationComponent },
+{ path: 'reporting', component: ReportingComponent },
 
-  // Wildcard
+// Wildcard route for unmatched paths
+{ path: '**', redirectTo: 'clientlist' }  // Par exemple, rediriger vers clientlist ou une page 404
+
   { path: '**', redirectTo: '' }
 ];
 
@@ -124,3 +168,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
+

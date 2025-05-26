@@ -20,6 +20,7 @@ const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
+const devisRoutes = require("./Routes/DevisRoute"); // ajouté pour fusion
 const JournalRouter = require("./Routes/JournalRoute");
 const GrandLivreRouter = require("./Routes/GrandLivreRoute");
 const BalanceRouter = require("./Routes/BalanceRoute");
@@ -59,6 +60,7 @@ app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/clients", clientRoutes);
 app.use("/factures", factureRoutes);
+app.use("/devis", devisRoutes);
 app.use("/journal", JournalRouter);
 app.use("/grand-livre", GrandLivreRouter);
 app.use("/balance", BalanceRouter);

@@ -1,0 +1,32 @@
+<div class="fournisseur-view-container">
+  <mat-card *ngIf="fournisseur">
+    <mat-card-header>
+      <mat-card-title>Détails du fournisseur</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="detail-row">
+        <span class="label">Nom:</span>
+        <span class="value">{{ fournisseur.nom }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ fournisseur.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Contact:</span>
+        <span class="value">{{ fournisseur.contact }}</span>
+      </div>
+      
+      <!-- Map Section -->
+      <div class="map-container" *ngIf="fournisseur.lat && fournisseur.long && showMap">
+        <h3>Localisation</h3>
+        <div #mapContainer class="map-frame"></div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" routerLink="/fournisseurs/edit/{{fournisseur._id}}">Modifier</button>
+      <button mat-raised-button color="warn" (click)="deleteFournisseur(fournisseur._id)">Supprimer</button>
+      <button mat-raised-button routerLink="/fournisseurs">Retour</button>
+    </mat-card-actions>
+  </mat-card>
+</div> 
