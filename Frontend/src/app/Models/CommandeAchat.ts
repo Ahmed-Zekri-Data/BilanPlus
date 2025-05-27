@@ -1,9 +1,9 @@
-import { Produit } from './Produit';
-
 export interface CommandeAchat {
   _id?: string;
-  produit: Produit | string;
+  produit: string; // ID du produit
   quantite: number;
-  prixTotal: number;
-  statut: string;
+  date?: Date;
+  type_livraison?: string;
+  createdAt?: Date;
+  date_fin?: Date | null;
 }

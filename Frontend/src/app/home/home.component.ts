@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
@@ -6,21 +7,18 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   animations: [
-    // Animation pour la hero section (fade-in)
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
         animate('1000ms ease-in', style({ opacity: 1 }))
       ])
     ]),
-    // Animation pour les cartes (slide-in et fade-in)
     trigger('slideIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(50px)' }),
         animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ]),
-    // Animation pour les boutons (scale on click)
     trigger('buttonClick', [
       state('normal', style({ transform: 'scale(1)' })),
       state('clicked', style({ transform: 'scale(0.95)' })),
@@ -30,9 +28,14 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   ]
 })
 export class HomeComponent {
+  @ViewChild('sidenav') sidenav!: MatSidenav;
   buttonState = 'normal';
 
   onButtonClick() {
     this.buttonState = this.buttonState === 'normal' ? 'clicked' : 'normal';
+  }
+
+  toggleSidenav() {
+    this.sidenav.toggle();
   }
 }

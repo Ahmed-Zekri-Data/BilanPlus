@@ -1,4 +1,5 @@
 // models/Facture.js
+const mongoose = require('mongoose');
 const FactureSchema = new mongoose.Schema({
     montant: { type: Number, required: true },
     statut: { type: String, required: true },
@@ -8,4 +9,4 @@ const FactureSchema = new mongoose.Schema({
     tva: { type: mongoose.Schema.Types.ObjectId, ref: 'TVA' }
 });
 
-module.exports = mongoose.model('Facture', FactureSchema);
+module.exports = mongoose.models.Facture || mongoose.model('Facture', FactureSchema);

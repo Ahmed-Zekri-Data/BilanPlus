@@ -1,0 +1,64 @@
+<div *ngIf="isEditMode && !declaration._id && isLoading">
+  <p>Chargement...</p>
+</div>
+
+<div *ngIf="!isLoading" class="form-container">
+  <h2>
+    {{ isGenerateMode ? 'Générer une Déclaration Fiscale' : (isEditMode ? 'Modifier une Déclaration Fiscale' : 'Ajouter une Déclaration Fiscale') }}
+  </h2>
+  <form #declarationForm="ngForm" (ngSubmit)="saveDeclaration()" *ngIf="!errors.length">
+    <mat-form-field appearance="fill">
+      <mat-label>Période</mat-label>
+      <input matInput [matDatepicker]="picker" placeholder="Ex: 2024-04" [(ngModel)]="selectedMonth" name="periode" required [matDatepickerFilter]="monthPickerFilter" (ngModelChange)="updatePeriode()">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker startView="year" (monthSelected)="onMonthSelected($event, picker)"></mat-datepicker>
+      <p *ngIf="fieldErrors['periode']" class="error">{{ fieldErrors['periode'] }}</p>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Montant Total (TND)</mat-label>
+      <input matInput type="number" [(ngModel)]="declaration.montantTotal" name="montantTotal" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>TVA Collectée (TND)</mat-label>
+      <input matInput type="number" [(ngModel)]="declaration.totalTVACollectee" name="totalTVACollectee" (input)="calculateTVA()" required>
+      <p *ngIf="fieldErrors['totalTVACollectee']" class="error">{{ fieldErrors['totalTVACollectee'] }}</p>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>TVA Déductible (TND)</mat-label>
+      <input matInput type="number" [(ngModel)]="declaration.totalTVADeductible" name="totalTVADeductible" (input)="calculateTVA()" required>
+      <p *ngIf="fieldErrors['totalTVADeductible']" class="error">{{ fieldErrors['totalTVADeductible'] }}</p>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>TVA Nette (TND)</mat-label>
+      <input matInput type="number" [(ngModel)]="declaration.totalTVADue" name="totalTVADue" readonly>
+      <p *ngIf="fieldErrors['totalTVADue']" class="error">{{ fieldErrors['totalTVADue'] }}</p>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Statut</mat-label>
+      <input matInput [(ngModel)]="declaration.statut" name="statut" required>
+      <p *ngIf="fieldErrors['statut']" class="error">{{ fieldErrors['statut'] }}</p>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Compte Comptable</mat-label>
+      <mat-select [(ngModel)]="declaration.compteComptable" name="compteComptable" required>
+        <mat-option *ngFor="let compte of comptesComptables" [value]="compte._id">
+          {{ compte.nom }}
+        </mat-option>
+      </mat-select>
+      <p *ngIf="fieldErrors['compteComptable']" class="error">{{ fieldErrors['compteComptable'] }}</p>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!isFormValid()">
+      {{ isGenerateMode ? 'Générer une Déclaration' : (isEditMode ? 'Mettre à jour la Déclaration' : 'Ajouter la Déclaration') }}
+    </button>
+    <!-- <button mat-raised-button color="accent" (click)="exportToPDF()">Exporter en PDF</button> -->
+    <button mat-raised-button (click)="goBack()">Annuler</button>
+  </form>
+
+  <div *ngIf="errors.length > 0 && !fieldErrors['periode'] && !fieldErrors['totalTVACollectee'] && !fieldErrors['totalTVADeductible'] && !fieldErrors['totalTVADue'] && !fieldErrors['statut'] && !fieldErrors['compteComptable']" class="error-container">
+    <p class="error-title">Erreur(s) :</p>
+    <ul>
+      <li *ngFor="let error of errors" class="error">{{ error }}</li>
+    </ul>
+    <button mat-raised-button (click)="goBack()">Retour</button>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="dashboard-container">
+    <h2>Tableau de Bord - Facturation</h2>
+  
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value">{{ facturesCount }}</div>
+        <div class="stat-label">Factures actives</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-value">{{ overdueCount }}</div>
+        <div class="stat-label">Factures en retard</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">{{ totalAmount | currency:'DT' }}</div>
+        <div class="stat-label">Total impayé </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ totalPaid | currency:'DT' }}</div>
+        <div class="stat-label">Total encaissé</div>
+      </div>
+    </div>
+  
+    <div class="charts-row">
+      <div class="chart-container">
+        <h3>Répartition des Factures par Statut</h3>
+        <div class="pie-chart">
+          <div *ngFor="let status of factureStatusData" 
+              class="pie-slice" 
+              [style.background-color]="status.color"
+              [style.width.px]="100"
+              [style.height.px]="100">
+            <span class="slice-label">{{ status.label }}: {{ status.count }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>Facturation des 3 Derniers Mois</h3>
+        <div class="bar-chart">
+          <div *ngFor="let month of monthlyData" class="bar-group">
+            <div class="bar-label">{{ month.month }}</div>
+            <div class="bar-container">
+              <div class="bar" 
+                  [style.height.%]="getPercentage(month.amount, maxMonthlyAmount)" 
+                  [style.background-color]="'#3498db'">
+                <div class="bar-value">{{ month.amount | currency:'EUR' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  
+    <div class="alertes-section">
+      <h3>Alertes et Notifications</h3>
+      
+      <div *ngIf="alerts.length > 0" class="alerts-list">
+        <div *ngFor="let alert of alerts" class="alert-item" [ngClass]="'priority-' + alert.priority">
+          <div class="alert-icon">{{ alert.icon }}</div>
+          <div class="alert-content">
+            <div class="alert-title">{{ alert.title }}</div>
+            <div class="alert-description">{{ alert.description }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <p *ngIf="alerts.length === 0" class="no-alerts">
+        Aucune alerte à signaler pour le moment.
+      </p>
+    </div>
+  </div>

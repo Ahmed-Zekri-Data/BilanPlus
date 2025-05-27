@@ -1,0 +1,65 @@
+<div class="container">
+  <h1>{{ isEditMode ? 'Modifier la Commande' : 'Nouvelle Commande' }}</h1>
+
+  <form [formGroup]="commandeForm" (ngSubmit)="onSubmit()" class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Produit</mat-label>
+      <mat-select formControlName="produit" required>
+        <mat-option *ngFor="let produit of produits" [value]="produit._id">
+          {{produit.nom}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="commandeForm.get('produit')?.hasError('required')">
+        Le produit est requis
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Quantité</mat-label>
+      <input matInput type="number" formControlName="quantite" required>
+      <mat-error *ngIf="commandeForm.get('quantite')?.hasError('required')">
+        La quantité est requise
+      </mat-error>
+      <mat-error *ngIf="commandeForm.get('quantite')?.hasError('min')">
+        La quantité doit être supérieure à 0
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Type de livraison</mat-label>
+      <mat-select formControlName="type_livraison" required>
+        <mat-option *ngFor="let type of typesLivraison" [value]="type">
+          {{type}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="commandeForm.get('type_livraison')?.hasError('required')">
+        Le type de livraison est requis
+      </mat-error>
+    </mat-form-field>
+
+
+
+    <mat-form-field appearance="fill">
+      <mat-label>Date de fin</mat-label>
+      <input matInput [matDatepicker]="finPicker" formControlName="date_fin">
+      <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+      <mat-datepicker #finPicker></mat-datepicker>
+      <mat-error *ngIf="commandeForm.get('date_fin')?.hasError('dateFinBeforeDateDebut')">
+        La date de fin doit être postérieure à la date de début
+      </mat-error>
+    </mat-form-field>
+
+    <div *ngIf="commandeForm.get('date_debut')?.value && commandeForm.get('date_fin')?.value" class="duree-info">
+      <p>Durée de la commande : {{ calculateDuree() }} jours</p>
+    </div>
+
+    <div class="button-container">
+      <button mat-button type="button" (click)="cancel()">Annuler</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!commandeForm.valid || isLoading">
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+    </div>
+  </form>
+
+  <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
+</div> 

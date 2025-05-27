@@ -4,8 +4,10 @@ import { TVA } from './TVA';
 
 export interface Facture {
   _id?: string;
+  reference: string;
   montant: number;
-  statut: string;
+  dateEmission: Date; // Ajouté pour correspondre au backend
+  statut: 'Brouillon' | 'Validée' | 'Payée' | 'Paiement Partiel' | 'En retard';
   echeance: Date;
   client: Client | string;
   produits: (Produit | string)[];

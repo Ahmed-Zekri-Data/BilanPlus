@@ -1,10 +1,15 @@
-var express = require("express");
-var route = express.Router();
-var DFC = require("../Controller/DeclarationFiscaleController")
+const express = require('express');
+const router = express.Router();
+const DeclarationFiscaleController = require('../Controller/DeclarationFiscaleController');
 
-route.post("/addDeclaration",DFC.addDF)
-route.get("/getallDF",DFC.getall)
-route.get("/getDFbyid/:id",DFC.getbyid)
-route.delete("/deleteDF/:id",DFC.deleteDF)
-route.put("/updateDF/:id",DFC.updateDF)
-module.exports = route ;
+// Routes
+router.post('/add', DeclarationFiscaleController.addDF);
+router.get('/all', DeclarationFiscaleController.getall);
+router.get('/check-exists', DeclarationFiscaleController.checkDeclarationExists); // Nouvelle route pour vérifier l'existence d'une déclaration
+router.get('/:id', DeclarationFiscaleController.getbyid);
+router.delete('/:id', DeclarationFiscaleController.deleteDF);
+router.put('/:id', DeclarationFiscaleController.updateDF);
+router.post('/declaration/generer', DeclarationFiscaleController.genererDeclarationFiscale);
+router.post('/declaration/soumettre/:declarationId', DeclarationFiscaleController.soumettreDeclaration);
+
+module.exports = router;

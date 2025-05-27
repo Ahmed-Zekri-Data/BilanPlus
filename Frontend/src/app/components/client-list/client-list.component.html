@@ -1,0 +1,97 @@
+<div class="list-container">
+    <h2>Liste des Clients</h2>
+  
+    <!-- Champ de recherche -->
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      name="search"
+      placeholder="🔍 Rechercher par nom..."
+      class="search-input"
+    />
+  
+    <table *ngIf="filteredClients.length > 0; else noClients" class="client-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let client of filteredClients; let i = index">
+          <tr>
+            <td>{{ client.nom }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.telephone }}</td>
+            <td class="actions-col">
+              <button class="btn edit" (click)="editClient(i)">Modifier</button>
+              <button class="btn delete" (click)="deleteClient(i)">Supprimer</button>
+            </td>
+          </tr>
+          <tr *ngIf="editingIndex === i">
+            <td colspan="4">
+              <form #editForm="ngForm" (ngSubmit)="updateClient()" class="edit-form">
+                <div class="form-group">
+                  <input
+                    type="text"
+                    name="editNom"
+                    [(ngModel)]="editedClient.nom"
+                    #editNom="ngModel"
+                    placeholder="Nom"
+                    required
+                    minlength="3"
+                  />
+                  <div *ngIf="editNom.invalid && editNom.touched" class="error-message">
+                    Nom requis (min. 3 caractères).
+                  </div>
+                </div>
+                <div class="form-group">
+                  <input
+                    type="email"
+                    name="editEmail"
+                    [(ngModel)]="editedClient.email"
+                    #editEmail="ngModel"
+                    placeholder="Email"
+                    required
+                    email
+                  />
+                  <div *ngIf="editEmail.invalid && editEmail.touched" class="error-message">
+                    Email invalide.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <input
+                    type="text"
+                    name="editTelephone"
+                    [(ngModel)]="editedClient.telephone"
+                    #editTelephone="ngModel"
+                    placeholder="Téléphone"
+                    required
+                    pattern="[0-9]{8}"
+                  />
+                  <div *ngIf="editTelephone.invalid && editTelephone.touched" class="error-message">
+                    Doit contenir 8 chiffres.
+                  </div>
+                </div>
+                <div class="btn-group">
+                  <button type="submit" class="btn confirm" [disabled]="editForm.invalid">
+                    Valider
+                  </button>
+                  <button type="button" class="btn cancel" (click)="cancelEdit()">
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  
+    <ng-template #noClients>
+      <p>Aucun client ne correspond à la recherche.</p>
+    </ng-template>
+  </div>
+  

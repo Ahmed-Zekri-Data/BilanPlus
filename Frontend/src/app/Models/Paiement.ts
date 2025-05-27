@@ -5,4 +5,5 @@ export interface Paiement {
   montant: number;
   date?: Date;
   facture: Facture | string;
+  modePaiement: string;
 }
