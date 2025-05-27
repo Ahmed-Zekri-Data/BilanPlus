@@ -4,7 +4,6 @@ import { UtilisateurService } from '../../services/utilisateur.service';
 import { RoleService } from '../../services/role.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Role } from '../../Models/Role';
 import { finalize } from 'rxjs/operators';
 
 interface RoleOption {
@@ -34,7 +33,7 @@ export class AddUtilisateurComponent implements OnInit {
     private fb: FormBuilder,
     private utilisateurService: UtilisateurService,
     private roleService: RoleService,
-    private router: Router,
+    public router: Router, // Exposé au template
     private route: ActivatedRoute,
     private snackBar: MatSnackBar
   ) {
@@ -43,7 +42,9 @@ export class AddUtilisateurComponent implements OnInit {
       prenom: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['', Validators.required],
+      telephone: [''],
+      adresse: [''],
+      role: ['', this.isEditMode ? [] : [Validators.required]],
       actif: [true]
     });
   }
@@ -54,9 +55,34 @@ export class AddUtilisateurComponent implements OnInit {
 
     // Vérifier si nous sommes en mode édition
     this.userId = this.route.snapshot.paramMap.get('id');
-    if (this.userId) {
+
+    // Si nous sommes sur la route /utilisateur/profile, nous sommes en mode édition du profil utilisateur
+    const isProfileEdit = this.router.url === '/utilisateur/profile';
+
+    if (this.userId || isProfileEdit) {
       this.isEditMode = true;
-      this.loadUtilisateur(this.userId);
+
+      if (isProfileEdit) {
+        // Si nous sommes en mode édition du profil, récupérer l'ID de l'utilisateur connecté
+        try {
+          const currentUserStr = localStorage.getItem('currentUser');
+          if (currentUserStr) {
+            const currentUser = JSON.parse(currentUserStr);
+            if (currentUser && currentUser.user && currentUser.user._id) {
+              this.userId = currentUser.user._id;
+              console.log('AddUtilisateurComponent: Édition du profil utilisateur avec ID:', this.userId);
+            }
+          }
+        } catch (error) {
+          console.error('AddUtilisateurComponent: Erreur lors de la récupération de l\'ID utilisateur:', error);
+        }
+      }
+
+      if (this.userId) {
+        this.loadUtilisateur(this.userId);
+      } else {
+        this.error = 'Impossible de récupérer l\'ID de l\'utilisateur.';
+      }
     }
   }
 
@@ -65,8 +91,8 @@ export class AddUtilisateurComponent implements OnInit {
     this.roleService.getRoles()
       .pipe(finalize(() => this.loadingRoles = false))
       .subscribe({
-        next: (roles) => {
-          this.roles = roles.map(role => ({
+        next: (roles: any) => {
+          this.roles = roles.map((role: any) => ({
             _id: role._id || '',
             nom: role.nom
           }));
@@ -77,7 +103,7 @@ export class AddUtilisateurComponent implements OnInit {
             this.error = 'Aucun rôle disponible. Veuillez créer des rôles avant d\'ajouter des utilisateurs.';
           }
         },
-        error: (err) => {
+        error: (err: any) => {
           this.error = 'Erreur lors du chargement des rôles: ' + (err.message || 'Erreur inconnue');
           console.error('Erreur lors du chargement des rôles:', err);
         }
@@ -106,6 +132,8 @@ export class AddUtilisateurComponent implements OnInit {
           nom: utilisateur.nom,
           prenom: utilisateur.prenom || '',
           email: utilisateur.email,
+          telephone: utilisateur.telephone || '',
+          adresse: utilisateur.adresse || '',
           role: roleId,
           actif: utilisateur.actif !== undefined ? utilisateur.actif : true
         });
@@ -140,9 +168,11 @@ export class AddUtilisateurComponent implements OnInit {
       return;
     }
 
-    // Vérifier si un rôle a été sélectionné
+    // Vérifier si un rôle a été sélectionné (sauf en mode édition du profil)
+    const isProfileEdit = this.router.url === '/utilisateur/profile';
     const roleId = this.utilisateurForm.get('role')?.value;
-    if (!roleId) {
+
+    if (!isProfileEdit && !roleId) {
       this.error = 'Veuillez sélectionner un rôle valide.';
       this.showSnackBar('Veuillez sélectionner un rôle valide', 'error');
       return;
@@ -160,8 +190,26 @@ export class AddUtilisateurComponent implements OnInit {
       delete utilisateur.password;
     }
 
-    // Assurez-vous que le rôle est correctement formaté
-    console.log('Envoi du rôle:', utilisateur.role);
+    // Si nous sommes en mode édition du profil, conserver le rôle actuel
+    if (isProfileEdit) {
+      delete utilisateur.role;
+      delete utilisateur.actif;
+
+      // Récupérer le rôle actuel depuis le localStorage
+      try {
+        const currentUserStr = localStorage.getItem('currentUser');
+        if (currentUserStr) {
+          const currentUser = JSON.parse(currentUserStr);
+          if (currentUser && currentUser.user && currentUser.user.role) {
+            utilisateur.role = currentUser.user.role;
+          }
+        }
+      } catch (error) {
+        console.error('AddUtilisateurComponent: Erreur lors de la récupération du rôle actuel:', error);
+      }
+    }
+
+    console.log('Données à envoyer:', utilisateur);
 
     if (this.isEditMode && this.userId) {
       // Mise à jour d'un utilisateur existant
@@ -169,15 +217,16 @@ export class AddUtilisateurComponent implements OnInit {
         next: (response) => {
           console.log('Réponse de mise à jour:', response);
           this.loading = false;
-          this.success = 'Utilisateur mis à jour avec succès.';
-          this.showSnackBar('Utilisateur mis à jour avec succès', 'success');
-          setTimeout(() => this.router.navigate(['/utilisateurs']), 1500);
+          this.success = 'Données personnelles mises à jour avec succès.';
+          this.showSnackBar('Données personnelles mises à jour avec succès', 'success');
+          // Rediriger vers la page précédente après un court délai
+          setTimeout(() => window.history.back(), 1500);
         },
         error: (err) => {
           console.error('Erreur de mise à jour:', err);
           this.loading = false;
-          this.error = err.message || 'Une erreur est survenue lors de la mise à jour.';
-          this.showSnackBar('Erreur lors de la mise à jour de l\'utilisateur', 'error');
+          this.error = err.message || 'Une erreur est survenue lors de la mise à jour de vos données personnelles.';
+          this.showSnackBar('Erreur lors de la mise à jour de vos données personnelles', 'error');
         }
       });
     } else {
@@ -192,7 +241,7 @@ export class AddUtilisateurComponent implements OnInit {
             role: '',
             actif: true
           });
-          setTimeout(() => this.router.navigate(['/utilisateurs']), 1500);
+          setTimeout(() => this.router.navigate(['/utilisateur']), 1500);
         },
         error: (err) => {
           console.error('Erreur de création:', err);
@@ -205,7 +254,8 @@ export class AddUtilisateurComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/utilisateurs']);
+    // Utiliser l'API History pour revenir à la page précédente
+    window.history.back();
   }
 
   private showSnackBar(message: string, type: 'success' | 'error'): void {

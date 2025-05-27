@@ -28,6 +28,9 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
+// Modules
+import { SharedNavModule } from './components/shared-nav/shared-nav.module';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
@@ -40,6 +43,10 @@ import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
 import { RolePermissionsComponent } from './components/role-permissions/role-permissions.component';
 import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -53,8 +60,13 @@ import { HomeComponent } from './home/home.component';
     AddRoleComponent,
     RoleDetailsComponent,
     RolePermissionsComponent,
-    HomeComponent
+    HomeComponent,
+    LoginComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
+    UserProfileComponent
   ],
+
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -85,7 +97,8 @@ import { HomeComponent } from './home/home.component';
     MatChipsModule,
     MatBadgeModule,
     MatMenuModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    SharedNavModule
   ],
   providers: [],
   bootstrap: [AppComponent]

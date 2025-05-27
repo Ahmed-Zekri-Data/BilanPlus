@@ -9,6 +9,54 @@ const verifierToken = async (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
     console.log('VerifierToken: Authorization header:', authHeader);
 
+    // Mode développement - Créer un utilisateur fictif avec des permissions d'administrateur
+    // Cela permet de contourner la vérification du token pour le développement
+    const isDevelopmentMode = process.env.NODE_ENV === 'development' && false; // Désactiver le mode développement
+
+    if (isDevelopmentMode) {
+      console.log('VerifierToken: Mode développement activé, authentification simulée');
+
+      // Créer un utilisateur fictif avec des permissions d'administrateur
+      const mockUser = {
+        _id: '1',
+        email: 'admin@example.com',
+        nom: 'Admin',
+        prenom: 'Dev',
+        role: {
+          _id: '1',
+          nom: 'Administrateur Système',
+          permissions: {
+            accesComplet: true,
+            gererUtilisateursEtRoles: true,
+            configurerSysteme: true,
+            validerEcritures: true,
+            cloturerPeriodes: true,
+            genererEtatsFinanciers: true,
+            superviserComptes: true,
+            saisirEcritures: true,
+            gererFactures: true,
+            suivrePaiements: true,
+            gererTresorerie: true,
+            analyserDepensesRecettes: true,
+            genererRapportsPerformance: true,
+            comparerBudgetRealise: true,
+            saisirNotesFrais: true,
+            consulterBulletinsPaie: true,
+            soumettreRemboursements: true,
+            accesFacturesPaiements: true,
+            telechargerDocuments: true,
+            communiquerComptabilite: true
+          }
+        },
+        actif: true,
+        dernierConnexion: new Date()
+      };
+
+      req.user = mockUser;
+      return next();
+    }
+
+    // Mode production - Vérification normale du token
     if (!authHeader) {
       return res.status(401).json({ message: "Accès refusé, en-tête Authorization manquant" });
     }
@@ -60,6 +108,15 @@ const verifierToken = async (req, res, next) => {
 };
 
 const verifierAdmin = (req, res, next) => {
+  // Mode développement - Autoriser toutes les requêtes
+  const isDevelopmentMode = process.env.NODE_ENV === 'development' && false; // Désactiver le mode développement
+
+  if (isDevelopmentMode) {
+    console.log('verifierAdmin: Mode développement activé, accès administrateur accordé');
+    return next();
+  }
+
+  // Mode production - Vérification normale des permissions
   if (!req.user) {
     return res.status(401).json({ message: "Utilisateur non authentifié" });
   }
@@ -72,6 +129,15 @@ const verifierAdmin = (req, res, next) => {
 
 const verifierPermission = (permission) => {
   return (req, res, next) => {
+    // Mode développement - Autoriser toutes les requêtes
+    const isDevelopmentMode = process.env.NODE_ENV === 'development' && false; // Désactiver le mode développement
+
+    if (isDevelopmentMode) {
+      console.log(`verifierPermission: Mode développement activé, permission '${permission}' accordée`);
+      return next();
+    }
+
+    // Mode production - Vérification normale des permissions
     if (!req.user) {
       console.error('verifierPermission: Utilisateur non authentifié');
       return res.status(401).json({ message: "Utilisateur non authentifié" });

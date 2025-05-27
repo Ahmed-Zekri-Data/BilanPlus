@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../Config/db.json');
 const mongoose = require('mongoose');
-const csv = require('fast-csv');
 const fs = require('fs');
 const createTransporter = require('../emailConfig');
 
@@ -219,7 +218,7 @@ exports.updateUser = async (req, res) => {
     const utilisateur = await Utilisateur.findById(req.params.id);
     if (!utilisateur) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-    const { nom, prenom, email, role, telephone, adresse, actif } = req.body;
+    const { nom, prenom, email, role, telephone, adresse, actif, password } = req.body;
     if (nom) utilisateur.nom = nom;
     if (prenom) utilisateur.prenom = prenom;
     if (email) utilisateur.email = email;
@@ -237,13 +236,26 @@ exports.updateUser = async (req, res) => {
     if (adresse) utilisateur.adresse = adresse;
     if (actif !== undefined) utilisateur.actif = actif;
 
+    // Mise à jour du mot de passe si fourni
+    if (password && password.trim() !== '') {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      utilisateur.password = hashedPassword;
+    }
+
     const updatedUser = await utilisateur.save();
     const userWithoutPassword = { ...updatedUser.toObject() };
     delete userWithoutPassword.password;
-    res.status(200).json({ message: "Utilisateur mis à jour", utilisateur: userWithoutPassword });
+
+    res.status(200).json({
+      message: "Utilisateur mis à jour avec succès",
+      utilisateur: userWithoutPassword
+    });
   } catch (err) {
     console.error('Erreur updateUser:', err);
-    res.status(500).json({ message: "Erreur serveur lors de la mise à jour de l'utilisateur", error: err.message });
+    res.status(500).json({
+      message: "Erreur serveur lors de la mise à jour de l'utilisateur",
+      error: err.message
+    });
   }
 };
 
@@ -371,62 +383,228 @@ exports.updatePassword = async (req, res) => {
 
 exports.requestPasswordReset = async (req, res) => {
   try {
+    console.log('requestPasswordReset: Début de la demande de réinitialisation');
     const { email } = req.body;
-    const utilisateur = await Utilisateur.findOne({ email });
-    if (!utilisateur) return res.status(200).json({ message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé" });
+    console.log('requestPasswordReset: Email reçu:', email);
 
+    if (!email) {
+      console.log('requestPasswordReset: Email manquant dans la requête');
+      return res.status(400).json({ message: "L'adresse email est requise" });
+    }
+
+    // Recherche de l'utilisateur
+    const utilisateur = await Utilisateur.findOne({ email });
+    if (!utilisateur) {
+      console.log('requestPasswordReset: Aucun utilisateur trouvé avec cet email:', email);
+      // Pour des raisons de sécurité, ne pas indiquer que l'email n'existe pas
+      return res.status(200).json({ message: "Si un compte avec cet email existe, un lien de réinitialisation sera envoyé" });
+    }
+
+    console.log('requestPasswordReset: Utilisateur trouvé:', utilisateur.email);
+
+    // Génération du token de réinitialisation
     const resetToken = jwt.sign({ id: utilisateur._id }, config.jwtSecret, { expiresIn: '1h' });
+    console.log('requestPasswordReset: Token généré, longueur:', resetToken.length);
+
+    // Mise à jour de l'utilisateur avec le token
     utilisateur.resetPasswordToken = resetToken;
     utilisateur.resetPasswordExpires = Date.now() + 3600000; // 1 heure
     await utilisateur.save();
+    console.log('requestPasswordReset: Token sauvegardé dans la base de données');
 
-    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-    const transporter = createTransporter();
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: utilisateur.email,
-      subject: 'Réinitialisation de votre mot de passe - BilanPlus',
-      html: `
-        <h2>Réinitialisation de mot de passe</h2>
-        <p>Vous avez demandé une réinitialisation de mot de passe pour votre compte BilanPlus.</p>
-        <p>Cliquez sur le lien suivant pour réinitialiser votre mot de passe :</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>Ce lien est valide pendant 1 heure.</p>
-        <p>Si vous n'avez pas fait cette demande, ignorez cet email.</p>
-      `,
-    };
+    // Création du lien de réinitialisation (utiliser l'URL du frontend)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+    console.log('requestPasswordReset: Lien de réinitialisation:', resetLink);
 
-    await transporter.sendMail(mailOptions);
-    console.log(`Email de réinitialisation envoyé à ${utilisateur.email}`);
-    res.status(200).json({ message: "Lien de réinitialisation envoyé par email" });
+    // Préparation de l'email
+    try {
+      console.log('requestPasswordReset: Création du transporteur email');
+      const transporter = createTransporter();
+
+      const mailOptions = {
+        from: `"BilanPlus" <${process.env.EMAIL_USER}>`,
+        to: utilisateur.email,
+        subject: 'Réinitialisation de votre mot de passe - BilanPlus',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="https://i.imgur.com/YourLogo.png" alt="BilanPlus Logo" style="max-width: 150px;">
+            </div>
+            <h2 style="color: #1E3A8A; text-align: center;">Réinitialisation de mot de passe</h2>
+            <p>Bonjour ${utilisateur.prenom},</p>
+            <p>Vous avez demandé une réinitialisation de mot de passe pour votre compte BilanPlus.</p>
+            <p>Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe :</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetLink}" style="background-color: #1E3A8A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Réinitialiser mon mot de passe</a>
+            </div>
+            <p>Ou copiez et collez ce lien dans votre navigateur :</p>
+            <p style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; word-break: break-all;">${resetLink}</p>
+            <p><strong>Ce lien est valide pendant 1 heure.</strong></p>
+            <p>Si vous n'avez pas fait cette demande, vous pouvez ignorer cet email en toute sécurité.</p>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">
+              <p>Ceci est un email automatique, merci de ne pas y répondre.</p>
+              <p>&copy; ${new Date().getFullYear()} BilanPlus. Tous droits réservés.</p>
+            </div>
+          </div>
+        `,
+      };
+
+      console.log('requestPasswordReset: Envoi de l\'email à', utilisateur.email);
+      await transporter.sendMail(mailOptions);
+      console.log('requestPasswordReset: Email envoyé avec succès à', utilisateur.email);
+
+      // Enregistrer l'action dans l'audit
+      try {
+        const AuditLog = require('../Models/Audit').AuditLog;
+        const auditLog = new AuditLog({
+          utilisateur: utilisateur._id,
+          action: "Demande de réinitialisation de mot de passe",
+          details: `Demande de réinitialisation de mot de passe pour l'utilisateur ${utilisateur.email}`,
+          ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+          navigateur: req.headers['user-agent'],
+          date: new Date()
+        });
+
+        auditLog.save().catch(err => {
+          console.error('Erreur lors de l\'enregistrement de l\'audit:', err);
+        });
+      } catch (auditErr) {
+        console.error('Erreur lors de l\'enregistrement de l\'audit:', auditErr);
+      }
+
+      res.status(200).json({ message: "Lien de réinitialisation envoyé par email" });
+    } catch (emailErr) {
+      console.error('Erreur lors de l\'envoi de l\'email:', emailErr);
+
+      // Annuler les modifications si l'email n'a pas pu être envoyé
+      utilisateur.resetPasswordToken = undefined;
+      utilisateur.resetPasswordExpires = undefined;
+      await utilisateur.save();
+
+      throw emailErr; // Relancer l'erreur pour qu'elle soit capturée par le bloc catch principal
+    }
   } catch (err) {
-    console.error('Erreur lors de l\'envoi de l\'email:', err);
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    console.error('Erreur requestPasswordReset:', err);
+    res.status(500).json({ message: "Erreur lors de l'envoi de l'email de réinitialisation", error: err.message });
   }
 };
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { token, newPassword } = req.body;
-    const decoded = jwt.verify(token, config.jwtSecret);
+    console.log('resetPassword: Début de la réinitialisation du mot de passe');
+    const { token, newPassword, email } = req.body;
+
+    if (!token || !newPassword) {
+      console.log('resetPassword: Token ou nouveau mot de passe manquant');
+      return res.status(400).json({ message: "Le token et le nouveau mot de passe sont requis" });
+    }
+
+    console.log('resetPassword: Vérification du token');
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwtSecret);
+      console.log('resetPassword: Token vérifié, ID utilisateur:', decoded.id);
+    } catch (jwtErr) {
+      console.error('resetPassword: Erreur de vérification du token:', jwtErr);
+      return res.status(400).json({ message: "Token invalide ou expiré" });
+    }
+
+    // Recherche de l'utilisateur avec le token
+    console.log('resetPassword: Recherche de l\'utilisateur avec le token');
     const utilisateur = await Utilisateur.findOne({
       _id: decoded.id,
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!utilisateur) return res.status(400).json({ message: "Token invalide ou expiré" });
+    if (!utilisateur) {
+      console.log('resetPassword: Aucun utilisateur trouvé avec ce token ou token expiré');
+      return res.status(400).json({ message: "Token invalide ou expiré" });
+    }
 
+    console.log('resetPassword: Utilisateur trouvé:', utilisateur.email);
+
+    // Vérification de la complexité du mot de passe
+    if (newPassword.length < 8) {
+      console.log('resetPassword: Mot de passe trop court');
+      return res.status(400).json({ message: "Le mot de passe doit contenir au moins 8 caractères" });
+    }
+
+    // Hachage et enregistrement du nouveau mot de passe
+    console.log('resetPassword: Hachage du nouveau mot de passe');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     utilisateur.password = hashedPassword;
     utilisateur.resetPasswordToken = undefined;
     utilisateur.resetPasswordExpires = undefined;
+
+    // Réinitialisation des tentatives de connexion et activation du compte
+    utilisateur.tentativesConnexion = 0;
+    utilisateur.actif = true;
+
     await utilisateur.save();
+    console.log('resetPassword: Mot de passe mis à jour avec succès');
+
+    // Enregistrer l'action dans l'audit
+    try {
+      const AuditLog = require('../Models/Audit').AuditLog;
+      const auditLog = new AuditLog({
+        utilisateur: utilisateur._id,
+        action: "Réinitialisation de mot de passe",
+        details: `Mot de passe réinitialisé pour l'utilisateur ${utilisateur.email}`,
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        navigateur: req.headers['user-agent'],
+        date: new Date()
+      });
+
+      auditLog.save().catch(err => {
+        console.error('Erreur lors de l\'enregistrement de l\'audit:', err);
+      });
+    } catch (auditErr) {
+      console.error('Erreur lors de l\'enregistrement de l\'audit:', auditErr);
+    }
+
+    // Envoi d'un email de confirmation
+    try {
+      console.log('resetPassword: Envoi d\'un email de confirmation');
+      const transporter = createTransporter();
+
+      const mailOptions = {
+        from: `"BilanPlus" <${process.env.EMAIL_USER}>`,
+        to: utilisateur.email,
+        subject: 'Confirmation de réinitialisation de mot de passe - BilanPlus',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="https://i.imgur.com/YourLogo.png" alt="BilanPlus Logo" style="max-width: 150px;">
+            </div>
+            <h2 style="color: #1E3A8A; text-align: center;">Mot de passe réinitialisé avec succès</h2>
+            <p>Bonjour ${utilisateur.prenom},</p>
+            <p>Votre mot de passe a été réinitialisé avec succès.</p>
+            <p>Si vous n'êtes pas à l'origine de cette action, veuillez contacter immédiatement notre support.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/login" style="background-color: #1E3A8A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Se connecter</a>
+            </div>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">
+              <p>Ceci est un email automatique, merci de ne pas y répondre.</p>
+              <p>&copy; ${new Date().getFullYear()} BilanPlus. Tous droits réservés.</p>
+            </div>
+          </div>
+        `,
+      };
+
+      transporter.sendMail(mailOptions).catch(err => {
+        console.error('Erreur lors de l\'envoi de l\'email de confirmation:', err);
+      });
+    } catch (emailErr) {
+      console.error('Erreur lors de la préparation de l\'email de confirmation:', emailErr);
+      // Ne pas bloquer la réponse si l'email échoue
+    }
 
     res.status(200).json({ message: "Mot de passe réinitialisé avec succès" });
   } catch (err) {
     console.error('Erreur resetPassword:', err);
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur lors de la réinitialisation du mot de passe", error: err.message });
   }
 };
 
@@ -461,71 +639,83 @@ exports.analyserActiviteUtilisateurs = async (req, res) => {
 
 exports.exportUsersToCSV = async (req, res) => {
   try {
+    console.log('exportUsersToCSV: Début de l\'exportation');
+
+    // Récupérer les utilisateurs avec leurs rôles
     const utilisateurs = await Utilisateur.find().populate('role');
+    console.log(`exportUsersToCSV: ${utilisateurs.length} utilisateurs trouvés`);
 
-    // Créer un répertoire temporaire s'il n'existe pas
-    const tempDir = './temp';
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-
-    const filePath = `${tempDir}/utilisateurs_export_${Date.now()}.csv`;
-    const csvStream = csv.format({ headers: true });
-    const writableStream = fs.createWriteStream(filePath);
-
-    // Enregistrer l'action dans l'audit
+    // Enregistrer l'action dans l'audit (sans bloquer le processus)
     if (req.user && req.user._id) {
       try {
-        await require('../Models/Audit').AuditLog.logAction(
-          req.user._id,
-          "Exportation des utilisateurs",
-          `Exportation de la liste des utilisateurs en CSV`,
-          req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-          req.headers['user-agent']
-        );
+        const AuditLog = require('../Models/Audit').AuditLog;
+        const auditLog = new AuditLog({
+          utilisateur: req.user._id,
+          action: "Exportation des utilisateurs",
+          details: `Exportation de la liste des utilisateurs en CSV (${utilisateurs.length} utilisateurs)`,
+          ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+          navigateur: req.headers['user-agent'],
+          date: new Date()
+        });
+
+        // Sauvegarder l'audit en arrière-plan sans attendre
+        auditLog.save().catch(err => {
+          console.error('Erreur lors de l\'enregistrement de l\'audit en arrière-plan:', err);
+        });
       } catch (auditErr) {
         console.error('Erreur lors de l\'enregistrement de l\'action d\'exportation:', auditErr);
+        // Ne pas bloquer le processus si l'enregistrement de l'audit échoue
       }
     }
 
-    csvStream.pipe(writableStream);
-    utilisateurs.forEach(user => {
-      csvStream.write({
-        Nom: user.nom,
-        Prenom: user.prenom || '',
-        Email: user.email,
-        Role: user.role ? (typeof user.role === 'object' ? user.role.nom : user.role) : 'N/A',
-        Actif: user.actif ? 'Oui' : 'Non',
-        DateCreation: user.dateCreation ? new Date(user.dateCreation).toLocaleString() : 'N/A',
-        DernierConnexion: user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : 'Jamais'
-      });
-    });
-    csvStream.end();
+    // Créer les en-têtes CSV
+    const headers = ['Nom', 'Prenom', 'Email', 'Role', 'Actif', 'DateCreation', 'DernierConnexion', 'Telephone', 'Adresse'];
 
-    writableStream.on('finish', () => {
-      // Envoyer le fichier au client
-      res.download(filePath, 'utilisateurs.csv', (err) => {
-        if (err) {
-          console.error('Erreur lors de l\'envoi du fichier CSV:', err);
-          return res.status(500).json({ message: "Erreur lors de l'envoi du fichier", error: err.message });
-        }
+    // Créer les lignes CSV
+    const rows = utilisateurs.map(user => {
+      try {
+        const roleName = user.role ?
+          (typeof user.role === 'object' ? user.role.nom : user.role) :
+          'Non défini';
 
-        // Supprimer le fichier temporaire après l'envoi
-        fs.unlink(filePath, (unlinkErr) => {
-          if (unlinkErr) {
-            console.error('Erreur lors de la suppression du fichier temporaire:', unlinkErr);
+        return [
+          user.nom || '',
+          user.prenom || '',
+          user.email || '',
+          roleName,
+          user.actif ? 'Oui' : 'Non',
+          user.dateCreation ? new Date(user.dateCreation).toLocaleString() : 'N/A',
+          user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : 'Jamais',
+          user.telephone || '',
+          user.adresse || ''
+        ].map(field => {
+          // Échapper les champs qui contiennent des virgules ou des guillemets
+          if (field && (field.includes(',') || field.includes('"') || field.includes('\n'))) {
+            return `"${field.replace(/"/g, '""')}"`;
           }
-        });
-      });
+          return field;
+        }).join(',');
+      } catch (userErr) {
+        console.error('Erreur lors de la création de la ligne CSV pour l\'utilisateur:', userErr, user);
+        return Array(headers.length).fill('').join(',');
+      }
     });
 
-    writableStream.on('error', (err) => {
-      console.error('Erreur lors de l\'écriture du fichier CSV:', err);
-      res.status(500).json({ message: "Erreur lors de la création du fichier CSV", error: err.message });
-    });
+    // Assembler le CSV complet
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    console.log('exportUsersToCSV: CSV généré avec succès');
+
+    // Définir les en-têtes pour le téléchargement
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename=utilisateurs.csv');
+
+    // Envoyer le contenu CSV directement au client
+    res.send(csvContent);
+    console.log('exportUsersToCSV: CSV envoyé au client');
+
   } catch (err) {
     console.error('Erreur exportUsersToCSV:', err);
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur serveur lors de l'exportation des utilisateurs", error: err.message });
   }
 };
 

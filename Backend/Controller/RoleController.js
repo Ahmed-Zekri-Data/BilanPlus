@@ -141,7 +141,7 @@ exports.deleteRole = async (req, res) => {
 
     const utilisateursAvecRole = await Utilisateur.countDocuments({ role: roleId });
     if (utilisateursAvecRole > 0) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: "Impossible de supprimer ce rôle car il est assigné à des utilisateurs",
         count: utilisateursAvecRole
       });
@@ -199,10 +199,64 @@ exports.getUtilisateursParRole = async (req, res) => {
 
 exports.analyserUtilisationPermissions = async (req, res) => {
   try {
+    console.log('analyserUtilisationPermissions: Début de l\'analyse');
+
     const roles = await Role.find();
+    console.log(`analyserUtilisationPermissions: ${roles.length} rôles trouvés`);
+
+    // Si aucun rôle n'existe, retourner des statistiques vides
+    if (roles.length === 0) {
+      console.log('analyserUtilisationPermissions: Aucun rôle trouvé, retour de statistiques vides');
+      return res.status(200).json({
+        totalRoles: 0,
+        totalUsers: await Utilisateur.countDocuments(),
+        permissionStats: {}
+      });
+    }
+
+    // Définir les clés de permission par défaut au cas où aucun rôle n'a de permissions
+    let permissionKeys = [
+      'gererUtilisateursEtRoles',
+      'configurerSysteme',
+      'accesComplet',
+      'validerEcritures',
+      'cloturerPeriodes',
+      'genererEtatsFinanciers',
+      'superviserComptes',
+      'saisirEcritures',
+      'gererFactures',
+      'suivrePaiements',
+      'gererTresorerie',
+      'analyserDepensesRecettes',
+      'genererRapportsPerformance',
+      'comparerBudgetRealise',
+      'saisirNotesFrais',
+      'consulterBulletinsPaie',
+      'soumettreRemboursements',
+      'accesFacturesPaiements',
+      'telechargerDocuments',
+      'communiquerComptabilite'
+    ];
+
+    // Essayer d'obtenir les clés de permission à partir du premier rôle
+    try {
+      if (roles[0] && roles[0].permissions) {
+        // Vérifier si toObject est une fonction
+        if (typeof roles[0].permissions.toObject === 'function') {
+          permissionKeys = Object.keys(roles[0].permissions.toObject());
+        } else {
+          // Si ce n'est pas une fonction, essayer d'obtenir les clés directement
+          permissionKeys = Object.keys(roles[0].permissions);
+        }
+      }
+      console.log(`analyserUtilisationPermissions: ${permissionKeys.length} clés de permission trouvées`);
+    } catch (keyError) {
+      console.error('analyserUtilisationPermissions: Erreur lors de l\'extraction des clés de permission:', keyError);
+      // Continuer avec les clés par défaut
+    }
+
+    // Initialiser les statistiques de permission
     const permissionStats = {};
-    const permissionKeys = Object.keys(roles[0]?.permissions.toObject() || {});
-    
     permissionKeys.forEach(key => {
       permissionStats[key] = {
         enabled: 0,
@@ -211,17 +265,29 @@ exports.analyserUtilisationPermissions = async (req, res) => {
       };
     });
 
+    // Analyser chaque rôle
     for (const role of roles) {
-      const userCount = await Utilisateur.countDocuments({ role: role._id });
-      permissionKeys.forEach(key => {
-        if (role.permissions[key]) {
-          permissionStats[key].enabled++;
-          permissionStats[key].roleCount++;
-          permissionStats[key].userCount += userCount;
-        }
-      });
+      try {
+        const userCount = await Utilisateur.countDocuments({ role: role._id });
+
+        permissionKeys.forEach(key => {
+          try {
+            if (role.permissions && role.permissions[key]) {
+              permissionStats[key].enabled++;
+              permissionStats[key].roleCount++;
+              permissionStats[key].userCount += userCount;
+            }
+          } catch (permError) {
+            console.error(`analyserUtilisationPermissions: Erreur lors de l'analyse de la permission ${key} pour le rôle ${role.nom}:`, permError);
+          }
+        });
+      } catch (roleError) {
+        console.error(`analyserUtilisationPermissions: Erreur lors de l'analyse du rôle ${role._id}:`, roleError);
+        // Continuer avec les autres rôles
+      }
     }
 
+    console.log('analyserUtilisationPermissions: Analyse terminée avec succès');
     res.status(200).json({
       totalRoles: roles.length,
       totalUsers: await Utilisateur.countDocuments(),

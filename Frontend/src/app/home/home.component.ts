@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MatSidenav } from '@angular/material/sidenav';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -29,9 +29,6 @@ import { MatSidenav } from '@angular/material/sidenav';
   ]
 })
 export class HomeComponent implements OnInit {
-  @ViewChild('sidenav') sidenav!: MatSidenav;
-
-  sidebarOpen = false;
   buttonState = 'normal';
   currentUser: any = null; // Placeholder for user data
   userRole: string = 'Admin'; // Placeholder for user role
@@ -122,7 +119,8 @@ export class HomeComponent implements OnInit {
   };
 
   constructor(
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -132,13 +130,7 @@ export class HomeComponent implements OnInit {
     this.userRole = 'Admin'; // Replace with actual role
   }
 
-  toggleSidebar(): void {
-    if (this.sidenav) {
-      this.sidenav.toggle();
-      this.sidebarOpen = !this.sidebarOpen;
-      console.log('Sidebar toggled, open:', this.sidebarOpen);
-    }
-  }
+  // La méthode toggleSidebar n'est plus nécessaire car la barre latérale est gérée par le composant SharedNavComponent
 
   onButtonClick(): void {
     this.buttonState = this.buttonState === 'normal' ? 'clicked' : 'normal';
@@ -147,6 +139,11 @@ export class HomeComponent implements OnInit {
 
   logout(): void {
     console.log('Logging out');
+
+    // Utiliser le service d'authentification pour se déconnecter
+    this.authService.logout();
+
+    // Rediriger vers la page de connexion
     this.router.navigate(['/login']).then(success => {
       console.log('Navigation to /login:', success ? 'Success' : 'Failed');
     });

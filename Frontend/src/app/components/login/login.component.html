@@ -1,28 +1,27 @@
-<div class="login-page">
-  <!-- Section gauche : Bienvenue -->
-  <div class="welcome-section">
-    <div class="welcome-content">
+<div class="login-container">
+  <div class="login-card">
+    <!-- Logo et titre -->
+    <div class="login-header">
       <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
-      <h1>{{ getTranslation('welcome') }}</h1>
-      <p>{{ getTranslation('noAccount') }}</p>
+      <h1 class="welcome-text">{{ getTranslation('welcome') }}</h1>
+      <p class="welcome-subtitle">{{ getTranslation('subtitle') }}</p>
     </div>
-  </div>
 
-  <!-- Section droite : Formulaire -->
-  <div class="login-container">
-    <h2>{{ getTranslation('signIn') }}</h2>
+    <!-- Formulaire de connexion -->
     <form class="login-form">
       <!-- Email -->
       <div class="form-group">
         <label for="email">{{ getTranslation('loginLabel') }}</label>
         <div class="input-wrapper">
-          <span class="input-icon">👤</span>
+          <mat-icon class="input-icon">person</mat-icon>
           <input
             type="email"
             id="email"
             name="email"
+            [(ngModel)]="credentials.email"
             [placeholder]="getTranslation('loginPlaceholder')"
-            (input)="onInputChange($event, 'email')"
+            autocomplete="email"
+            required
           >
         </div>
       </div>
@@ -31,46 +30,66 @@
       <div class="form-group">
         <label for="password">{{ getTranslation('passwordLabel') }}</label>
         <div class="input-wrapper">
-          <span class="input-icon">🔒</span>
+          <mat-icon class="input-icon">lock</mat-icon>
           <input
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             id="password"
             name="password"
+            [(ngModel)]="credentials.password"
             [placeholder]="getTranslation('passwordPlaceholder')"
-            (input)="onInputChange($event, 'password')"
+            autocomplete="current-password"
+            required
           >
+          <mat-icon class="toggle-password" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
         </div>
       </div>
 
       <!-- Options -->
       <div class="options-row">
         <div class="remember-me">
-          <input type="checkbox" id="rememberMe" (change)="onCheckboxChange($event)" />
-          <label for="rememberMe">{{ getTranslation('verify') }}</label>
+          <mat-checkbox color="primary" (change)="onCheckboxChange($event)">
+            {{ getTranslation('rememberMe') }}
+          </mat-checkbox>
         </div>
-        <a class="forgot-password" (click)="navigateToForgotPassword()">{{ getTranslation('forgotPassword') }}</a>
+        <a class="forgot-password" (click)="navigateToForgotPassword()">
+          {{ getTranslation('forgotPassword') }}
+        </a>
       </div>
 
       <!-- Message d'erreur -->
       <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage }}</span>
       </div>
 
-      <!-- Bouton de soumission -->
+      <!-- Bouton de connexion -->
       <button
-        type="button"
-        class="submit-button"
-        (click)="navigateToHome()"
-        [disabled]="loading"
+        type="submit"
+        class="login-button"
+        (click)="onSubmit()"
+        [disabled]="loading || !credentials.email || !credentials.password"
       >
-        <span *ngIf="!loading">Se connecter</span>
-        <span *ngIf="loading">Connexion en cours...</span>
+        <span *ngIf="!loading">{{ getTranslation('loginButton') }}</span>
+        <div *ngIf="loading" class="spinner">
+          <mat-spinner diameter="24"></mat-spinner>
+          <span>{{ getTranslation('loggingIn') }}</span>
+        </div>
       </button>
     </form>
 
-    <!-- Bouton de traduction -->
-    <div class="language-toggle">
-      <button (click)="toggleLanguage()">{{ getTranslation('languageToggle') }}</button>
+    <!-- Pied de page -->
+    <div class="login-footer">
+      <div class="language-toggle">
+        <button mat-button (click)="toggleLanguage()">
+          <mat-icon>language</mat-icon>
+          {{ getTranslation('languageToggle') }}
+        </button>
+      </div>
+      <div class="copyright">
+        &copy; {{ currentYear }} Bilan+ | {{ getTranslation('allRightsReserved') }}
+      </div>
     </div>
   </div>
 </div>

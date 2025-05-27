@@ -64,16 +64,16 @@
         <div class="permissions-category">
           <h4>Gestion des utilisateurs et système</h4>
           <div class="permissions-grid">
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.gererUtilisateursEtRoles}">
-              <mat-icon>{{ role.permissions?.gererUtilisateursEtRoles ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererUtilisateursEtRoles}">
+              <mat-icon>{{ role.permissions.gererUtilisateursEtRoles ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Gérer les utilisateurs et rôles</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.configurerSysteme}">
-              <mat-icon>{{ role.permissions?.configurerSysteme ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.configurerSysteme}">
+              <mat-icon>{{ role.permissions.configurerSysteme ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Configurer le système</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.accesComplet}">
-              <mat-icon>{{ role.permissions?.accesComplet ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.accesComplet}">
+              <mat-icon>{{ role.permissions.accesComplet ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Accès complet</span>
             </div>
           </div>
@@ -83,24 +83,24 @@
         <div class="permissions-category">
           <h4>Comptabilité</h4>
           <div class="permissions-grid">
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.validerEcritures}">
-              <mat-icon>{{ role.permissions?.validerEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.validerEcritures}">
+              <mat-icon>{{ role.permissions.validerEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Valider les écritures</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.cloturerPeriodes}">
-              <mat-icon>{{ role.permissions?.cloturerPeriodes ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.cloturerPeriodes}">
+              <mat-icon>{{ role.permissions.cloturerPeriodes ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Clôturer les périodes</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.genererEtatsFinanciers}">
-              <mat-icon>{{ role.permissions?.genererEtatsFinanciers ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.genererEtatsFinanciers}">
+              <mat-icon>{{ role.permissions.genererEtatsFinanciers ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Générer les états financiers</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.superviserComptes}">
-              <mat-icon>{{ role.permissions?.superviserComptes ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.superviserComptes}">
+              <mat-icon>{{ role.permissions.superviserComptes ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Superviser les comptes</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.saisirEcritures}">
-              <mat-icon>{{ role.permissions?.saisirEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.saisirEcritures}">
+              <mat-icon>{{ role.permissions.saisirEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Saisir les écritures</span>
             </div>
           </div>
@@ -110,20 +110,20 @@
         <div class="permissions-category">
           <h4>Facturation et paiements</h4>
           <div class="permissions-grid">
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.gererFactures}">
-              <mat-icon>{{ role.permissions?.gererFactures ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererFactures}">
+              <mat-icon>{{ role.permissions.gererFactures ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Gérer les factures</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.suivrePaiements}">
-              <mat-icon>{{ role.permissions?.suivrePaiements ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.suivrePaiements}">
+              <mat-icon>{{ role.permissions.suivrePaiements ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Suivre les paiements</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.gererTresorerie}">
-              <mat-icon>{{ role.permissions?.gererTresorerie ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererTresorerie}">
+              <mat-icon>{{ role.permissions.gererTresorerie ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Gérer la trésorerie</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.accesFacturesPaiements}">
-              <mat-icon>{{ role.permissions?.accesFacturesPaiements ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.accesFacturesPaiements}">
+              <mat-icon>{{ role.permissions.accesFacturesPaiements ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Accès aux factures et paiements</span>
             </div>
           </div>
@@ -133,16 +133,16 @@
         <div class="permissions-category">
           <h4>Rapports et analyses</h4>
           <div class="permissions-grid">
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.analyserDepensesRecettes}">
-              <mat-icon>{{ role.permissions?.analyserDepensesRecettes ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.analyserDepensesRecettes}">
+              <mat-icon>{{ role.permissions.analyserDepensesRecettes ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Analyser les dépenses et recettes</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.genererRapportsPerformance}">
-              <mat-icon>{{ role.permissions?.genererRapportsPerformance ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.genererRapportsPerformance}">
+              <mat-icon>{{ role.permissions.genererRapportsPerformance ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Générer les rapports de performance</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.comparerBudgetRealise}">
-              <mat-icon>{{ role.permissions?.comparerBudgetRealise ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.comparerBudgetRealise}">
+              <mat-icon>{{ role.permissions.comparerBudgetRealise ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Comparer budget et réalisé</span>
             </div>
           </div>
@@ -152,24 +152,24 @@
         <div class="permissions-category">
           <h4>Autres permissions</h4>
           <div class="permissions-grid">
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.saisirNotesFrais}">
-              <mat-icon>{{ role.permissions?.saisirNotesFrais ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.saisirNotesFrais}">
+              <mat-icon>{{ role.permissions.saisirNotesFrais ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Saisir les notes de frais</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.consulterBulletinsPaie}">
-              <mat-icon>{{ role.permissions?.consulterBulletinsPaie ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.consulterBulletinsPaie}">
+              <mat-icon>{{ role.permissions.consulterBulletinsPaie ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Consulter les bulletins de paie</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.soumettreRemboursements}">
-              <mat-icon>{{ role.permissions?.soumettreRemboursements ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.soumettreRemboursements}">
+              <mat-icon>{{ role.permissions.soumettreRemboursements ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Soumettre des remboursements</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.telechargerDocuments}">
-              <mat-icon>{{ role.permissions?.telechargerDocuments ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.telechargerDocuments}">
+              <mat-icon>{{ role.permissions.telechargerDocuments ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Télécharger des documents</span>
             </div>
-            <div class="permission-item" [ngClass]="{'active': role.permissions?.communiquerComptabilite}">
-              <mat-icon>{{ role.permissions?.communiquerComptabilite ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.communiquerComptabilite}">
+              <mat-icon>{{ role.permissions.communiquerComptabilite ? 'check_circle' : 'cancel' }}</mat-icon>
               <span>Communiquer avec la comptabilité</span>
             </div>
           </div>

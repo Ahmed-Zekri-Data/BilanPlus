@@ -1,2 +1,8 @@
 
+<app-shared-nav *ngIf="shouldShowNav()">
   <router-outlet></router-outlet>
+</app-shared-nav>
+
+<div *ngIf="!shouldShowNav()" class="login-container">
+  <router-outlet></router-outlet>
+</div>

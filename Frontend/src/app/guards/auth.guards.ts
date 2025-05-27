@@ -13,12 +13,21 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
+    console.log('AuthGuard: Vérification de l\'authentification');
+
     // Vérifier si l'utilisateur est connecté
-    if (this.authService.isLoggedIn()) {
-      console.log('Utilisateur authentifié, accès autorisé');
+    const isLoggedIn = this.authService.isLoggedIn();
+    console.log('AuthGuard: Résultat de isLoggedIn():', isLoggedIn);
+
+    if (isLoggedIn) {
+      console.log('AuthGuard: Utilisateur authentifié, accès autorisé');
       return true;
     } else {
-      console.warn('Utilisateur non authentifié, redirection vers la page de connexion');
+      console.warn('AuthGuard: Utilisateur non authentifié, redirection vers la page de connexion');
+
+      // Nettoyer les données de session si elles existent
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('token');
 
       // Stocker l'URL actuelle pour y revenir après la connexion
       const currentUrl = this.router.url;

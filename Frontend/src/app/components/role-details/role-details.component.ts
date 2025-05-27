@@ -53,7 +53,7 @@ export class RoleDetailsComponent implements OnInit {
     console.log('RoleDetailsComponent: Chargement du rôle avec ID:', id);
 
     this.roleService.getRoleById(id).subscribe({
-      next: (role) => {
+      next: (role: any) => {
         console.log('RoleDetailsComponent: Rôle chargé avec succès:', role);
 
         // Vérifier si le rôle a des permissions
@@ -86,7 +86,7 @@ export class RoleDetailsComponent implements OnInit {
         this.role = role;
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         this.error = 'Erreur lors du chargement du rôle: ' + (err?.message || 'Erreur inconnue');
         console.error('RoleDetailsComponent: Erreur lors du chargement du rôle:', err);
@@ -124,7 +124,7 @@ export class RoleDetailsComponent implements OnInit {
           this.showSnackBar('Rôle supprimé avec succès', 'success');
           this.router.navigate(['/roles']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.loading = false;
           this.showConfirmDialog = false;
           this.error = 'Erreur lors de la suppression du rôle: ' + (err?.message || 'Erreur inconnue');

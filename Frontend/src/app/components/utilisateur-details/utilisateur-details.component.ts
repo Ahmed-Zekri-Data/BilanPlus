@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { UtilisateurService } from '../../services/utilisateur.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-utilisateur-details',
@@ -12,20 +12,39 @@ export class UtilisateurDetailsComponent implements OnInit {
   utilisateur: any = null;
   loading = false;
   error = '';
-  showConfirmDialog = false;
+
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private utilisateurService: UtilisateurService,
-    private snackBar: MatSnackBar
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadUtilisateur(id);
+    } else {
+      // Si aucun ID n'est fourni, charger les données de l'utilisateur connecté
+      this.loadCurrentUser();
     }
+  }
+
+  loadCurrentUser(): void {
+    this.loading = true;
+    console.log('UtilisateurDetailsComponent: Chargement des données de l\'utilisateur connecté');
+    this.authService.getCurrentUser().subscribe({
+      next: (user) => {
+        console.log('UtilisateurDetailsComponent: Données utilisateur reçues:', user);
+        this.utilisateur = user;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('UtilisateurDetailsComponent: Erreur lors du chargement des données utilisateur:', err);
+        this.error = err?.message || 'Erreur lors du chargement de l\'utilisateur.';
+        this.loading = false;
+      }
+    });
   }
 
   loadUtilisateur(id: string): void {
@@ -43,80 +62,49 @@ export class UtilisateurDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/utilisateurs']);
+    // Utiliser l'API History pour revenir à la page précédente
+    window.history.back();
   }
 
   getRoleName(): string {
-    if (!this.utilisateur || !this.utilisateur.role) {
+    if (!this.utilisateur) {
       return 'Non défini';
     }
-    return typeof this.utilisateur.role === 'string' ? this.utilisateur.role : this.utilisateur.role.nom;
-  }
 
-  deleteUtilisateur(): void {
-    this.showConfirmDialog = true;
-  }
-
-  cancelDelete(): void {
-    this.showConfirmDialog = false;
-  }
-
-  confirmDelete(): void {
-    if (this.utilisateur && this.utilisateur._id) {
-      this.loading = true;
-      this.utilisateurService.deleteUtilisateur(this.utilisateur._id).subscribe({
-        next: () => {
-          this.loading = false;
-          this.showConfirmDialog = false;
-          this.snackBar.open('Utilisateur supprimé avec succès', 'Fermer', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/utilisateurs']);
-        },
-        error: (err) => {
-          this.loading = false;
-          this.showConfirmDialog = false;
-          this.error = err?.message || 'Erreur lors de la suppression de l\'utilisateur.';
-          this.snackBar.open('Erreur lors de la suppression de l\'utilisateur', 'Fermer', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
+    if (!this.utilisateur.role) {
+      return 'Non défini';
     }
+
+    // Si le rôle est une chaîne de caractères (ID), essayer de trouver le nom du rôle correspondant
+    if (typeof this.utilisateur.role === 'string') {
+      // Cas spécifiques pour les IDs de rôle connus
+      switch (this.utilisateur.role) {
+        case '1': return 'Administrateur Système';
+        case '2': return 'Directeur Financier';
+        case '3': return 'Comptable';
+        case '4': return 'Contrôleur de Gestion';
+        case '5': return 'Assistant Comptable';
+        case '6': return 'Employé';
+        case '7': return 'Auditeur';
+        default: return `Rôle (${this.utilisateur.role})`;
+      }
+    }
+
+    // Si le rôle est un objet avec une propriété nom
+    if (typeof this.utilisateur.role === 'object' && this.utilisateur.role !== null) {
+      if ('nom' in this.utilisateur.role) {
+        return this.utilisateur.role.nom;
+      }
+
+      // Si le rôle est un objet sans propriété nom, retourner sa représentation JSON
+      return JSON.stringify(this.utilisateur.role);
+    }
+
+    // Cas par défaut
+    return 'Non défini';
   }
 
-  resetLoginAttempts(): void {
-    if (this.utilisateur && this.utilisateur._id) {
-      this.loading = true;
-      this.utilisateurService.resetLoginAttempts(this.utilisateur._id).subscribe({
-        next: () => {
-          this.loading = false;
-          this.snackBar.open('Tentatives de connexion réinitialisées', 'Fermer', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['success-snackbar']
-          });
-          // Recharger les informations de l'utilisateur
-          this.loadUtilisateur(this.utilisateur._id);
-        },
-        error: (err) => {
-          this.loading = false;
-          this.error = err?.message || 'Erreur lors de la réinitialisation des tentatives de connexion.';
-          this.snackBar.open('Erreur lors de la réinitialisation des tentatives de connexion', 'Fermer', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-    }
-  }
+  // Méthodes de suppression retirées pour simplifier l'interface utilisateur
+
+  // Méthode resetLoginAttempts retirée car la section sécurité a été supprimée
 }

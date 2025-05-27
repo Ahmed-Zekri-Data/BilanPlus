@@ -26,6 +26,14 @@ router-outlet + * {
   background-color: #F5F5F5 !important;
 }
 
+/* Conteneur pour les pages de connexion */
+.login-container {
+  display: block;
+  min-height: 100vh;
+  background-color: #F5F5F5 !important;
+  padding: 20px;
+}
+
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

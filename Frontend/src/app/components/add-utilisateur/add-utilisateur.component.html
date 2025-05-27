@@ -1,7 +1,9 @@
 <div class="form-container">
   <div class="form-header">
-    <h1>Ajouter un Utilisateur</h1>
-    <p>Créez un nouveau compte utilisateur dans le système</p>
+    <h1 *ngIf="!isEditMode">Ajouter un Utilisateur</h1>
+    <h1 *ngIf="isEditMode">Modifier mes données personnelles</h1>
+    <p *ngIf="!isEditMode">Créez un nouveau compte utilisateur dans le système</p>
+    <p *ngIf="isEditMode">Mettez à jour vos informations personnelles</p>
   </div>
 
   <mat-card class="form-card">
@@ -36,7 +38,8 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field full-width">
+        <!-- Champ mot de passe (masqué en mode édition du profil) -->
+        <mat-form-field appearance="outline" class="form-field full-width" *ngIf="!isEditMode || router.url !== '/utilisateur/profile'">
           <mat-label>Mot de passe</mat-label>
           <input matInput id="password" formControlName="password" [type]="hidePassword ? 'password' : 'text'" placeholder="Minimum 6 caractères">
           <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
@@ -50,7 +53,28 @@
           </mat-error>
         </mat-form-field>
 
+        <!-- Message informatif pour le mot de passe en mode édition du profil -->
+        <div *ngIf="isEditMode && router.url === '/utilisateur/profile'" class="info-message">
+          <mat-icon>info</mat-icon>
+          <span>Pour des raisons de sécurité, le mot de passe ne peut pas être modifié ici. Veuillez contacter l'administrateur pour réinitialiser votre mot de passe.</span>
+        </div>
+
+        <!-- Champ téléphone -->
         <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Téléphone</mat-label>
+          <input matInput id="telephone" formControlName="telephone" placeholder="Entrez le numéro de téléphone">
+          <mat-icon matSuffix>phone</mat-icon>
+        </mat-form-field>
+
+        <!-- Champ adresse -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Adresse</mat-label>
+          <textarea matInput id="adresse" formControlName="adresse" placeholder="Entrez l'adresse" rows="3"></textarea>
+          <mat-icon matSuffix>home</mat-icon>
+        </mat-form-field>
+
+        <!-- Le champ rôle est masqué en mode édition mais conservé en mode création -->
+        <mat-form-field appearance="outline" class="form-field full-width" *ngIf="!isEditMode">
           <mat-label>Rôle</mat-label>
           <mat-select formControlName="role">
             <mat-option *ngIf="loadingRoles" value="">Chargement des rôles...</mat-option>
@@ -60,12 +84,13 @@
             </mat-option>
           </mat-select>
           <mat-icon matSuffix>admin_panel_settings</mat-icon>
-          <mat-error *ngIf="utilisateurForm.get('role')?.errors?.['required']">
+          <mat-error *ngIf="utilisateurForm.get('role')?.errors?.['required'] && !isEditMode">
             Le rôle est requis
           </mat-error>
         </mat-form-field>
 
-        <div class="form-field-checkbox">
+        <!-- Champ actif (masqué en mode édition du profil) -->
+        <div class="form-field-checkbox" *ngIf="!isEditMode || router.url !== '/utilisateur/profile'">
           <mat-checkbox formControlName="actif" color="primary">
             Compte actif
           </mat-checkbox>

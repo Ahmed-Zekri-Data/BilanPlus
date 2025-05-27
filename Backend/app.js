@@ -26,8 +26,9 @@ const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
 const AuditRouter = require("./Routes/AuditRoute");
 const { errorHandlers } = require("./MiddleWare/errorHandler");
+const nodemailer = require('nodemailer');
 
-const port = process.env.PORT || 3000;
+
 
 mongoose
   .connect(process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/BilanPlus')
@@ -86,7 +87,7 @@ app.use(bodyParser.json());
 
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
-app.use("/role", Rolerouter);
+app.use("/roles", Rolerouter);
 app.use("/DF", DFrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
@@ -97,13 +98,80 @@ app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/audit", AuditRouter);
 
+// Configuration du transporteur email
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'votre.email@gmail.com',
+    pass: process.env.EMAIL_PASS || 'votre-mot-de-passe-app'
+  }
+});
+
+// Route pour envoyer l'email de réinitialisation
+app.post('/api/send-email', async (req, res) => {
+  try {
+    const { to, subject, text, html } = req.body;
+
+    console.log('Envoi d\'email vers:', to);
+
+    const mailOptions = {
+      from: '"Bilan+" <noreply@bilanplus.com>',
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+
+    console.log('Email envoyé avec succès:', result.messageId);
+
+    res.json({
+      success: true,
+      message: `Email envoyé avec succès à ${to}`,
+      messageId: result.messageId
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'email:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'envoi de l\'email: ' + error.message,
+      error: error.message
+    });
+  }
+});
+
 app.use(errorHandlers);
 
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
+// Gestion des erreurs du serveur
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Le port ${PORT} est déjà utilisé.`);
+    console.log('🔍 Recherche d\'un port disponible...');
+
+    // Essayer le port suivant
+    const newPort = PORT + 1;
+    console.log(`🔄 Tentative sur le port ${newPort}...`);
+
+    server.listen(newPort, () => {
+      console.log(`✅ Serveur démarré sur le port ${newPort}`);
+      console.log(`🌐 URL: http://localhost:${newPort}`);
+      console.log(`⚠️  IMPORTANT: Mettez à jour l'URL frontend vers http://localhost:${newPort}`);
+    });
+  } else {
+    console.error('❌ Erreur du serveur:', error.message);
+    process.exit(1);
+  }
+});
+
 server.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log(`✅ Serveur démarré sur le port ${PORT}`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
 });
 
 module.exports = app;

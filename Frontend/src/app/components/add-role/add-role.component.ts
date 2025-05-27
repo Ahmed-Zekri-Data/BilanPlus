@@ -159,7 +159,7 @@ export class AddRoleComponent implements OnInit {
 
           this.loading = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.loading = false;
           this.error = 'Erreur lors du chargement du rôle: ' + (err.message || 'Erreur inconnue');
           this.showSnackBar('Erreur lors du chargement du rôle', 'error');
@@ -208,14 +208,14 @@ export class AddRoleComponent implements OnInit {
       // Mise à jour d'un rôle existant
       role._id = this.roleId;
       this.roleService.updateRole(this.roleId, role).subscribe({
-        next: (updatedRole) => {
+        next: (updatedRole: any) => {
           this.loading = false;
           this.success = 'Rôle mis à jour avec succès.';
           this.showSnackBar('Rôle mis à jour avec succès', 'success');
           console.log('Rôle mis à jour:', updatedRole);
           setTimeout(() => this.router.navigate(['/roles']), 1500);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.loading = false;
           this.error = 'Erreur lors de la mise à jour du rôle: ' + (err.message || 'Erreur inconnue');
           this.showSnackBar('Erreur lors de la mise à jour du rôle', 'error');
@@ -225,7 +225,7 @@ export class AddRoleComponent implements OnInit {
     } else {
       // Création d'un nouveau rôle
       this.roleService.createRole(role).subscribe({
-        next: (newRole) => {
+        next: (newRole: any) => {
           this.loading = false;
           this.success = 'Rôle créé avec succès.';
           this.showSnackBar('Rôle créé avec succès', 'success');
@@ -243,7 +243,7 @@ export class AddRoleComponent implements OnInit {
 
           setTimeout(() => this.router.navigate(['/roles']), 1500);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.loading = false;
           this.error = 'Erreur lors de la création du rôle: ' + (err.message || 'Erreur inconnue');
           this.showSnackBar('Erreur lors de la création du rôle', 'error');

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-login',
@@ -38,34 +39,40 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   buttonState = 'normal';
   currentLanguage = 'fr'; // Langue par défaut : français
+  showPassword = false; // Pour afficher/masquer le mot de passe
+  currentYear = new Date().getFullYear(); // Pour le copyright
 
   // Traductions
   translations: { [key: string]: { [key: string]: string } } = {
     fr: {
-      welcome: 'Bonjour ! Bienvenue sur BilanPlus',
-      noAccount: 'Vous n\'avez pas encore de compte ?',
-      signUp: 'S\'inscrire',
+      welcome: 'Bienvenue sur BilanPlus',
+      subtitle: 'Connectez-vous pour accéder à votre compte',
       signIn: 'Se connecter',
       loginLabel: 'Identifiant ou email',
       loginPlaceholder: 'Entrez votre email ou identifiant',
       passwordLabel: 'Mot de passe',
-      passwordPlaceholder: 'Doit contenir au moins 8 caractères',
-      verify: 'Cliquez pour vérifier',
+      passwordPlaceholder: 'Entrez votre mot de passe',
+      rememberMe: 'Se souvenir de moi',
       forgotPassword: 'Mot de passe oublié ?',
-      languageToggle: 'Passer à l\'anglais'
+      loginButton: 'Se connecter',
+      loggingIn: 'Connexion en cours',
+      languageToggle: 'English',
+      allRightsReserved: 'Tous droits réservés'
     },
     en: {
-      welcome: 'Hello! Welcome to BilanPlus',
-      noAccount: 'Don\'t have an account yet?',
-      signUp: 'Sign Up',
+      welcome: 'Welcome to BilanPlus',
+      subtitle: 'Sign in to access your account',
       signIn: 'Sign In',
-      loginLabel: 'Login or email',
-      loginPlaceholder: 'Enter your login email',
+      loginLabel: 'Username or email',
+      loginPlaceholder: 'Enter your email or username',
       passwordLabel: 'Password',
-      passwordPlaceholder: 'Must contain at least 8 symbols',
-      verify: 'Click to verify',
+      passwordPlaceholder: 'Enter your password',
+      rememberMe: 'Remember me',
       forgotPassword: 'Forgot Password?',
-      languageToggle: 'Switch to French'
+      loginButton: 'Sign In',
+      loggingIn: 'Signing in',
+      languageToggle: 'Français',
+      allRightsReserved: 'All rights reserved'
     }
   };
 
@@ -107,22 +114,15 @@ export class LoginComponent implements OnInit {
     return emailRegex.test(email);
   }
 
-  onInputChange(event: Event, field: 'email' | 'password'): void {
-    const target = event.target as HTMLInputElement;
-    if (target) {
-      if (field === 'email') {
-        this.credentials.email = target.value;
-      } else if (field === 'password') {
-        this.credentials.password = target.value;
-      }
-    }
+
+
+  onCheckboxChange(event: MatCheckboxChange): void {
+    this.credentials.rememberMe = event.checked;
   }
 
-  onCheckboxChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target) {
-      this.credentials.rememberMe = target.checked;
-    }
+  // Méthode pour afficher/masquer le mot de passe
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   navigateToForgotPassword(): void {
@@ -131,22 +131,26 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  navigateToHome(): void {
+  onSubmit(): void {
+    this.submitted = true;
     this.loading = true;
     this.errorMessage = '';
+    this.buttonState = 'clicked';
 
     // Vérifier si les champs sont remplis
     if (!this.credentials.email || !this.credentials.password) {
       this.errorMessage = 'Veuillez remplir tous les champs';
       this.loading = false;
+      this.buttonState = 'normal';
       return;
     }
 
-    // Tentative de connexion
+    // Tentative de connexion avec le vrai backend
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
         this.loading = false;
-        console.log('Connexion réussie');
+        this.buttonState = 'normal';
+        console.log('Connexion réussie:', response);
 
         // Vérifier s'il y a une URL de redirection stockée
         const redirectUrl = sessionStorage.getItem('redirectUrl');
@@ -160,8 +164,12 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
+        this.buttonState = 'normal';
         this.errorMessage = error.message || 'Erreur de connexion. Veuillez réessayer.';
         console.error('Erreur de connexion:', error);
+
+        // Réinitialiser le mot de passe pour la sécurité
+        this.credentials.password = '';
       }
     });
   }

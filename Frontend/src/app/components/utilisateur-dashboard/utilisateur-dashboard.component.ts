@@ -273,30 +273,213 @@ export class UtilisateurDashboardComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    this.loading = true;
-    this.utilisateurService.exportToCSV().subscribe({
-      next: (blob: Blob) => {
+    console.log('UtilisateurDashboardComponent: Début de l\'exportation CSV');
+
+    try {
+      // Afficher un indicateur de chargement
+      this.loading = true;
+      this.error = null;
+
+      // Afficher un message de chargement
+      const loadingSnackBarRef = this.snackBar.open(
+        'Exportation des utilisateurs en cours...',
+        'Patienter',
+        { duration: 0 }
+      );
+
+      // Vérifier si l'utilisateur est connecté
+      if (!this.authService.isLoggedIn()) {
+        loadingSnackBarRef.dismiss();
         this.loading = false;
-        // Créer un URL pour le blob
-        const url = window.URL.createObjectURL(blob);
-        // Créer un élément a pour déclencher le téléchargement
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'utilisateurs.csv';
-        document.body.appendChild(a);
-        a.click();
-        // Nettoyer
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.error = 'Erreur lors de l\'exportation des utilisateurs.';
-        console.error('Erreur lors de l\'exportation:', err);
-        // Afficher un message d'erreur
-        alert('Erreur lors de l\'exportation des utilisateurs: ' + (err.message || 'Erreur inconnue'));
+        this.error = 'Vous devez être connecté pour exporter les utilisateurs.';
+
+        this.snackBar.open(
+          'Vous devez être connecté pour exporter les utilisateurs.',
+          'Fermer',
+          { duration: 5000, panelClass: ['error-snackbar'] }
+        );
+
+        return;
       }
-    });
+
+      // Générer le CSV côté client si l'exportation côté serveur échoue
+      const generateClientSideCSV = () => {
+        try {
+          console.log('UtilisateurDashboardComponent: Génération du CSV côté client');
+
+          // Définir le type pour les données CSV
+          interface CsvDataRow {
+            Nom: string;
+            Prenom: string;
+            Email: string;
+            Role: string;
+            Actif: string;
+            DateCreation: string;
+            DernierConnexion: string;
+            [key: string]: string; // Index signature pour permettre l'accès dynamique
+          }
+
+          // Créer les données CSV
+          const csvData: CsvDataRow[] = this.utilisateurs.map(user => ({
+            Nom: user.nom || '',
+            Prenom: user.prenom || '',
+            Email: user.email || '',
+            Role: typeof user.role === 'string' ? user.role : (user.role ? user.role.nom : 'Non défini'),
+            Actif: user.actif ? 'Oui' : 'Non',
+            DateCreation: user.dateCreation ? new Date(user.dateCreation).toLocaleString() : 'N/A',
+            DernierConnexion: user.dernierConnexion ? new Date(user.dernierConnexion).toLocaleString() : 'Jamais'
+          }));
+
+          // Créer l'en-tête CSV
+          const headers = Object.keys(csvData[0]);
+
+          // Créer les lignes CSV
+          const csvRows = [
+            headers.join(','),
+            ...csvData.map(row => headers.map(header =>
+              // Échapper les virgules et les guillemets
+              JSON.stringify(row[header] || '')
+            ).join(','))
+          ];
+
+          // Joindre les lignes avec des sauts de ligne
+          const csvString = csvRows.join('\n');
+
+          // Créer un blob avec le contenu CSV
+          const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+          // Créer un URL pour le blob
+          const url = window.URL.createObjectURL(blob);
+
+          // Créer un élément a pour déclencher le téléchargement
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'utilisateurs.csv';
+          document.body.appendChild(a);
+
+          // Déclencher le téléchargement
+          a.click();
+
+          // Nettoyer
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          return true;
+        } catch (error) {
+          console.error('UtilisateurDashboardComponent: Erreur lors de la génération du CSV côté client', error);
+          return false;
+        }
+      };
+
+      // Essayer d'exporter depuis le serveur
+      this.utilisateurService.exportToCSV().subscribe({
+        next: (blob: Blob) => {
+          console.log('UtilisateurDashboardComponent: Blob reçu', {
+            type: blob.type,
+            size: blob.size
+          });
+
+          // Vérifier si le blob est valide
+          if (!blob || blob.size === 0) {
+            console.warn('UtilisateurDashboardComponent: Blob vide reçu, génération côté client');
+
+            // Essayer de générer le CSV côté client
+            const success = generateClientSideCSV();
+
+            // Masquer l'indicateur de chargement
+            this.loading = false;
+            loadingSnackBarRef.dismiss();
+
+            if (success) {
+              // Afficher un message de succès
+              this.snackBar.open(
+                'Exportation réussie (générée côté client)',
+                'Fermer',
+                { duration: 3000 }
+              );
+            } else {
+              // Afficher un message d'erreur
+              this.error = 'Erreur lors de l\'exportation des utilisateurs.';
+              this.snackBar.open(
+                'Erreur lors de l\'exportation des utilisateurs.',
+                'Fermer',
+                { duration: 5000, panelClass: ['error-snackbar'] }
+              );
+            }
+
+            return;
+          }
+
+          // Créer un URL pour le blob
+          const url = window.URL.createObjectURL(blob);
+
+          // Créer un élément a pour déclencher le téléchargement
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'utilisateurs.csv';
+          document.body.appendChild(a);
+
+          // Déclencher le téléchargement
+          a.click();
+
+          // Nettoyer
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          // Masquer l'indicateur de chargement
+          this.loading = false;
+          loadingSnackBarRef.dismiss();
+
+          // Afficher un message de succès
+          this.snackBar.open(
+            'Exportation réussie',
+            'Fermer',
+            { duration: 3000 }
+          );
+
+          console.log('UtilisateurDashboardComponent: Exportation CSV terminée avec succès');
+        },
+        error: (err) => {
+          console.error('UtilisateurDashboardComponent: Erreur lors de l\'exportation CSV', err);
+
+          // Essayer de générer le CSV côté client
+          console.log('UtilisateurDashboardComponent: Tentative de génération côté client');
+          const success = generateClientSideCSV();
+
+          // Masquer l'indicateur de chargement
+          this.loading = false;
+          loadingSnackBarRef.dismiss();
+
+          if (success) {
+            // Afficher un message de succès
+            this.snackBar.open(
+              'Exportation réussie (générée côté client)',
+              'Fermer',
+              { duration: 3000 }
+            );
+          } else {
+            // Afficher un message d'erreur
+            this.error = err.message || 'Erreur lors de l\'exportation des utilisateurs.';
+
+            this.snackBar.open(
+              'Erreur lors de l\'exportation: ' + this.error,
+              'Fermer',
+              { duration: 5000, panelClass: ['error-snackbar'] }
+            );
+          }
+        }
+      });
+    } catch (error) {
+      console.error('UtilisateurDashboardComponent: Erreur non gérée lors de l\'exportation', error);
+      this.loading = false;
+      this.error = 'Erreur inattendue lors de l\'exportation.';
+
+      this.snackBar.open(
+        'Erreur inattendue lors de l\'exportation.',
+        'Fermer',
+        { duration: 5000, panelClass: ['error-snackbar'] }
+      );
+    }
   }
 
   getRoleName(user: Utilisateur): string {
