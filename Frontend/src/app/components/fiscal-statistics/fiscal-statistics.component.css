@@ -1,0 +1,297 @@
+.fiscal-statistics-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.section-title {
+  color: #011d43;
+  margin: 0;
+  font-size: 24px;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+}
+
+.year-selector label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.year-selector select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #011d43;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-indicator p {
+  margin-top: 15px;
+  color: #666;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background-color: #ffebee;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.error-icon {
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+.error-message p {
+  color: #d32f2f;
+  margin: 0;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.stats-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card h3 {
+  color: #011d43;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Distribution bars */
+.distribution-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.distribution-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.distribution-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.distribution-bar-container {
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.distribution-bar {
+  height: 100%;
+  border-radius: 10px;
+  min-width: 20px; /* Assure une largeur minimale pour les petites valeurs */
+  transition: width 0.5s ease-in-out; /* Animation de la barre */
+}
+
+.distribution-bar.tva {
+  background-color: #4285F4;
+}
+
+.distribution-bar.tcl {
+  background-color: #EA4335;
+}
+
+.distribution-bar.droit-timbre {
+  background-color: #FBBC05;
+}
+
+.distribution-value {
+  font-size: 14px;
+  color: #666;
+}
+
+.total-item {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #ccc;
+}
+
+.total-value {
+  font-weight: bold;
+  color: #011d43;
+  font-size: 16px;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 15px 0;
+  color: #6c757d;
+}
+
+.no-data-message p {
+  margin: 5px 0;
+}
+
+/* Monthly data table */
+.monthly-data {
+  overflow-x: auto;
+}
+
+.monthly-table, .yearly-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.monthly-table th, .monthly-table td,
+.yearly-table th, .yearly-table td {
+  padding: 10px;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+}
+
+.monthly-table th:first-child, .monthly-table td:first-child,
+.yearly-table th:first-child, .yearly-table td:first-child {
+  text-align: left;
+}
+
+.monthly-table th, .yearly-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.monthly-table tr:hover, .yearly-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.positive {
+  color: #34A853;
+}
+
+.negative {
+  color: #EA4335;
+}
+
+/* Insights section */
+.insights-section {
+  margin-top: 40px;
+}
+
+.insights-section h3 {
+  color: #011d43;
+  margin-bottom: 20px;
+  font-size: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.insights-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.insight-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-3px);
+}
+
+.insight-icon {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.insight-card h4 {
+  color: #011d43;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.insight-card p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .year-selector {
+    margin-top: 15px;
+  }
+
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-cards {
+    grid-template-columns: 1fr;
+  }
+}

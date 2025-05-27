@@ -1,12 +1,28 @@
-// routes/commandesRoutes.js
 const express = require('express');
 const router = express.Router();
-const commandeController = require('../Controller/commandeController');
+const {
+  createCommande,
+  notifySuppliers,
+  getCommandesWithFilters,
+  getProductCategories,
+  getAllProduits,
+  updateCommande,
+  deleteCommande,
+  getAllCommandes,
+  getCommandeById,
+  updateStatut
+} = require("../Controller/commandeController");
 
-router.post('/', commandeController.createCommande);          // Créer une commande
-router.get('/', commandeController.getAllCommandes);         // Lister toutes les commandes
-router.get('/:id', commandeController.getCommandeById);      // Récupérer une commande par ID
-router.put('/:id', commandeController.updateCommande);       // Mettre à jour une commande
-router.delete('/:id', commandeController.deleteCommande);    // Supprimer une commande
+// Routes pour les commandes
+router.post("/", createCommande);
+router.post("/notify", notifySuppliers);
+router.get("/", getCommandesWithFilters);
+router.get("/all", getAllCommandes);
+router.get("/categories", getProductCategories);
+router.get("/produits", getAllProduits);
+router.put("/:id", updateCommande);
+router.put("/updateStatut/:id", updateStatut); 
+router.delete("/:id", deleteCommande);
+router.get("/:id", getCommandeById);
 
 module.exports = router;

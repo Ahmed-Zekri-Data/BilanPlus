@@ -1,0 +1,91 @@
+<div class="commandes-container">
+  <mat-toolbar class="bilan-gradient">
+    <h1 style="color: white; margin: 0;">Soumission de Prix</h1>
+  </mat-toolbar>
+
+  <div class="content-section">
+    <mat-card class="main-card">
+      <mat-card-content>
+        <!-- Loading State -->
+        <div *ngIf="loading" class="loading-container">
+          <mat-spinner></mat-spinner>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="error" class="error-message">
+          <mat-icon>error</mat-icon>
+          {{ error }}
+        </div>
+
+        <!-- Welcome Message and Product Details -->
+        <div *ngIf="!loading && !error && fournisseurDetails" class="welcome-section">
+          <h2 class="welcome-title">Bonjour {{ fournisseurDetails.nom }}</h2>
+          
+          <div *ngIf="commandeDetails" class="product-details">
+            <mat-card class="product-card">
+              <mat-card-header>
+                <mat-card-title>Détails de la Commande</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="detail-row">
+                  <mat-icon>inventory_2</mat-icon>
+                  <div class="detail-content">
+                    <h3>{{ commandeDetails.produit.nom }}</h3>
+                    <p class="category">{{ commandeDetails.produit.categorie }}</p>
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <mat-icon>shopping_cart</mat-icon>
+                  <div class="detail-content">
+                    <p>Quantité demandée: <strong>{{ commandeDetails.quantite }}</strong></p>
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <mat-icon>local_shipping</mat-icon>
+                  <div class="detail-content">
+                    <p>Type de livraison: <strong>{{ commandeDetails.type_livraison }}</strong></p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="message-box">
+              <mat-icon>message</mat-icon>
+              <p>Comment pouvez-vous nous offrir le meilleur prix pour cette commande ?</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Devis Message -->
+        <div *ngIf="existingDevis" class="info-message">
+          <mat-icon>info</mat-icon>
+          <div class="message-content">
+            <h3>Prix déjà soumis</h3>
+            <p>Vous avez déjà soumis un prix de {{ existingDevis.prix }} TND pour cette commande.</p>
+          </div>
+        </div>
+
+        <!-- Price Input Form -->
+        <form *ngIf="!existingDevis && commandeDetails" [formGroup]="devisForm" (ngSubmit)="onSubmit()" class="price-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Prix (TND)</mat-label>
+            <input matInput type="number" formControlName="prix" placeholder="Entrez votre meilleur prix">
+            <mat-error *ngIf="devisForm.get('prix')?.hasError('required')">
+              Le prix est requis
+            </mat-error>
+            <mat-error *ngIf="devisForm.get('prix')?.hasError('min')">
+              Le prix doit être positif
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="!devisForm.valid || loading">
+              <mat-icon>send</mat-icon>
+              Soumettre mon prix
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div> 

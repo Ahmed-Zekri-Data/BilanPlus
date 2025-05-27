@@ -1,0 +1,64 @@
+.Achour-container {
+  margin: 50px;
+  border: 1px solid rgb(225 223 223);
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.Achour-container .header-container {
+  border-bottom: 1px solid rgb(225 223 223);
+  padding: 10px;
+  background-color: rgb(225 223 223);
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 20px;
+}
+.Achour-container .header-container span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.Achour-container .body-container {
+  padding: 20px;
+}
+.Achour-container .body-container .actions-container {
+  display: flex;
+  justify-content: flex-end;
+  
+}
+.Achour-container .body-container .actions-button {
+
+}
+app-list-df .Achour-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+  }
+  
+  app-list-df .Achour-table th {
+    background-color: #f4f4f4 !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    padding: 12px 15px !important;
+    text-align: left !important;
+  }
+  
+  app-list-df .Achour-table td {
+    padding: 12px 15px !important;
+    text-align: left !important;
+  }
+  
+  app-list-df .Achour-table tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+  }
+  
+  app-list-df .Achour-table tr:hover {
+    background-color: #f1f1f1 !important;
+  }
+  mat-icon-button {
+    margin-right: 5px;
+  }
+  button[mat-raised-button] {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+  }

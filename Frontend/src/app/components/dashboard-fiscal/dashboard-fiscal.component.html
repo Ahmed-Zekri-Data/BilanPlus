@@ -1,0 +1,131 @@
+<div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Tableau de Bord Fiscal</h1>
+      <div class="actions">
+        <mat-form-field appearance="fill">
+          <mat-label>Année fiscale</mat-label>
+          <mat-select [(ngModel)]="anneeSelectionnee" (selectionChange)="chargerDashboard()">
+            <mat-option *ngFor="let annee of anneesDisponibles" [value]="annee">
+              {{ annee }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="chargerDashboard()">
+          <mat-icon>refresh</mat-icon> Actualiser
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Chargement des données fiscales...</p>
+    </div>
+  
+    <div *ngIf="!isLoading && dashboard" @fadeIn>
+      <!-- Indicateurs clés -->
+      <div class="indicators-container">
+        <div class="indicator" [ngClass]="{'positive': dashboard.soldeTVA < 0, 'negative': dashboard.soldeTVA > 0}">
+          <h3>Solde TVA</h3>
+          <div class="indicator-value">{{ dashboard.soldeTVA | number:'1.2-2' }} €</div>
+          <div class="indicator-label">{{ dashboard.soldeTVA < 0 ? 'À récupérer' : 'À payer' }}</div>
+        </div>
+        <div class="indicator">
+          <h3>TCL</h3>
+          <div class="indicator-value">{{ dashboard.montantTCL | number:'1.2-2' }} €</div>
+          <div class="indicator-label">Total pour l'année</div>
+        </div>
+        <div class="indicator">
+          <h3>Droit de timbre</h3>
+          <div class="indicator-value">{{ dashboard.droitTimbre | number:'1.2-2' }} €</div>
+          <div class="indicator-label">Total pour l'année</div>
+        </div>
+        <div class="indicator">
+          <h3>Déclarations</h3>
+          <div class="indicator-value">{{ dashboard.nombreDeclarations }}</div>
+          <div class="indicator-label">Soumises cette année</div>
+        </div>
+      </div>
+  
+      <!-- Graphiques -->
+      <div class="charts-container">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Évolution de la TVA</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <canvas baseChart 
+              [data]="chartTVA" 
+              [options]="chartOptions" 
+              [type]="'line'">
+            </canvas>
+          </mat-card-content>
+        </mat-card>
+  
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Répartition des charges fiscales</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <canvas baseChart 
+              [data]="chartRepartition" 
+              [options]="chartOptionsDonut" 
+              [type]="'doughnut'">
+            </canvas>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <!-- Tableau des déclarations -->
+      <mat-card class="declarations-table">
+        <mat-card-header>
+          <mat-card-title>Déclarations fiscales de l'année</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="dashboard.declarations" class="mat-elevation-z2">
+            <ng-container matColumnDef="periode">
+              <th mat-header-cell *matHeaderCellDef>Période</th>
+              <td mat-cell *matCellDef="let item">{{ item.periode }}</td>
+            </ng-container>
+  
+            <ng-container matColumnDef="montantTotal">
+              <th mat-header-cell *matHeaderCellDef>Montant</th>
+              <td mat-cell *matCellDef="let item">{{ item.montantTotal | number:'1.2-2' }} €</td>
+            </ng-container>
+  
+            <ng-container matColumnDef="statut">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let item">
+                <mat-chip-list>
+                  <mat-chip [color]="item.statut === 'payée' ? 'primary' : 
+                                      item.statut === 'en attente' ? 'warn' : 'accent'"
+                            [selected]="true">
+                    {{ item.statut }}
+                  </mat-chip>
+                </mat-chip-list>
+              </td>
+            </ng-container>
+  
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let item">
+                <button mat-icon-button [routerLink]="['/declarations', item._id]">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+  
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <div *ngIf="!isLoading && errors.length > 0" class="error-container">
+      <h3>Erreurs lors du chargement des données:</h3>
+      <ul>
+        <li *ngFor="let error of errors">{{ error }}</li>
+      </ul>
+    </div>
+  </div>
+  
