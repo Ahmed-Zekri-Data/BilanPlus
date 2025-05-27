@@ -21,6 +21,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
+
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
@@ -33,6 +35,11 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AdvancedSearchComponent } from './components/shared/advanced-search/advanced-search.component';
+import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
+import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
+import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
+import { TestDebugComponent } from './components/test-debug/test-debug.component';
 
 
 @NgModule({
@@ -49,7 +56,12 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     BalanceComponent,
     BilanComponent,
     ResultatComponent,
-    DashboardComponent
+    DashboardComponent,
+    AdvancedSearchComponent,
+    CashFlowComponent,
+    FinancialRatiosComponent,
+    ComparativeReportsComponent,
+    TestDebugComponent
   ],
   imports: [
     BrowserModule,
@@ -72,8 +84,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
-    MatProgressSpinnerModule, 
-    MatExpansionModule
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatDividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

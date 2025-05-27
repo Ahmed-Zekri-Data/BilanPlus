@@ -20,6 +20,7 @@ var BalanceRouter = require("./Routes/BalanceRoute");
 var BilanRouter = require("./Routes/BilanRoute");
 var ResultatRouter = require("./Routes/ResultatRoute");
 var DashboardRouter = require("./Routes/DashboardRoute");
+var AdvancedReportsRouter = require("./Routes/AdvancedReportsRoute");
 /*var indexRouter = require("./Routes/index");
 var { add } = require('./Controller/chatController');*/
 
@@ -62,6 +63,7 @@ app.use("/balance", BalanceRouter);
 app.use("/bilan", BilanRouter);
 app.use("/resultat", ResultatRouter);
 app.use("/dashboard", DashboardRouter);
+app.use("/reports", AdvancedReportsRouter);
 
 /*app.use("/index", indexRouter);*/
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ResultatService } from '../../services/resultat.service';
+import { PdfExportService } from '../../services/pdf-export.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -25,6 +26,7 @@ export class ResultatComponent implements OnInit {
 
   constructor(
     private resultatService: ResultatService,
+    private pdfExportService: PdfExportService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -78,10 +80,24 @@ export class ResultatComponent implements OnInit {
   }
 
   exporterPDF(): void {
-    // À implémenter - export PDF du compte de résultat
-    this.snackBar.open('Fonctionnalité d\'export en cours de développement', 'Fermer', {
-      duration: 3000
-    });
+    if (!this.resultat || (!this.resultat.charges && !this.resultat.produits)) {
+      this.snackBar.open('Aucune donnée à exporter', 'Fermer', {
+        duration: 3000
+      });
+      return;
+    }
+
+    try {
+      this.pdfExportService.exportResultat(this.resultat);
+      this.snackBar.open('Export PDF en cours...', 'Fermer', {
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'export PDF:', error);
+      this.snackBar.open('Erreur lors de l\'export PDF', 'Fermer', {
+        duration: 3000
+      });
+    }
   }
 
   getCategoriesCharges(): string[] {

@@ -1,11 +1,24 @@
 <div class="resultat-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Compte de Résultat</mat-card-title>
-      <mat-card-subtitle>
-        Période du {{ resultat.periode.debut | date:'dd/MM/yyyy' }} au {{ resultat.periode.fin | date:'dd/MM/yyyy' }}
-      </mat-card-subtitle>
-    </mat-card-header>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Compte de Résultat</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">trending_up</mat-icon>
+        Compte de Résultat
+      </h1>
+      <p class="page-description">Analysez les produits et charges pour déterminer le résultat de votre entreprise.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
 
     <mat-card-content>
       <!-- Filtres -->

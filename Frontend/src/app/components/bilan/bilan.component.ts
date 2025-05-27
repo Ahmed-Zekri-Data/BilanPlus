@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BilanService } from '../../services/bilan.service';
+import { PdfExportService } from '../../services/pdf-export.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -21,6 +22,7 @@ export class BilanComponent implements OnInit {
 
   constructor(
     private bilanService: BilanService,
+    private pdfExportService: PdfExportService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -58,10 +60,24 @@ export class BilanComponent implements OnInit {
   }
 
   exporterPDF(): void {
-    // À implémenter - export PDF du bilan
-    this.snackBar.open('Fonctionnalité d\'export en cours de développement', 'Fermer', {
-      duration: 3000
-    });
+    if (!this.bilan || (!this.bilan.actif && !this.bilan.passif)) {
+      this.snackBar.open('Aucune donnée à exporter', 'Fermer', {
+        duration: 3000
+      });
+      return;
+    }
+
+    try {
+      this.pdfExportService.exportBilan(this.bilan);
+      this.snackBar.open('Export PDF en cours...', 'Fermer', {
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'export PDF:', error);
+      this.snackBar.open('Erreur lors de l\'export PDF', 'Fermer', {
+        duration: 3000
+      });
+    }
   }
 
   getCategoriesActif(): string[] {

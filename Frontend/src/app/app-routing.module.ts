@@ -10,6 +10,10 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
+import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
+import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
+import { TestDebugComponent } from './components/test-debug/test-debug.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -25,7 +29,11 @@ const routes: Routes = [
       { path: 'bilan', component: BilanComponent },
       { path: 'resultat', component: ResultatComponent },
       { path: 'dashboard', component: DashboardComponent },
-      { path: '', redirectTo: 'comptes', pathMatch: 'full' }, // Redirection par défaut vers la liste des comptes
+      { path: 'cash-flow', component: CashFlowComponent },
+      { path: 'financial-ratios', component: FinancialRatiosComponent },
+      { path: 'comparative-reports', component: ComparativeReportsComponent },
+      { path: 'debug', component: TestDebugComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Redirection par défaut vers le dashboard
     ],
   },
   { path: '**', redirectTo: '' },

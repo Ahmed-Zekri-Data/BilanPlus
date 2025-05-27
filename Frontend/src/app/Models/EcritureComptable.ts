@@ -15,3 +15,4 @@ export interface EcritureComptable {
   createdAt?: string;
   updatedAt?: string;
 }
+ 

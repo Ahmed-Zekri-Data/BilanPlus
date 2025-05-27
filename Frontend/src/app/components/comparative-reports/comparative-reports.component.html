@@ -1,0 +1,311 @@
+<div class="comparative-reports-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Rapports Comparatifs</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">compare_arrows</mat-icon>
+        Rapports Comparatifs
+      </h1>
+      <p class="page-description">Comparez les performances financières sur différentes périodes.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="comparativeForm" (ngSubmit)="generateComparative()" class="filters-form">
+        <div class="filters-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Type de comparaison</mat-label>
+            <mat-select formControlName="comparisonType" (selectionChange)="onComparisonTypeChange()">
+              <mat-option *ngFor="let type of comparisonTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date de début (période actuelle)</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="currentStartDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin (période actuelle)</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="currentEndDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Générer
+          </button>
+          <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading">
+            <mat-icon>clear</mat-icon>
+            Réinitialiser
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="exportToPDF()" 
+                  [disabled]="isLoading || !comparativeData">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Exporter PDF
+          </button>
+        </div>
+      </form>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Génération du rapport comparatif...</p>
+      </div>
+
+      <!-- Comparative Report -->
+      <div *ngIf="!isLoading && comparativeData" class="comparative-content">
+        <!-- Period Headers -->
+        <div class="periods-header">
+          <h2>{{ getComparisonTypeLabel() }}</h2>
+          <div class="periods-info">
+            <div class="period-card current">
+              <h3>Période Actuelle</h3>
+              <p>{{ formatPeriodLabel(comparativeData.periods.current) }}</p>
+            </div>
+            <div class="period-card previous">
+              <h3>Période Précédente</h3>
+              <p>{{ formatPeriodLabel(comparativeData.periods.previous) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Metrics Comparison -->
+        <div class="metrics-grid">
+          <!-- Revenue Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>attach_money</mat-icon>
+                Chiffre d'Affaires
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.revenue.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.revenue.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(comparativeData.revenue.variance.percentage)">
+                    {{ formatCurrency(comparativeData.revenue.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(comparativeData.revenue.variance.percentage)">
+                    {{ formatPercentage(comparativeData.revenue.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.revenue.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.revenue.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Expenses Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>money_off</mat-icon>
+                Charges
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.expenses.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.expenses.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(-comparativeData.expenses.variance.percentage)">
+                    {{ formatCurrency(comparativeData.expenses.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(-comparativeData.expenses.variance.percentage)">
+                    {{ formatPercentage(comparativeData.expenses.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.expenses.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.expenses.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Net Income Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>trending_up</mat-icon>
+                Résultat Net
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.netIncome.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.netIncome.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(comparativeData.netIncome.variance.percentage)">
+                    {{ formatCurrency(comparativeData.netIncome.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(comparativeData.netIncome.variance.percentage)">
+                    {{ formatPercentage(comparativeData.netIncome.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.netIncome.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.netIncome.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Assets Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>account_balance_wallet</mat-icon>
+                Total Actif
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.assets.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.assets.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(comparativeData.assets.variance.percentage)">
+                    {{ formatCurrency(comparativeData.assets.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(comparativeData.assets.variance.percentage)">
+                    {{ formatPercentage(comparativeData.assets.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.assets.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.assets.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Liabilities Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>credit_card</mat-icon>
+                Total Passif
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.liabilities.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.liabilities.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(-comparativeData.liabilities.variance.percentage)">
+                    {{ formatCurrency(comparativeData.liabilities.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(-comparativeData.liabilities.variance.percentage)">
+                    {{ formatPercentage(comparativeData.liabilities.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.liabilities.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.liabilities.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Equity Comparison -->
+          <mat-card class="metric-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>savings</mat-icon>
+                Capitaux Propres
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="metric-comparison">
+                <div class="metric-values">
+                  <div class="current-value">
+                    <span class="label">Actuel</span>
+                    <span class="value">{{ formatCurrency(comparativeData.equity.current) }}</span>
+                  </div>
+                  <div class="previous-value">
+                    <span class="label">Précédent</span>
+                    <span class="value">{{ formatCurrency(comparativeData.equity.previous) }}</span>
+                  </div>
+                </div>
+                <div class="variance-info">
+                  <div class="variance-amount" [ngClass]="getVarianceClass(comparativeData.equity.variance.percentage)">
+                    {{ formatCurrency(comparativeData.equity.variance.absolute) }}
+                  </div>
+                  <div class="variance-percentage" [ngClass]="getVarianceClass(comparativeData.equity.variance.percentage)">
+                    {{ formatPercentage(comparativeData.equity.variance.percentage) }}
+                  </div>
+                  <div class="trend-indicator" [ngClass]="getTrendClass(comparativeData.equity.trend)">
+                    <mat-icon>{{ getTrendIcon(comparativeData.equity.trend) }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- No Data Message -->
+      <div *ngIf="!isLoading && !comparativeData" class="no-data">
+        <mat-icon>info</mat-icon>
+        <p>Aucune donnée disponible pour la comparaison sélectionnée.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
