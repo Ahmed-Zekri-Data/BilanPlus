@@ -1,0 +1,455 @@
+.comparative-reports-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-content h1 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.page-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.page-description {
+  margin: 15px 0 0 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.breadcrumb-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: white;
+}
+
+.breadcrumb-separator {
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+.current-page {
+  color: white;
+  font-weight: 500;
+}
+
+/* Main Card */
+.main-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Filters */
+.filters-form {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.filters-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters-row mat-form-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Comparative Content */
+.comparative-content {
+  margin-top: 30px;
+}
+
+/* Periods Header */
+.periods-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.periods-header h2 {
+  margin: 0 0 20px 0;
+  color: #1E3A8A;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.periods-info {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.period-card {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 250px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.period-card.current {
+  border: 2px solid #1E3A8A;
+}
+
+.period-card.previous {
+  border: 2px solid #666;
+}
+
+.period-card h3 {
+  margin: 0 0 10px 0;
+  color: #1E3A8A;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.period-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+/* Metric Cards */
+.metric-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card mat-card-header {
+  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  color: white;
+  padding: 20px;
+}
+
+.metric-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.metric-card mat-card-content {
+  padding: 25px;
+}
+
+/* Metric Comparison */
+.metric-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.metric-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.current-value,
+.previous-value {
+  flex: 1;
+  text-align: center;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.current-value {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border: 2px solid #4caf50;
+}
+
+.previous-value {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  border: 2px solid #9c27b0;
+}
+
+.current-value .label,
+.previous-value .label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.current-value .value,
+.previous-value .value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Variance Info */
+.variance-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 15px;
+}
+
+.variance-amount,
+.variance-percentage {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.trend-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+}
+
+/* Variance Classes */
+.variance-excellent {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 2px solid #4caf50;
+}
+
+.variance-good {
+  background-color: #fff3e0;
+  color: #f57c00;
+  border: 2px solid #ff9800;
+}
+
+.variance-stable {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  border: 2px solid #9c27b0;
+}
+
+.variance-concern {
+  background-color: #fff8e1;
+  color: #f9a825;
+  border: 2px solid #ffc107;
+}
+
+.variance-poor {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 2px solid #f44336;
+}
+
+.variance-neutral {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 2px solid #ccc;
+}
+
+/* Trend Classes */
+.trend-up {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.trend-down {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.trend-stable {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.trend-neutral {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+/* No Data */
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-data mat-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-data p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .comparative-reports-container {
+    padding: 15px;
+  }
+
+  .page-header {
+    padding: 20px;
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .page-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .filters-row {
+    flex-direction: column;
+  }
+
+  .filters-row mat-form-field {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .periods-info {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .period-card {
+    min-width: auto;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .metric-values {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .variance-info {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .variance-amount,
+  .variance-percentage {
+    min-width: auto;
+    width: 100%;
+  }
+}

@@ -19,6 +19,10 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
+import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
+import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
+import { TestDebugComponent } from './components/test-debug/test-debug.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
@@ -53,16 +57,8 @@ import { ListFournisseursComponent } from './components/fournisseurs/list-fourni
 import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-form/fournisseur-form.component';
 import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
-// Dashboard for stock (from Gestion_de_stock)
-// import { StockDashboardComponent } from './dashboardproduit/dashboard.component';
-
-
 const routes: Routes = [
   { path: '', component: HomeComponent },
-
-
-  // Dashboard (stock-specific)
- //{ path: 'dashboard', component: StockDashboardComponent },
 
   // Gestion comptable
   {
@@ -77,14 +73,17 @@ const routes: Routes = [
       { path: 'bilan', component: BilanComponent },
       { path: 'resultat', component: ResultatComponent },
       { path: 'dashboard', component: DashboardComponent },
-      { path: '', redirectTo: 'comptes', pathMatch: 'full' }
+      { path: 'cash-flow', component: CashFlowComponent },
+      { path: 'financial-ratios', component: FinancialRatiosComponent },
+      { path: 'comparative-reports', component: ComparativeReportsComponent },
+      { path: 'debug', component: TestDebugComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
   // Stock
   { path: 'produit', component: ProduitComponent },
   { path: 'stock-movements', component: MSComponent },
-  { path: 'dashboard-stock', component: StockDashboardComponent },
 
   // Commandes
   {
@@ -110,6 +109,7 @@ const routes: Routes = [
     ]
   },
 
+  // Devis
   {
     path: 'devis',
     component: SectionLayoutComponent,
@@ -118,9 +118,6 @@ const routes: Routes = [
       { path: '', component: ListDevisComponent }
     ]
   },
-  // Devis
-  { path: 'devis/:commandeId/:fournisseurId', component: DevisComponent },
-  { path: 'devis', component: ListDevisComponent },
 
   // Utilisateurs
   { path: 'utilisateurs', component: UtilisateurComponent },
@@ -148,19 +145,17 @@ const routes: Routes = [
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
 
-// Clients / Factures
-{ path: 'clientform', component: ClientFormComponent },
-{ path: 'clientlist', component: ClientListComponent },
-{ path: 'clientdevis', component: DevisFormComponent },
-{ path: 'clientdevislist', component: DevisListComponent },
-{ path: 'facturelist', component: FactureListComponent },
-{ path: 'relance', component: RelanceAutomationComponent },
-{ path: 'reporting', component: ReportingComponent },
+  // Clients / Factures
+  { path: 'clientform', component: ClientFormComponent },
+  { path: 'clientlist', component: ClientListComponent },
+  { path: 'clientdevis', component: DevisFormComponent },
+  { path: 'clientdevislist', component: DevisListComponent },
+  { path: 'facturelist', component: FactureListComponent },
+  { path: 'relance', component: RelanceAutomationComponent },
+  { path: 'reporting', component: ReportingComponent },
 
-// Wildcard route for unmatched paths
-{ path: '**', redirectTo: 'clientlist' }  // Par exemple, rediriger vers clientlist ou une page 404
-
-  { path: '**', redirectTo: '' }
+  // Wildcard route for unmatched paths
+  { path: '**', redirectTo: 'clientlist' }
 ];
 
 @NgModule({
@@ -168,4 +163,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
-

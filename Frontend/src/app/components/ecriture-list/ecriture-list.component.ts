@@ -64,4 +64,8 @@ export class EcritureListComponent implements OnInit {
     this.showForm = false;
     this.selectedEcriture = null;
   }
+
+  getTotalEcriture(ecriture: EcritureComptable): number {
+    return ecriture.lignes.reduce((total, ligne) => total + ligne.montant, 0);
+  }
 }

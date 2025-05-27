@@ -1,6 +1,6 @@
 /* S'assurer que le fond s'applique à toute la page */
 html, body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
   margin: 0;
   padding: 0;
   height: 100vh; /* Utiliser 100vh pour couvrir toute la hauteur */
@@ -24,6 +24,85 @@ router-outlet + * {
   background-color: #F5F5F5 !important;
 }
 
+/* Fix pour les overlays Material - z-index élevé */
+.cdk-overlay-container {
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.cdk-overlay-pane {
+  pointer-events: auto !important;
+  position: absolute !important;
+}
+
+/* Fix spécifique pour les select panels */
+.mat-mdc-select-panel {
+  position: absolute !important;
+  z-index: 10000 !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  background: white !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transform-origin: center top !important;
+}
+
+/* Fix pour les options dans les selects */
+.mat-mdc-option {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 48px !important;
+  padding: 0 16px !important;
+  cursor: pointer !important;
+  background: white !important;
+  color: #333 !important;
+}
+
+.mat-mdc-option:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+}
+
+/* Fix pour les datepickers */
+.mat-datepicker-popup {
+  z-index: 10000 !important;
+}
+
+/* S'assurer que les form fields ne causent pas de problèmes d'overflow */
+.mat-mdc-form-field {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field .mat-mdc-select {
+  overflow: visible !important;
+}
+
+/* S'assurer que les conteneurs n'ont pas overflow: hidden */
+mat-card, mat-card-content, .form-container, .form-section {
+  overflow: visible !important;
+}
+
+/* Fix pour les conteneurs de liste */
+.compte-list-container, .ecriture-list-container, .journal-container, .balance-container {
+  overflow: visible !important;
+}
+
+/* Fix pour les mat-sidenav-content */
+mat-sidenav-content {
+  overflow: visible !important;
+}
+
+/* Assurer que les overlays sont au-dessus de tout */
+.cdk-overlay-container .cdk-overlay-pane {
+  z-index: 10000 !important;
+}

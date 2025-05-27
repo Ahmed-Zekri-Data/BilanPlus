@@ -44,27 +44,63 @@ import { MatSnackBar } from '@angular/material/snack-bar'; // Ajout
   `,
   styles: [`
     .compte-form-card {
-      max-width: 400px;
+      max-width: 500px;
       margin: 20px auto;
-      background-color: var(--card-background, #fff);
-      color: var(--text-color, #000);
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: visible;
+      position: relative;
+      z-index: 1;
     }
 
     mat-form-field {
       width: 100%;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow: visible;
+    }
+
+    mat-form-field .mat-mdc-select {
+      overflow: visible;
     }
 
     .error-message {
-      color: red;
-      margin-bottom: 10px;
+      color: #d32f2f;
+      margin-bottom: 15px;
       text-align: center;
+      padding: 10px;
+      background-color: #ffebee;
+      border-radius: 4px;
+      border-left: 4px solid #d32f2f;
     }
 
     mat-card-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 12px;
+      padding: 20px;
+      background-color: #fafafa;
+      margin: 0 -24px -24px -24px;
+      border-radius: 0 0 12px 12px;
+    }
+
+    mat-card-content {
+      padding: 24px;
+      overflow: visible;
+    }
+
+    mat-card-title {
+      color: #1E3A8A;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding: 20px 24px 0 24px;
+    }
+
+    form {
+      overflow: visible;
+      position: relative;
     }
   `]
 })

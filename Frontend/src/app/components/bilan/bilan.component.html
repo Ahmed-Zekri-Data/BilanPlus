@@ -1,12 +1,24 @@
 <div class="bilan-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Bilan Comptable</mat-card-title>
-      <mat-card-subtitle>
-        État de la situation financière au {{ bilan.date | date:'dd/MM/yyyy' }}
-      </mat-card-subtitle>
-    </mat-card-header>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Bilan Comptable</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">insert_chart</mat-icon>
+        Bilan Comptable
+      </h1>
+      <p class="page-description">Générez l'état de situation financière de votre entreprise.</p>
+    </div>
+  </div>
 
+  <mat-card class="main-card">
     <mat-card-content>
       <!-- Filtres -->
       <form [formGroup]="filtreForm" (ngSubmit)="appliquerFiltres()" class="filtres-form">
@@ -55,7 +67,7 @@
 
                 <!-- Colonne Actif - Total de catégorie -->
                 <td class="montant" *ngIf="getCategoriesActif()[index]">
-                  <strong>{{ bilan.actif[getCategoriesActif()[index]].total | currency:'EUR':'symbol':'1.2-2' }}</strong>
+                  <strong>{{ bilan.actif[getCategoriesActif()[index]].total | currency:'TND':'symbol':'1.2-2' }}</strong>
                 </td>
                 <td *ngIf="!getCategoriesActif()[index]"></td>
 
@@ -67,7 +79,7 @@
 
                 <!-- Colonne Passif - Total de catégorie -->
                 <td class="montant" *ngIf="getCategoriesPassif()[index]">
-                  <strong>{{ bilan.passif[getCategoriesPassif()[index]].total | currency:'EUR':'symbol':'1.2-2' }}</strong>
+                  <strong>{{ bilan.passif[getCategoriesPassif()[index]].total | currency:'TND':'symbol':'1.2-2' }}</strong>
                 </td>
                 <td *ngIf="!getCategoriesPassif()[index]"></td>
               </tr>
@@ -76,7 +88,7 @@
               <ng-container *ngIf="getCategoriesActif()[index]">
                 <tr class="compte-row" *ngFor="let compte of bilan.actif[getCategoriesActif()[index]].comptes">
                   <td class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</td>
-                  <td class="montant">{{ compte.solde | currency:'EUR':'symbol':'1.2-2' }}</td>
+                  <td class="montant">{{ compte.solde | currency:'TND':'symbol':'1.2-2' }}</td>
                   <td></td>
                   <td></td>
                 </tr>
@@ -88,7 +100,7 @@
                   <td></td>
                   <td></td>
                   <td class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</td>
-                  <td class="montant">{{ compte.solde | currency:'EUR':'symbol':'1.2-2' }}</td>
+                  <td class="montant">{{ compte.solde | currency:'TND':'symbol':'1.2-2' }}</td>
                 </tr>
               </ng-container>
             </ng-container>
@@ -96,9 +108,9 @@
             <!-- Ligne de total -->
             <tr class="bilan-total-row">
               <td class="total-label">TOTAL ACTIF</td>
-              <td class="total-montant">{{ bilan.totalActif | currency:'EUR':'symbol':'1.2-2' }}</td>
+              <td class="total-montant">{{ bilan.totalActif | currency:'TND':'symbol':'1.2-2' }}</td>
               <td class="total-label">TOTAL PASSIF</td>
-              <td class="total-montant">{{ bilan.totalPassif | currency:'EUR':'symbol':'1.2-2' }}</td>
+              <td class="total-montant">{{ bilan.totalPassif | currency:'TND':'symbol':'1.2-2' }}</td>
             </tr>
           </table>
         </div>

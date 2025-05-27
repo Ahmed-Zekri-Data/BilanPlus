@@ -1,0 +1,259 @@
+<div class="validation-test-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon class="page-icon">verified</mat-icon>
+        Tests de Validation - Module Gestion Comptable
+      </h1>
+      <p class="page-description">Validation automatique de toutes les fonctionnalités du module.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <!-- Actions -->
+      <div class="actions-section">
+        <button mat-raised-button color="primary" (click)="runAllTests()" [disabled]="isRunning">
+          <mat-icon>play_arrow</mat-icon>
+          Lancer Tous les Tests
+        </button>
+        <button mat-raised-button color="accent" (click)="createTestData()" [disabled]="isRunning">
+          <mat-icon>data_object</mat-icon>
+          Créer Données de Test
+        </button>
+        <button mat-stroked-button (click)="resetResults()" [disabled]="isRunning">
+          <mat-icon>refresh</mat-icon>
+          Réinitialiser
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div *ngIf="isRunning" class="progress-section">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <p class="current-test">{{ currentTest }}</p>
+      </div>
+
+      <!-- Test Results -->
+      <div class="results-section">
+        <h2>Résultats des Tests</h2>
+        
+        <!-- Connectivity Test -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon [class]="getStatusClass(testResults.connectivity.status)">
+                {{ getStatusIcon(testResults.connectivity.status) }}
+              </mat-icon>
+              Test de Connectivité Backend
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="test-message">{{ testResults.connectivity.message }}</p>
+            <p class="test-details" *ngIf="testResults.connectivity.details">
+              {{ testResults.connectivity.details }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Comptes Test -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon [class]="getStatusClass(testResults.comptes.status)">
+                {{ getStatusIcon(testResults.comptes.status) }}
+              </mat-icon>
+              Module Plan Comptable
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="test-message">{{ testResults.comptes.message }}</p>
+            <p class="test-details" *ngIf="testResults.comptes.details">
+              {{ testResults.comptes.details }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Ecritures Test -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon [class]="getStatusClass(testResults.ecritures.status)">
+                {{ getStatusIcon(testResults.ecritures.status) }}
+              </mat-icon>
+              Module Écritures Comptables
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="test-message">{{ testResults.ecritures.message }}</p>
+            <p class="test-details" *ngIf="testResults.ecritures.details">
+              {{ testResults.ecritures.details }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Reports Test -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon [class]="getStatusClass(testResults.reports.status)">
+                {{ getStatusIcon(testResults.reports.status) }}
+              </mat-icon>
+              Rapports Standards
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="test-message">{{ testResults.reports.message }}</p>
+            <p class="test-details" *ngIf="testResults.reports.details">
+              {{ testResults.reports.details }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Advanced Reports Test -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon [class]="getStatusClass(testResults.advanced.status)">
+                {{ getStatusIcon(testResults.advanced.status) }}
+              </mat-icon>
+              Rapports Avancés
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="test-message">{{ testResults.advanced.message }}</p>
+            <p class="test-details" *ngIf="testResults.advanced.details">
+              {{ testResults.advanced.details }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-section">
+        <h3>Guide de Validation Manuelle</h3>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>checklist</mat-icon>
+              Étapes de Validation Complète
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          
+          <div class="validation-steps">
+            <h4>1. Tests Automatiques (ci-dessus)</h4>
+            <ul>
+              <li>✅ Connectivité backend</li>
+              <li>✅ Modules de base fonctionnels</li>
+              <li>✅ Rapports accessibles</li>
+            </ul>
+
+            <h4>2. Tests Manuels Navigation</h4>
+            <ul>
+              <li>Accéder au <a routerLink="/gestion-comptable/dashboard">Tableau de Bord</a></li>
+              <li>Tester le <a routerLink="/gestion-comptable/comptes">Plan Comptable</a></li>
+              <li>Créer une <a routerLink="/gestion-comptable/ecritures">Écriture</a></li>
+              <li>Consulter le <a routerLink="/gestion-comptable/journal">Journal</a></li>
+              <li>Vérifier la <a routerLink="/gestion-comptable/balance">Balance</a></li>
+            </ul>
+
+            <h4>3. Tests Rapports Avancés</h4>
+            <ul>
+              <li>Générer <a routerLink="/gestion-comptable/cash-flow">Cash Flow</a></li>
+              <li>Calculer <a routerLink="/gestion-comptable/financial-ratios">Ratios Financiers</a></li>
+              <li>Comparer <a routerLink="/gestion-comptable/comparative-reports">Périodes</a></li>
+            </ul>
+
+            <h4>4. Tests d'Intégrité</h4>
+            <ul>
+              <li>Vérifier équilibre Balance (Total Débit = Total Crédit)</li>
+              <li>Contrôler équilibre Bilan (Total Actif = Total Passif)</li>
+              <li>Valider cohérence Résultat (Produits - Charges)</li>
+            </ul>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>bug_report</mat-icon>
+              Résolution des Problèmes
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          
+          <div class="troubleshooting">
+            <h4>Problèmes Courants</h4>
+            
+            <mat-card class="problem-card">
+              <mat-card-title>❌ Backend non connecté</mat-card-title>
+              <mat-card-content>
+                <p><strong>Solution :</strong></p>
+                <ol>
+                  <li>Vérifier que MongoDB est démarré</li>
+                  <li>Aller dans le dossier Backend</li>
+                  <li>Exécuter <code>npm start</code></li>
+                  <li>Vérifier <code>http://localhost:4000/comptes</code></li>
+                </ol>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="problem-card">
+              <mat-card-title>⚠️ Pas de données</mat-card-title>
+              <mat-card-content>
+                <p><strong>Solution :</strong></p>
+                <ol>
+                  <li>Cliquer "Créer Données de Test" ci-dessus</li>
+                  <li>Ou créer manuellement des comptes et écritures</li>
+                  <li>Utiliser les données d'exemple du guide</li>
+                </ol>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="problem-card">
+              <mat-card-title">🔄 Rapports vides</mat-card-title>
+              <mat-card-content>
+                <p><strong>Solution :</strong></p>
+                <ol>
+                  <li>Vérifier qu'il y a des écritures en base</li>
+                  <li>Contrôler les dates de période</li>
+                  <li>Vérifier les types de comptes</li>
+                </ol>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-expansion-panel>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <h3>Accès Rapide aux Modules</h3>
+        <div class="links-grid">
+          <button mat-stroked-button routerLink="/gestion-comptable/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            Dashboard
+          </button>
+          <button mat-stroked-button routerLink="/gestion-comptable/comptes">
+            <mat-icon>account_balance_wallet</mat-icon>
+            Comptes
+          </button>
+          <button mat-stroked-button routerLink="/gestion-comptable/ecritures">
+            <mat-icon>post_add</mat-icon>
+            Écritures
+          </button>
+          <button mat-stroked-button routerLink="/gestion-comptable/balance">
+            <mat-icon>balance</mat-icon>
+            Balance
+          </button>
+          <button mat-stroked-button routerLink="/gestion-comptable/bilan">
+            <mat-icon>insert_chart</mat-icon>
+            Bilan
+          </button>
+          <button mat-stroked-button routerLink="/gestion-comptable/cash-flow">
+            <mat-icon>account_balance</mat-icon>
+            Cash Flow
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,28 +1,89 @@
 <div class="ecriture-list-container">
-  <h2>Liste des écritures comptables</h2>
-  <button mat-raised-button color="primary" (click)="showForm = true; selectedEcriture = null" *ngIf="!showForm">
-    Ajouter une écriture
-  </button>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Écritures Comptables</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">post_add</mat-icon>
+        Écritures Comptables
+      </h1>
+      <p class="page-description">Saisissez et gérez vos écritures comptables, débits et crédits avec facilité.</p>
+    </div>
+  </div>
 
-  <app-ecriture-form
-    *ngIf="showForm"
-    [ecriture]="selectedEcriture"
-    (saved)="onEcritureSaved($event)"
-    (cancelled)="onEcritureCancelled()"
-  ></app-ecriture-form>
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <button mat-raised-button color="accent" (click)="showForm = true; selectedEcriture = null" *ngIf="!showForm">
+      <mat-icon>add</mat-icon>
+      Ajouter une écriture
+    </button>
+    <div class="spacer"></div>
+    <span class="ecriture-count">{{ ecritures.length }} écriture(s)</span>
+  </div>
 
+  <!-- Form Section -->
+  <div class="form-section" *ngIf="showForm">
+    <app-ecriture-form
+      [ecriture]="selectedEcriture"
+      (saved)="onEcritureSaved($event)"
+      (cancelled)="onEcritureCancelled()"
+    ></app-ecriture-form>
+  </div>
+
+  <!-- Écritures List -->
   <div class="ecriture-list">
     <mat-card *ngFor="let ecriture of ecritures" class="ecriture-item">
       <mat-card-content>
-        <span>{{ ecriture.date | date:'medium' }} - {{ ecriture.libelle }}</span>
-        <div *ngFor="let ligne of ecriture.lignes">
-          {{ ligne.nature | titlecase }}: {{ ligne.compte?.numeroCompte }} - {{ ligne.compte?.nom }} ({{ ligne.montant }})
+        <div class="ecriture-header">
+          <div class="ecriture-main">
+            <span class="ecriture-date">{{ ecriture.date | date:'dd/MM/yyyy' }}</span>
+            <span class="ecriture-libelle">{{ ecriture.libelle }}</span>
+          </div>
+          <div class="ecriture-total">
+            {{ getTotalEcriture(ecriture) | currency:'TND':'symbol':'1.2-2' }}
+          </div>
+        </div>
+        <div class="lignes-container">
+          <div *ngFor="let ligne of ecriture.lignes" class="ligne-item" [ngClass]="'ligne-' + ligne.nature">
+            <div class="ligne-compte">
+              <span class="compte-numero">{{ ligne.compte?.numeroCompte }}</span>
+              <span class="compte-nom">{{ ligne.compte?.nom }}</span>
+            </div>
+            <div class="ligne-details">
+              <span class="ligne-nature">{{ ligne.nature | titlecase }}</span>
+              <span class="ligne-montant">{{ ligne.montant | currency:'TND':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
         </div>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-button color="primary" (click)="editEcriture(ecriture)">Modifier</button>
-        <button mat-button color="warn" (click)="deleteEcriture(ecriture._id!)">Supprimer</button>
+        <button mat-button color="primary" (click)="editEcriture(ecriture)">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+        <button mat-button color="warn" (click)="deleteEcriture(ecriture._id!)">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
       </mat-card-actions>
     </mat-card>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="ecritures.length === 0">
+    <mat-icon class="empty-icon">post_add</mat-icon>
+    <h3>Aucune écriture comptable</h3>
+    <p>Commencez par créer votre première écriture comptable.</p>
+    <button mat-raised-button color="accent" (click)="showForm = true; selectedEcriture = null">
+      <mat-icon>add</mat-icon>
+      Créer une écriture
+    </button>
   </div>
 </div>

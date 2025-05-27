@@ -1,32 +1,285 @@
 .compte-list-container {
   padding: 20px;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
+  min-height: calc(100vh - 64px);
 }
 
-h2 {
-  color: #3f51b5;
-  text-align: center;
-  margin-bottom: 20px;
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
 }
 
+.header-content h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2.2rem;
+  margin: 15px 0;
+  font-weight: 600;
+}
+
+.page-icon {
+  font-size: 2.2rem;
+  height: 2.2rem;
+  width: 2.2rem;
+  color: #D4AF37;
+}
+
+.page-description {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.breadcrumb-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #D4AF37;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  opacity: 0.8;
+}
+
+.breadcrumb-separator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+}
+
+.current-page {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Action Bar */
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  padding: 15px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.compte-count {
+  color: #666;
+  font-weight: 500;
+  background: #f5f5f5;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+/* Form Section */
+.form-section {
+  margin-bottom: 30px;
+}
+
+/* Compte List */
 .compte-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 .compte-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f9f9f9;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  overflow: hidden;
+  border-left: 4px solid transparent;
+}
+
+.compte-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .compte-item mat-card-content {
-  flex-grow: 1;
+  padding: 20px;
 }
 
-button {
-  margin: 10px 0;
+.compte-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.compte-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.compte-numero {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #1E3A8A;
+}
+
+.compte-nom {
+  color: #333;
+  font-size: 1rem;
+}
+
+.compte-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.compte-type {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.type-actif {
+  background: #e8f5e8;
+  color: #2e7d32;
+  border-left-color: #4caf50;
+}
+
+.type-passif {
+  background: #fff3e0;
+  color: #f57c00;
+  border-left-color: #ff9800;
+}
+
+.type-charge {
+  background: #ffebee;
+  color: #c62828;
+  border-left-color: #f44336;
+}
+
+.type-produit {
+  background: #e3f2fd;
+  color: #1565c0;
+  border-left-color: #2196f3;
+}
+
+.compte-solde {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.positive {
+  color: #2e7d32;
+}
+
+.negative {
+  color: #c62828;
+}
+
+/* Card Actions */
+mat-card-actions {
+  padding: 15px 20px;
+  background: #fafafa;
+  display: flex;
+  gap: 10px;
+}
+
+mat-card-actions button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  height: 4rem;
+  width: 4rem;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #1E3A8A;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .compte-list-container {
+    padding: 15px;
+  }
+
+  .page-header {
+    padding: 20px;
+  }
+
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .page-description {
+    font-size: 1rem;
+  }
+
+  .action-bar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .compte-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .compte-details {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  mat-card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  mat-card-actions button {
+    width: 100%;
+    justify-content: center;
+  }
 }

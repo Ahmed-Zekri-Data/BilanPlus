@@ -1,4 +1,3 @@
-
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, DecimalPipe } from '@angular/common';
@@ -7,7 +6,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BaseChartDirective  } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -60,6 +59,11 @@ import { BalanceComponent } from './components/balance/balance.component';
 import { BilanComponent } from './components/bilan/bilan.component';
 import { ResultatComponent } from './components/resultat/resultat.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AdvancedSearchComponent } from './components/shared/advanced-search/advanced-search.component';
+import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
+import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
+import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
+import { TestDebugComponent } from './components/test-debug/test-debug.component';
 import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
 import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
 import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
@@ -89,7 +93,13 @@ import { NavBarComponent } from './components/shared/nav-bar/nav-bar.component';
 import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
 import { DevisComponent } from './components/devis/devis.component';
 import { ListDevisComponent } from './components/devis/list-devis.component';
-//import { DashboardComponent1 } from './dashboardproduit/dashboard.component';
+import { ClientListComponent } from './components/client-list/client-list.component';
+import { ClientFormComponent } from './components/client-form/client-form.component';
+import { DevisFormComponent } from './devis-form/devis-form.component';
+import { DevisListComponent } from './devis-list/devis-list.component';
+import { FactureListComponent } from './facture-list/facture-list.component';
+import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
+import { ReportingComponent } from './reporting/reporting.component';
 
 @NgModule({
   declarations: [
@@ -112,13 +122,17 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     BilanComponent,
     ResultatComponent,
     DashboardComponent,
+    AdvancedSearchComponent,
+    CashFlowComponent,
+    FinancialRatiosComponent,
+    ComparativeReportsComponent,
+    TestDebugComponent,
     ListCommandesComponent,
+    CommandeFormComponent,
+    CommandeViewComponent,
     ListFournisseursComponent,
     FournisseurFormComponent,
     FournisseurViewComponent,
-    CommandeFormComponent,
-    CommandeViewComponent,
-
     ListDFComponent,
     DFFormComponent,
     DFDetailComponent,
@@ -126,17 +140,6 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     UtilisateurComponent,
     AddUtilisateurComponent,
     UtilisateurDetailsComponent,
-
-    // Client / Facturation (gestion_facturation_client)
-    ClientListComponent,
-    ClientFormComponent,
-    DevisFormComponent,
-    DevisListComponent,
-    FactureListComponent,
-    RelanceAutomationComponent,
-    ReportingComponent,
-
-    // Rôles & Fiscalité (main)
     RoleComponent,
     AddRoleComponent,
     RoleDetailsComponent,
@@ -151,19 +154,23 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     ShortenIdPipe,
     DevisComponent,
     ListDevisComponent,
-    //DashboardComponent1
+    ClientListComponent,
+    ClientFormComponent,
+    DevisFormComponent,
+    DevisListComponent,
+    FactureListComponent,
+    RelanceAutomationComponent,
+    ReportingComponent
   ],
-
   imports: [
     BrowserModule,
-    MatOptionModule,
     CommonModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    BaseChartDirective ,
+    NgChartsModule,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -174,16 +181,19 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatPaginatorModule,
+    MatOptionModule,
+    MatSortModule,
     MatTableModule,
     MatTabsModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatExpansionModule,
     MatMenuModule,
     MatDividerModule,
-    MatSortModule,
+    MatDialogModule,
+    MatPaginatorModule,
     MatCheckboxModule,
     MatRadioModule,
     MatSlideToggleModule,
@@ -195,10 +205,7 @@ import { ListDevisComponent } from './components/devis/list-devis.component';
     MatButtonToggleModule,
     MatRippleModule,
     MatStepperModule,
-    MatTreeModule,
-    MatTooltipModule,
-    MatExpansionModule,
-    CommonModule
+    MatTreeModule
   ],
   providers: [DecimalPipe],
   bootstrap: [AppComponent]

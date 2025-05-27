@@ -29,3 +29,59 @@ $bilan-theme: mat.define-light-theme((
   background-color: #D4AF37 !important;
   color: white !important;
 }
+
+// Fix pour les overlays Material (dropdowns, selects, etc.)
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+.cdk-overlay-backdrop {
+  z-index: 9998 !important;
+}
+
+.cdk-overlay-pane {
+  z-index: 9999 !important;
+}
+
+// Fix spécifique pour mat-select
+.mat-mdc-select-panel {
+  z-index: 10000 !important;
+  max-height: 300px !important;
+}
+
+// Fix pour les mat-option
+.mat-mdc-option {
+  min-height: 48px !important;
+  padding: 0 16px !important;
+  line-height: 48px !important;
+}
+
+// Fix pour mat-datepicker
+.mat-datepicker-popup {
+  z-index: 10000 !important;
+}
+
+.mat-datepicker-content {
+  z-index: 10001 !important;
+}
+
+// Fix pour mat-autocomplete
+.mat-mdc-autocomplete-panel {
+  z-index: 10000 !important;
+  max-height: 300px !important;
+}
+
+// S'assurer que les form fields sont correctement positionnés
+.mat-mdc-form-field {
+  position: relative !important;
+}
+
+// Fix pour les menus Material
+.mat-mdc-menu-panel {
+  z-index: 10000 !important;
+}
+
+// Fix général pour tous les overlays CDK
+.cdk-overlay-connected-position-bounding-box {
+  z-index: 9999 !important;
+}

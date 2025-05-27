@@ -1,9 +1,24 @@
 <div class="journal-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Journal Comptable</mat-card-title>
-    </mat-card-header>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Journal Comptable</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">assignment</mat-icon>
+        Journal Comptable
+      </h1>
+      <p class="page-description">Consultez le journal chronologique de toutes vos écritures comptables.</p>
+    </div>
+  </div>
 
+  <mat-card class="main-card">
     <mat-card-content>
       <!-- Filtres -->
       <form [formGroup]="filtreForm" (ngSubmit)="appliquerFiltres()" class="filtres-form">
