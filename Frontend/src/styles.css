@@ -111,3 +111,173 @@ mat-sidenav-content {
   transform-origin: center top !important;
   position: absolute !important;
 }
+
+/* Enhanced Snackbar Styles */
+.success-snackbar {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3) !important;
+}
+
+.success-snackbar .mat-simple-snackbar-action {
+  color: #c8e6c9 !important;
+  font-weight: 600 !important;
+}
+
+.error-snackbar {
+  background: linear-gradient(135deg, #f44336 0%, #e57373 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3) !important;
+}
+
+.error-snackbar .mat-simple-snackbar-action {
+  color: #ffcdd2 !important;
+  font-weight: 600 !important;
+}
+
+.warning-snackbar {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3) !important;
+}
+
+.warning-snackbar .mat-simple-snackbar-action {
+  color: #ffe0b2 !important;
+  font-weight: 600 !important;
+}
+
+.info-snackbar {
+  background: linear-gradient(135deg, #2196f3 0%, #64b5f6 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
+}
+
+.info-snackbar .mat-simple-snackbar-action {
+  color: #bbdefb !important;
+  font-weight: 600 !important;
+}
+
+/* Snackbar Animation Enhancement */
+.mat-snack-bar-container {
+  border-radius: 8px !important;
+  min-width: 350px !important;
+  animation: slideInRight 0.3s ease-out !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Dialog Overlay Enhancement */
+.cdk-overlay-backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* Force center dialogs using transform approach */
+.custom-centered-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  max-height: 80vh !important;
+  max-width: 90vw !important;
+}
+
+/* Compact dialog sizing */
+.custom-centered-dialog .mat-mdc-dialog-container {
+  min-width: 320px !important;
+  max-width: 420px !important;
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Dialog animations */
+.cdk-overlay-pane .mat-mdc-dialog-container {
+  animation: dialogFadeIn 0.3s ease-out !important;
+}
+
+/* Dialog Container Styling */
+.mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Dialog Animation */
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Ensure dialogs are always on top */
+.cdk-overlay-container {
+  z-index: 1000 !important;
+}
+
+.cdk-overlay-backdrop {
+  z-index: 999 !important;
+}
+
+/* Enhanced backdrop for centered dialogs */
+.custom-centered-dialog .cdk-overlay-backdrop {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(3px) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 480px) {
+  .cdk-overlay-container .custom-centered-dialog .cdk-overlay-pane {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 0 !important;
+  }
+
+  .custom-centered-dialog .mat-mdc-dialog-container {
+    min-width: 280px !important;
+    max-width: 95vw !important;
+    margin: 0 !important;
+  }
+}
+
+/* Smooth transitions for dialog content */
+.mat-mdc-dialog-content {
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+}
+
+/* Enhanced dialog title styling */
+.mat-mdc-dialog-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Enhanced dialog actions styling */
+.mat-mdc-dialog-actions {
+  padding: 12px 0 0 0 !important;
+  margin: 0 !important;
+  min-height: auto !important;
+}
+
+

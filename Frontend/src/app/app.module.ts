@@ -22,6 +22,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { HomeComponent } from './home/home.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
@@ -40,6 +42,8 @@ import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
 import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
 import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
 import { TestDebugComponent } from './components/test-debug/test-debug.component';
+import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confirm-dialog.component';
+import { SuccessDialogComponent } from './components/shared/success-dialog/success-dialog.component';
 
 
 @NgModule({
@@ -61,7 +65,9 @@ import { TestDebugComponent } from './components/test-debug/test-debug.component
     CashFlowComponent,
     FinancialRatiosComponent,
     ComparativeReportsComponent,
-    TestDebugComponent
+    TestDebugComponent,
+    ConfirmDialogComponent,
+    SuccessDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -86,7 +92,9 @@ import { TestDebugComponent } from './components/test-debug/test-debug.component
     MatTableModule,
     MatProgressSpinnerModule,
     MatExpansionModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
