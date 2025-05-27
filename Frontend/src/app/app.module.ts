@@ -28,11 +28,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -64,6 +64,8 @@ import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
 import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
 import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
 import { TestDebugComponent } from './components/test-debug/test-debug.component';
+import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confirm-dialog.component';
+import { SuccessDialogComponent } from './components/shared/success-dialog/success-dialog.component';
 import { ListCommandesComponent } from './components/commandes/list-commandes/list-commandes.component';
 import { CommandeFormComponent } from './components/commandes/commande-form/commande-form.component';
 import { CommandeViewComponent } from './components/commandes/commande-view/commande-view.component';
@@ -127,6 +129,8 @@ import { ReportingComponent } from './reporting/reporting.component';
     FinancialRatiosComponent,
     ComparativeReportsComponent,
     TestDebugComponent,
+    ConfirmDialogComponent,
+    SuccessDialogComponent,
     ListCommandesComponent,
     CommandeFormComponent,
     CommandeViewComponent,
@@ -193,11 +197,11 @@ import { ReportingComponent } from './reporting/reporting.component';
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    MatProgressBarModule,
     MatPaginatorModule,
     MatCheckboxModule,
     MatRadioModule,
     MatSlideToggleModule,
-    MatProgressBarModule,
     MatChipsModule,
     MatAutocompleteModule,
     MatBadgeModule,

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CompteComptableService } from '../../compte-comptable.service';
 import { CompteComptable } from '../../Models/CompteComptable';
-import { MatSnackBar } from '@angular/material/snack-bar'; // Ajout
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-compte-form',
@@ -113,7 +113,7 @@ export class CompteFormComponent {
 
   constructor(
     private compteService: CompteComptableService,
-    private snackBar: MatSnackBar // Ajout
+    private notificationService: NotificationService
   ) {}
 
   onSubmit() {
@@ -121,25 +121,35 @@ export class CompteFormComponent {
     if (this.compte._id) {
       this.compteService.updateCompte(this.compte._id, this.compte).subscribe({
         next: (data) => {
-          this.snackBar.open('Compte mis à jour avec succès !', 'OK', { duration: 3000 });
+          this.notificationService.showCompteUpdated(data);
           this.saved.emit(data);
         },
         error: (err) => {
           console.error('Erreur lors de la mise à jour:', err);
           this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour du compte.';
-          this.snackBar.open(this.errorMessage, 'Fermer', { duration: 5000 });
+          this.notificationService.showError({
+            title: 'Erreur de mise à jour',
+            message: 'Impossible de mettre à jour le compte',
+            details: this.errorMessage,
+            icon: '❌'
+          });
         }
       });
     } else {
       this.compteService.createCompte(this.compte).subscribe({
         next: (data) => {
-          this.snackBar.open('Compte créé avec succès !', 'OK', { duration: 3000 });
+          this.notificationService.showCompteCreated(data);
           this.saved.emit(data);
         },
         error: (err) => {
           console.error('Erreur lors de la création:', err);
           this.errorMessage = err.error?.message || 'Erreur lors de la création du compte.';
-          this.snackBar.open(this.errorMessage, 'Fermer', { duration: 5000 });
+          this.notificationService.showError({
+            title: 'Erreur de création',
+            message: 'Impossible de créer le compte',
+            details: this.errorMessage,
+            icon: '❌'
+          });
         }
       });
     }

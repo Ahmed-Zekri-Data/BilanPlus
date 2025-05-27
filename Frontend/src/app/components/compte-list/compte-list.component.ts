@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CompteComptableService } from '../../compte-comptable.service';
 import { SearchService, SearchFilter } from '../../services/search.service';
 import { CompteComptable } from '../../Models/CompteComptable';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../services/notification.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,7 +26,7 @@ export class CompteListComponent implements OnInit, OnDestroy {
   constructor(
     private compteService: CompteComptableService,
     private searchService: SearchService,
-    private snackBar: MatSnackBar
+    private notificationService: NotificationService
   ) {
     this.initializeFilters();
   }
@@ -111,24 +111,40 @@ export class CompteListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Erreur lors de la récupération des comptes:', err);
-        this.snackBar.open('Erreur lors de la récupération des comptes.', 'Fermer', { duration: 5000 });
+        this.notificationService.showError({
+          title: 'Erreur de chargement',
+          message: 'Impossible de récupérer les comptes',
+          details: err.error?.message || 'Une erreur inattendue s\'est produite',
+          icon: '❌'
+        });
       },
     });
   }
 
   deleteCompte(id: string) {
-    if (confirm('Voulez-vous vraiment supprimer ce compte ?')) {
-      this.compteService.deleteCompte(id).subscribe({
-        next: () => {
-          this.snackBar.open('Compte supprimé avec succès !', 'Fermer', { duration: 3000 });
-          this.loadComptes();
-        },
-        error: (err) => {
-          console.error('Erreur lors de la suppression:', err);
-          this.snackBar.open('Erreur lors de la suppression du compte.', 'Fermer', { duration: 5000 });
-        },
-      });
-    }
+    // Trouver le compte à supprimer pour afficher ses détails
+    const compte = this.comptes.find(c => c._id === id);
+    if (!compte) return;
+
+    this.notificationService.confirmDeleteCompte(compte).subscribe(confirmed => {
+      if (confirmed) {
+        this.compteService.deleteCompte(id).subscribe({
+          next: () => {
+            this.notificationService.showCompteDeleted(compte);
+            this.loadComptes();
+          },
+          error: (err) => {
+            console.error('Erreur lors de la suppression:', err);
+            this.notificationService.showError({
+              title: 'Erreur de suppression',
+              message: 'Impossible de supprimer le compte',
+              details: err.error?.message || 'Une erreur inattendue s\'est produite',
+              icon: '❌'
+            });
+          },
+        });
+      }
+    });
   }
 
   editCompte(compte: CompteComptable) {
