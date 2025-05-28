@@ -1,33 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { CommandesComponent } from './components/commandes/commandes.component';
-import { FournisseursComponent } from './components/fournisseurs/fournisseurs.component';
-import { ProduitsComponent } from './components/produits/produits.component';
-import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
-import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
-import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
->>>>>>> Gestion_Des_Utilisateurs_Et_Accés
-import { ListTVAComponent } from './components/list-tva/list-tva.component';
-import { TvaDetailComponent } from './components/tvadetail/tvadetail.component';
-import { TvaFormComponent } from './components/tvaform/tvaform.component';
-import { DFFormComponent } from './components/df-form/df-form.component';
-import { ListDFComponent } from './components/list-df/list-df.component';
-<<<<<<< HEAD
-=======
 
-=======
+// Layout
 import { SectionLayoutComponent } from './components/shared/layout/section-layout.component';
-import { DevisComponent } from './components/devis/devis.component';
-import { ListDevisComponent } from './components/devis/list-devis.component';
 
-// Stock
-import { MSComponent } from './components/ms/ms.component';
-import { ProduitComponent } from './components/produit.component';
-
-// Main / Comptabilité / Utilisateurs / Rôles
+// Main / Comptabilité
 import { HomeComponent } from './home/home.component';
 import { GestionComptableComponent } from './components/gestion-comptable/gestion-comptable.component';
 import { CompteListComponent } from './components/compte-list/compte-list.component';
@@ -42,10 +19,15 @@ import { CashFlowComponent } from './components/cash-flow/cash-flow.component';
 import { FinancialRatiosComponent } from './components/financial-ratios/financial-ratios.component';
 import { ComparativeReportsComponent } from './components/comparative-reports/comparative-reports.component';
 import { TestDebugComponent } from './components/test-debug/test-debug.component';
+
+// Stock
+import { MSComponent } from './components/ms/ms.component';
+import { ProduitComponent } from './components/produit.component';
+
+// Utilisateurs / Rôles
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
 import { AddUtilisateurComponent } from './components/add-utilisateur/add-utilisateur.component';
 import { UtilisateurDetailsComponent } from './components/utilisateur-details/utilisateur-details.component';
->>>>>>> 1085e4df42fe53c9859801374a0a74c970f07b9b
 import { RoleComponent } from './components/role/role.component';
 import { AddRoleComponent } from './components/add-role/add-role.component';
 import { RoleDetailsComponent } from './components/role-details/role-details.component';
@@ -57,12 +39,12 @@ import { TvaFormComponent } from './components/tvaform/tvaform.component';
 import { ListDFComponent } from './components/list-df/list-df.component';
 import { DFFormComponent } from './components/df-form/df-form.component';
 import { DFDetailComponent } from './components/df-detail/df-detail.component';
-<<<<<<< HEAD
->>>>>>> Gestion_Des_Utilisateurs_Et_Accés
-=======
 import { GenerateDeclarationDialogComponent } from './components/generate-declaration-dialog/generate-declaration-dialog.component';
 import { DFTVAComponent } from './components/dftva/dftva.component';
->>>>>>> 1085e4df42fe53c9859801374a0a74c970f07b9b
+
+// Devis
+import { DevisComponent } from './components/devis/devis.component';
+import { ListDevisComponent } from './components/devis/list-devis.component';
 
 // Client / Facturation
 import { ClientFormComponent } from './components/client-form/client-form.component';
@@ -82,27 +64,6 @@ import { FournisseurFormComponent } from './components/fournisseurs/fournisseur-
 import { FournisseurViewComponent } from './components/fournisseurs/fournisseur-view/fournisseur-view.component';
 
 const routes: Routes = [
-<<<<<<< HEAD
-<<<<<<< HEAD
- {path:'TVA', component:ListTVAComponent},
-=======
-  { path: 'commandes', component: CommandesComponent },
-  { path: 'fournisseurs', component: FournisseursComponent },
- // { path: '', redirectTo: '/commandes', pathMatch: 'full' },
-  { path: 'produits', component: ProduitsComponent },
-  {path:'TVA', component:ListTVAComponent},
->>>>>>> Gestion_Des_Utilisateurs_Et_Accés
-  {path: 'getTVA/:id', component:TvaDetailComponent},
-  {path : 'updatetva/:id', component:TvaFormComponent},
-  {path : 'addtva', component:TvaFormComponent},
-  //{path: '**', redirectTo: '/produit' },
-  {path : 'DF',component:ListDFComponent},
-  {path : 'addDF',component:DFFormComponent},
-  {path : 'UpdateDF/:id', component:DFFormComponent},
-<<<<<<< HEAD
-  {pa}
-=======
-=======
   { path: '', component: HomeComponent },
 
   // Gestion comptable
@@ -165,7 +126,6 @@ const routes: Routes = [
   },
 
   // Utilisateurs
->>>>>>> 1085e4df42fe53c9859801374a0a74c970f07b9b
   { path: 'utilisateurs', component: UtilisateurComponent },
   { path: 'utilisateur/add', component: AddUtilisateurComponent },
   { path: 'utilisateur/edit/:id', component: AddUtilisateurComponent },
@@ -183,9 +143,6 @@ const routes: Routes = [
   { path: 'edit-tva/:id', component: TvaFormComponent },
   { path: 'add-tva', component: TvaFormComponent },
 
-<<<<<<< HEAD
->>>>>>> Gestion_Des_Utilisateurs_Et_Accés
-=======
   // Déclarations fiscales
   { path: 'list-declarations', component: ListDFComponent },
   { path: 'add-declaration', component: DFFormComponent },
@@ -193,7 +150,6 @@ const routes: Routes = [
   { path: 'get-declaration/:id', component: DFDetailComponent },
   { path: 'generer-df', component: GenerateDeclarationDialogComponent },
   { path: 'DFTVA', component: DFTVAComponent },
->>>>>>> 1085e4df42fe53c9859801374a0a74c970f07b9b
 
   // Clients / Factures
   { path: 'clientform', component: ClientFormComponent },
