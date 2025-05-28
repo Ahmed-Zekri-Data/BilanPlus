@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DFFormComponent } from './df-form.component';
+import { RoleComponent } from './role.component';
 
-describe('DFFormComponent', () => {
-  let component: DFFormComponent;
-  let fixture: ComponentFixture<DFFormComponent>;
+describe('RoleComponent', () => {
+  let component: RoleComponent;
+  let fixture: ComponentFixture<RoleComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [DFFormComponent]
+      declarations: [RoleComponent]
     });
-    fixture = TestBed.createComponent(DFFormComponent);
+    fixture = TestBed.createComponent(RoleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -18,5 +18,4 @@ describe('DFFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 });
