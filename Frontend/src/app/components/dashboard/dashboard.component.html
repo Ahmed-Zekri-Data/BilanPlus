@@ -1,0 +1,377 @@
+<div class="dashboard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Tableau de Bord</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">dashboard</mat-icon>
+        Tableau de Bord Comptable
+      </h1>
+      <p class="page-description">Vue d'ensemble de votre situation comptable et financière.</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button mat-raised-button color="accent" routerLink="/gestion-comptable/ecritures">
+        <mat-icon>add</mat-icon>
+        Nouvelle Écriture
+      </button>
+      <button mat-raised-button color="primary" routerLink="/gestion-comptable/comptes">
+        <mat-icon>account_balance_wallet</mat-icon>
+        Gérer Comptes
+      </button>
+      <button mat-raised-button routerLink="/gestion-comptable/balance">
+        <mat-icon>balance</mat-icon>
+        Voir Balance
+      </button>
+      <button mat-raised-button routerLink="/gestion-comptable/bilan">
+        <mat-icon>insert_chart</mat-icon>
+        Générer Bilan
+      </button>
+    </div>
+
+    <!-- Enhanced KPI Cards -->
+    <div class="kpi-cards">
+      <mat-card class="kpi-card accounts-card">
+        <mat-card-content>
+          <div class="kpi-header">
+            <mat-icon class="kpi-icon">account_balance_wallet</mat-icon>
+            <div class="kpi-trend positive">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value">{{ dashboardData.statistiques.totalComptes }}</div>
+          <div class="kpi-label">Comptes Comptables</div>
+          <div class="kpi-subtitle">Plan comptable actif</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card transactions-card">
+        <mat-card-content>
+          <div class="kpi-header">
+            <mat-icon class="kpi-icon">receipt_long</mat-icon>
+            <div class="kpi-trend positive">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value">{{ dashboardData.statistiques.totalEcritures }}</div>
+          <div class="kpi-label">Écritures Comptables</div>
+          <div class="kpi-subtitle">Transactions enregistrées</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card assets-card">
+        <mat-card-content>
+          <div class="kpi-header">
+            <mat-icon class="kpi-icon">trending_up</mat-icon>
+            <div class="kpi-trend positive">
+              <mat-icon>arrow_upward</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value">{{ dashboardData.statistiques.totalActif | currency:'TND':'symbol':'1.0-0' }}</div>
+          <div class="kpi-label">Total Actif</div>
+          <div class="kpi-subtitle">Patrimoine de l'entreprise</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card liabilities-card">
+        <mat-card-content>
+          <div class="kpi-header">
+            <mat-icon class="kpi-icon">trending_down</mat-icon>
+            <div class="kpi-trend neutral">
+              <mat-icon>remove</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value">{{ dashboardData.statistiques.totalPassif | currency:'TND':'symbol':'1.0-0' }}</div>
+          <div class="kpi-label">Total Passif</div>
+          <div class="kpi-subtitle">Dettes et capitaux</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Financial Health Indicators -->
+    <div class="financial-health">
+      <mat-card class="health-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>health_and_safety</mat-icon>
+            Santé Financière
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="health-indicators">
+            <div class="health-indicator">
+              <div class="indicator-label">Équilibre Bilan</div>
+              <div class="indicator-value" [ngClass]="getBalanceHealthClass()">
+                <mat-icon>{{ getBalanceHealthIcon() }}</mat-icon>
+                {{ getBalanceStatus() }}
+              </div>
+            </div>
+            <div class="health-indicator">
+              <div class="indicator-label">Ratio Actif/Passif</div>
+              <div class="indicator-value">
+                {{ getAssetLiabilityRatio() }}%
+              </div>
+            </div>
+            <div class="health-indicator">
+              <div class="indicator-label">Résultat Période</div>
+              <div class="indicator-value" [ngClass]="getResultHealthClass()">
+                <mat-icon>{{ getResultHealthIcon() }}</mat-icon>
+                {{ dashboardData.statistiques.resultatPeriode | currency:'TND':'symbol':'1.0-0' }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Enhanced Dashboard Row -->
+    <div class="dashboard-row">
+      <!-- Enhanced Profit/Loss Card -->
+      <mat-card class="enhanced-resultat-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assessment</mat-icon>
+            Résultat de la Période
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="resultat-overview">
+            <div class="resultat-main" [ngClass]="{'profit': dashboardData.statistiques.resultatPeriode > 0, 'loss': dashboardData.statistiques.resultatPeriode < 0, 'neutral': dashboardData.statistiques.resultatPeriode === 0}">
+              <div class="resultat-icon">
+                <mat-icon>{{ getResultHealthIcon() }}</mat-icon>
+              </div>
+              <div class="resultat-info">
+                <div class="resultat-label">
+                  {{ dashboardData.statistiques.resultatPeriode > 0 ? 'Bénéfice' : dashboardData.statistiques.resultatPeriode < 0 ? 'Perte' : 'Équilibre' }}
+                </div>
+                <div class="resultat-value">
+                  {{ dashboardData.statistiques.resultatPeriode | currency:'TND':'symbol':'1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="resultat-breakdown">
+            <div class="breakdown-item produits">
+              <div class="breakdown-header">
+                <mat-icon>trending_up</mat-icon>
+                <span>Produits</span>
+              </div>
+              <div class="breakdown-value">{{ dashboardData.statistiques.totalProduits | currency:'TND':'symbol':'1.2-2' }}</div>
+            </div>
+            <div class="breakdown-divider">-</div>
+            <div class="breakdown-item charges">
+              <div class="breakdown-header">
+                <mat-icon>trending_down</mat-icon>
+                <span>Charges</span>
+              </div>
+              <div class="breakdown-value">{{ dashboardData.statistiques.totalCharges | currency:'TND':'symbol':'1.2-2' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Enhanced Recent Activity -->
+      <mat-card class="recent-activity-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>history</mat-icon>
+            Activité Récente
+          </mat-card-title>
+          <div class="card-actions">
+            <button mat-icon-button routerLink="/gestion-comptable/ecritures">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="dashboardData.derniereEcriture" class="latest-transaction">
+            <div class="transaction-header">
+              <div class="transaction-date">
+                <mat-icon>schedule</mat-icon>
+                {{ dashboardData.derniereEcriture.date | date:'dd/MM/yyyy' }}
+              </div>
+              <div class="transaction-badge">Dernière écriture</div>
+            </div>
+            <div class="transaction-title">
+              {{ dashboardData.derniereEcriture.libelle }}
+            </div>
+            <div class="transaction-details">
+              <div class="transaction-line" *ngFor="let ligne of dashboardData.derniereEcriture.lignes">
+                <div class="line-account">
+                  <span class="account-number">{{ ligne.compte.numeroCompte }}</span>
+                  <span class="account-name">{{ ligne.compte.nom }}</span>
+                </div>
+                <div class="line-nature" [ngClass]="ligne.nature">
+                  {{ formatNature(ligne.nature) }}
+                </div>
+                <div class="line-amount">
+                  {{ ligne.montant | currency:'TND':'symbol':'1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!dashboardData.derniereEcriture" class="no-activity">
+            <mat-icon>inbox</mat-icon>
+            <p>Aucune écriture comptable enregistrée</p>
+            <button mat-raised-button color="accent" routerLink="/gestion-comptable/ecritures">
+              Créer une écriture
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Enhanced Recent Transactions Table -->
+    <mat-card class="enhanced-transactions-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>receipt_long</mat-icon>
+          Dernières Écritures Comptables
+        </mat-card-title>
+        <div class="card-actions">
+          <button mat-raised-button color="primary" routerLink="/gestion-comptable/ecritures">
+            <mat-icon>add</mat-icon>
+            Nouvelle Écriture
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="dashboardData.dernieresEcritures.length > 0" class="transactions-table-container">
+          <table mat-table [dataSource]="dashboardData.dernieresEcritures" class="enhanced-table">
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-icon>schedule</mat-icon>
+                Date
+              </th>
+              <td mat-cell *matCellDef="let ecriture">
+                <div class="date-cell">
+                  {{ ecriture.date | date:'dd/MM/yyyy' }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Libellé Column -->
+            <ng-container matColumnDef="libelle">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-icon>description</mat-icon>
+                Libellé
+              </th>
+              <td mat-cell *matCellDef="let ecriture">
+                <div class="libelle-cell">
+                  {{ ecriture.libelle }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Débit Column -->
+            <ng-container matColumnDef="debit">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-icon>remove</mat-icon>
+                Débit
+              </th>
+              <td mat-cell *matCellDef="let ecriture">
+                <div class="amount-cell debit">
+                  <div *ngFor="let ligne of ecriture.lignes">
+                    <span *ngIf="ligne.nature === 'débit'" class="debit-amount">
+                      {{ ligne.compte.numeroCompte }}: {{ ligne.montant | currency:'TND':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Crédit Column -->
+            <ng-container matColumnDef="credit">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-icon>add</mat-icon>
+                Crédit
+              </th>
+              <td mat-cell *matCellDef="let ecriture">
+                <div class="amount-cell credit">
+                  <div *ngFor="let ligne of ecriture.lignes">
+                    <span *ngIf="ligne.nature === 'crédit'" class="credit-amount">
+                      {{ ligne.compte.numeroCompte }}: {{ ligne.montant | currency:'TND':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['date', 'libelle', 'debit', 'credit']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['date', 'libelle', 'debit', 'credit'];" class="transaction-row"></tr>
+          </table>
+        </div>
+
+        <div *ngIf="dashboardData.dernieresEcritures.length === 0" class="no-transactions">
+          <mat-icon>inbox</mat-icon>
+          <h3>Aucune écriture comptable</h3>
+          <p>Commencez par créer votre première écriture comptable.</p>
+          <button mat-raised-button color="accent" routerLink="/gestion-comptable/ecritures">
+            <mat-icon>add</mat-icon>
+            Créer une écriture
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Enhanced Monthly Statistics -->
+    <mat-card class="enhanced-stats-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>bar_chart</mat-icon>
+          Activité Mensuelle
+        </mat-card-title>
+        <div class="card-actions">
+          <button mat-icon-button>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-summary">
+          <div class="summary-item">
+            <div class="summary-label">Moyenne mensuelle</div>
+            <div class="summary-value">{{ getMonthlyAverage() }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Mois le plus actif</div>
+            <div class="summary-value">{{ getMostActiveMonth() }}</div>
+          </div>
+        </div>
+
+        <div class="enhanced-chart-container">
+          <div class="chart-title">Écritures par mois (6 derniers mois)</div>
+          <div class="enhanced-bar-chart">
+            <div class="chart-bar" *ngFor="let item of dashboardData.sixMoisDerniers; let i = index">
+              <div class="bar-container">
+                <div class="bar-value"
+                     [style.height.%]="getBarHeight(item.count)"
+                     [style.background]="getBarColor(i)">
+                </div>
+                <div class="bar-count">{{ item.count }}</div>
+              </div>
+              <div class="bar-label">{{ item.mois }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

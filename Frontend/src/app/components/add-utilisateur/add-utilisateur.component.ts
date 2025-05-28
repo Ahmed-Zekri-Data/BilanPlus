@@ -33,16 +33,12 @@ export class AddUtilisateurComponent implements OnInit {
     if (this.userId) {
       this.isEditMode = true;
       this.loadUserData();
-      // Rendre motDePasse facultatif en mode édition
-      this.utilisateurForm.get('motDePasse')?.clearValidators();
-      this.utilisateurForm.get('motDePasse')?.setValidators(Validators.minLength(6));
-      this.utilisateurForm.get('motDePasse')?.updateValueAndValidity();
     }
   }
 
   private loadUserData() {
     if (this.userId) {
-      this.utilisateurService.getUserById(Number(this.userId)).subscribe({
+      this.utilisateurService.getUserById(this.userId).subscribe({ // Correction : supprimé Number()
         next: (user: Utilisateur) => {
           this.utilisateurForm.patchValue({
             nom: user.nom,
@@ -61,7 +57,7 @@ export class AddUtilisateurComponent implements OnInit {
   submitUtilisateur() {
     if (this.utilisateurForm.invalid) {
       this.message = 'Veuillez remplir correctement tous les champs requis';
-      console.log('Formulaire invalide:', this.utilisateurForm.value);
+      console.log('Formulaire invalide:', this.utilisateurForm.value); // Log pour diagnostic
       return;
     }
 
@@ -75,24 +71,30 @@ export class AddUtilisateurComponent implements OnInit {
       userData.motDePasse = this.utilisateurForm.value.motDePasse;
     }
 
+    console.log('Données envoyées:', userData); // Log pour vérifier les données
+
     if (this.isEditMode && this.userId) {
-      this.utilisateurService.updateUser(Number(this.userId), userData).subscribe({
-        next: () => {
-          this.router.navigateByUrl("/utilisateurs");
+      this.utilisateurService.updateUser(this.userId, userData).subscribe({ // Correction : supprimé Number()
+        next: (response) => {
+          console.log('Réponse mise à jour:', response); // Log pour confirmer
+          this.message = 'Utilisateur mis à jour avec succès'; // Message de succès
+          this.router.navigateByUrl("/utilisateurs"); // Redirection
         },
         error: (err) => {
           this.message = 'Erreur lors de la mise à jour';
-          console.error( err);
+          console.error('Erreur mise à jour:', err);
         }
       });
     } else {
       this.utilisateurService.createUser(userData).subscribe({
-        next: () => {
-             this.router.navigateByUrl("/utilisateurs");
+        next: (response) => {
+          console.log('Utilisateur ajouté avec succès:', response); // Log pour confirmation
+          this.message = 'Utilisateur ajouté avec succès'; // Message de succès
+          this.router.navigateByUrl("/utilisateurs"); // Redirection après succès
         },
         error: (err) => {
           this.message = 'Erreur lors de la création';
-          console.error( err);
+          console.error('Erreur création:', err);
         }
       });
     }

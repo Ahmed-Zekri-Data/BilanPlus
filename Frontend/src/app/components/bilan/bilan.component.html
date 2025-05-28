@@ -1,0 +1,120 @@
+<div class="bilan-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Bilan Comptable</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">insert_chart</mat-icon>
+        Bilan Comptable
+      </h1>
+      <p class="page-description">Générez l'état de situation financière de votre entreprise.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="filtreForm" (ngSubmit)="appliquerFiltres()" class="filtres-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Date du bilan</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit">Générer</button>
+          <button mat-raised-button color="accent" type="button" (click)="exporterPDF()">
+            <mat-icon>picture_as_pdf</mat-icon> Exporter PDF
+          </button>
+        </div>
+      </form>
+
+      <!-- Affichage du bilan -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div *ngIf="!isLoading" class="bilan-content">
+        <div class="bilan-header">
+          <h2>Bilan au {{ bilan.date | date:'dd MMMM yyyy' }}</h2>
+        </div>
+
+        <div class="bilan-table-container">
+          <table class="bilan-table">
+            <tr class="bilan-header-row">
+              <th class="actif-header">Actif</th>
+              <th class="actif-montant">Montant</th>
+              <th class="passif-header">Passif</th>
+              <th class="passif-montant">Montant</th>
+            </tr>
+
+            <!-- Corps du tableau: une ligne pour chaque catégorie la plus grande (Actif ou Passif) -->
+            <ng-container *ngFor="let index of [0, 1, 2, 3, 4, 5]">
+              <tr class="bilan-row" *ngIf="getCategoriesActif()[index] || getCategoriesPassif()[index]">
+                <!-- Colonne Actif - Titre de catégorie -->
+                <td class="categorie-title" *ngIf="getCategoriesActif()[index]">
+                  <strong>{{ bilan.actif[getCategoriesActif()[index]].title }}</strong>
+                </td>
+                <td *ngIf="!getCategoriesActif()[index]"></td>
+
+                <!-- Colonne Actif - Total de catégorie -->
+                <td class="montant" *ngIf="getCategoriesActif()[index]">
+                  <strong>{{ bilan.actif[getCategoriesActif()[index]].total | currency:'TND':'symbol':'1.2-2' }}</strong>
+                </td>
+                <td *ngIf="!getCategoriesActif()[index]"></td>
+
+                <!-- Colonne Passif - Titre de catégorie -->
+                <td class="categorie-title" *ngIf="getCategoriesPassif()[index]">
+                  <strong>{{ bilan.passif[getCategoriesPassif()[index]].title }}</strong>
+                </td>
+                <td *ngIf="!getCategoriesPassif()[index]"></td>
+
+                <!-- Colonne Passif - Total de catégorie -->
+                <td class="montant" *ngIf="getCategoriesPassif()[index]">
+                  <strong>{{ bilan.passif[getCategoriesPassif()[index]].total | currency:'TND':'symbol':'1.2-2' }}</strong>
+                </td>
+                <td *ngIf="!getCategoriesPassif()[index]"></td>
+              </tr>
+
+              <!-- Détails des comptes de la catégorie actif -->
+              <ng-container *ngIf="getCategoriesActif()[index]">
+                <tr class="compte-row" *ngFor="let compte of bilan.actif[getCategoriesActif()[index]].comptes">
+                  <td class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</td>
+                  <td class="montant">{{ compte.solde | currency:'TND':'symbol':'1.2-2' }}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </ng-container>
+
+              <!-- Détails des comptes de la catégorie passif - à afficher en parallèle -->
+              <ng-container *ngIf="getCategoriesPassif()[index]">
+                <tr class="compte-row" *ngFor="let compte of bilan.passif[getCategoriesPassif()[index]].comptes">
+                  <td></td>
+                  <td></td>
+                  <td class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</td>
+                  <td class="montant">{{ compte.solde | currency:'TND':'symbol':'1.2-2' }}</td>
+                </tr>
+              </ng-container>
+            </ng-container>
+
+            <!-- Ligne de total -->
+            <tr class="bilan-total-row">
+              <td class="total-label">TOTAL ACTIF</td>
+              <td class="total-montant">{{ bilan.totalActif | currency:'TND':'symbol':'1.2-2' }}</td>
+              <td class="total-label">TOTAL PASSIF</td>
+              <td class="total-montant">{{ bilan.totalPassif | currency:'TND':'symbol':'1.2-2' }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

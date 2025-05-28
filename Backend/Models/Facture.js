@@ -9,4 +9,4 @@ const FactureSchema = new mongoose.Schema({
     tva: { type: mongoose.Schema.Types.ObjectId, ref: 'TVA' }
 });
 
-module.exports = mongoose.model('Facture', FactureSchema);
+module.exports = mongoose.models.Facture || mongoose.model('Facture', FactureSchema);

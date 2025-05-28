@@ -1,0 +1,34 @@
+<div class="form-container">
+    <h2>Ajouter un Client</h2>
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-group">
+        <label for="nom">Nom :</label>
+        <input type="text" id="nom" formControlName="nom" placeholder="Entrez le nom du client">
+        <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched" class="error-message">
+          Nom requis (min. 3 caractères).
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" formControlName="email" placeholder="Entrez l'email du client">
+        <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched" class="error-message">
+          Email invalide.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="telephone">Téléphone :</label>
+        <input type="text" id="telephone" formControlName="telephone" placeholder="Entrez le téléphone du client">
+        <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched" class="error-message">
+          Doit contenir 8 chiffres.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <button type="submit" [disabled]="clientForm.invalid">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+  

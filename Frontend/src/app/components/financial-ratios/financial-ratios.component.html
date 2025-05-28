@@ -1,0 +1,294 @@
+<div class="financial-ratios-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Ratios Financiers</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">analytics</mat-icon>
+        Ratios Financiers
+      </h1>
+      <p class="page-description">Analysez la performance financière de votre entreprise avec des ratios clés.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="ratiosForm" (ngSubmit)="generateRatios()" class="filters-form">
+        <div class="filters-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Date de début</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Calculer
+          </button>
+          <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading">
+            <mat-icon>clear</mat-icon>
+            Réinitialiser
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="exportToPDF()" 
+                  [disabled]="isLoading || !financialRatios">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Exporter PDF
+          </button>
+        </div>
+      </form>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Calcul des ratios financiers...</p>
+      </div>
+
+      <!-- Financial Ratios -->
+      <div *ngIf="!isLoading && financialRatios" class="ratios-content">
+        <!-- Period Header -->
+        <div class="period-header">
+          <h2>{{ formatPeriod() }}</h2>
+        </div>
+
+        <div class="ratios-grid">
+          <!-- Liquidity Ratios -->
+          <mat-card class="ratio-category-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>water_drop</mat-icon>
+                Ratios de Liquidité
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio de Liquidité Générale</h4>
+                  <p class="ratio-formula">Actif Circulant / Passif Circulant</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.liquidity.currentRatio, 'liquidity')">
+                  {{ formatRatio(financialRatios.liquidity.currentRatio) }}
+                </div>
+                <div class="ratio-interpretation">
+                  {{ getRatioInterpretation(financialRatios.liquidity.currentRatio, 'currentRatio') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio de Liquidité Réduite</h4>
+                  <p class="ratio-formula">(Actif Circulant - Stocks) / Passif Circulant</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.liquidity.quickRatio, 'liquidity')">
+                  {{ formatRatio(financialRatios.liquidity.quickRatio) }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio de Liquidité Immédiate</h4>
+                  <p class="ratio-formula">Trésorerie / Passif Circulant</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.liquidity.cashRatio, 'liquidity')">
+                  {{ formatRatio(financialRatios.liquidity.cashRatio) }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Besoin en Fonds de Roulement</h4>
+                  <p class="ratio-formula">Actif Circulant - Passif Circulant</p>
+                </div>
+                <div class="ratio-value">
+                  {{ formatRatio(financialRatios.liquidity.workingCapital, 'currency') }}
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Profitability Ratios -->
+          <mat-card class="ratio-category-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>trending_up</mat-icon>
+                Ratios de Rentabilité
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Marge Brute</h4>
+                  <p class="ratio-formula">Marge Brute / Chiffre d'Affaires</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.profitability.grossProfitMargin, 'profitability')">
+                  {{ formatRatio(financialRatios.profitability.grossProfitMargin, 'percentage') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Marge Nette</h4>
+                  <p class="ratio-formula">Résultat Net / Chiffre d'Affaires</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.profitability.netProfitMargin, 'profitability')">
+                  {{ formatRatio(financialRatios.profitability.netProfitMargin, 'percentage') }}
+                </div>
+                <div class="ratio-interpretation">
+                  {{ getRatioInterpretation(financialRatios.profitability.netProfitMargin, 'netProfitMargin') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rentabilité des Actifs (ROA)</h4>
+                  <p class="ratio-formula">Résultat Net / Total Actif</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.profitability.returnOnAssets, 'profitability')">
+                  {{ formatRatio(financialRatios.profitability.returnOnAssets, 'percentage') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rentabilité des Capitaux Propres (ROE)</h4>
+                  <p class="ratio-formula">Résultat Net / Capitaux Propres</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.profitability.returnOnEquity, 'profitability')">
+                  {{ formatRatio(financialRatios.profitability.returnOnEquity, 'percentage') }}
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Solvency Ratios -->
+          <mat-card class="ratio-category-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>security</mat-icon>
+                Ratios de Solvabilité
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio d'Endettement</h4>
+                  <p class="ratio-formula">Total Dettes / Capitaux Propres</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.solvency.debtToEquity, 'solvency')">
+                  {{ formatRatio(financialRatios.solvency.debtToEquity) }}
+                </div>
+                <div class="ratio-interpretation">
+                  {{ getRatioInterpretation(financialRatios.solvency.debtToEquity, 'debtToEquity') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio Dettes/Actifs</h4>
+                  <p class="ratio-formula">Total Dettes / Total Actif</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.solvency.debtToAssets, 'solvency')">
+                  {{ formatRatio(financialRatios.solvency.debtToAssets, 'percentage') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Ratio d'Autonomie Financière</h4>
+                  <p class="ratio-formula">Capitaux Propres / Total Actif</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(1 - financialRatios.solvency.equityRatio, 'solvency')">
+                  {{ formatRatio(financialRatios.solvency.equityRatio, 'percentage') }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Couverture des Intérêts</h4>
+                  <p class="ratio-formula">Résultat d'Exploitation / Charges Financières</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.solvency.interestCoverage, 'efficiency')">
+                  {{ formatRatio(financialRatios.solvency.interestCoverage) }}
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Efficiency Ratios -->
+          <mat-card class="ratio-category-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>speed</mat-icon>
+                Ratios d'Efficacité
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rotation des Actifs</h4>
+                  <p class="ratio-formula">Chiffre d'Affaires / Total Actif</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.efficiency.assetTurnover, 'efficiency')">
+                  {{ formatRatio(financialRatios.efficiency.assetTurnover) }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rotation des Stocks</h4>
+                  <p class="ratio-formula">Coût des Ventes / Stock Moyen</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.efficiency.inventoryTurnover, 'efficiency')">
+                  {{ formatRatio(financialRatios.efficiency.inventoryTurnover) }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rotation des Créances</h4>
+                  <p class="ratio-formula">Chiffre d'Affaires / Créances Moyennes</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.efficiency.receivablesTurnover, 'efficiency')">
+                  {{ formatRatio(financialRatios.efficiency.receivablesTurnover) }}
+                </div>
+              </div>
+
+              <div class="ratio-item">
+                <div class="ratio-info">
+                  <h4>Rotation des Dettes Fournisseurs</h4>
+                  <p class="ratio-formula">Achats / Dettes Fournisseurs Moyennes</p>
+                </div>
+                <div class="ratio-value" [ngClass]="getRatioClass(financialRatios.efficiency.payablesTurnover, 'efficiency')">
+                  {{ formatRatio(financialRatios.efficiency.payablesTurnover) }}
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- No Data Message -->
+      <div *ngIf="!isLoading && !financialRatios" class="no-data">
+        <mat-icon>info</mat-icon>
+        <p>Aucune donnée disponible pour la période sélectionnée.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

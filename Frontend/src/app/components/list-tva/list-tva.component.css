@@ -1,36 +1,120 @@
+.Achour-container {
+  margin: 50px;
+  border: 1px solid rgb(225 223 223);
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.Achour-container .header-container {
+  border-bottom: 1px solid rgb(225 223 223);
+  padding: 10px;
+  background-color: rgb(225 223 223);
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 20px;
+}
+.Achour-container .header-container span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.Achour-container .body-container {
+  padding: 20px;
+}
+.Achour-container .body-container .actions-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.Achour-container .body-container .actions-button {
+  padding: 8px 16px;
+}
 .tva-table {
-    width: 100%;
-    border-collapse: collapse;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  .tva-table th, .tva-table td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  .tva-table th {
-    background-color: #f5f5f5;
-  }
-  .view-btn {
-    background-color: #1976d2;
-    color: white;
-    border: none;
-    padding: 5px 10px;
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+.tva-table th {
+  background-color: #f4f4f4 !important;
+  font-weight: bold !important;
+  color: #333 !important;
+  padding: 12px 15px !important;
+  text-align: left !important;
+}
+
+.tva-table td {
+  padding: 12px 15px !important;
+  text-align: left !important;
+}
+
+.tva-table tr:nth-child(even) {
+  background-color: #f9f9f9 !important;
+}
+
+.tva-table tr:hover {
+  background-color: #f1f1f1 !important;
+}
+
+/* Styles pour les déclarations */
+.declarations-chip-list {
+  display: flex;
+  align-items: center;
+}
+
+.declaration-count-badge {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.declarations-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.declaration-chip {
+  background-color: #e0e0e0;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.more-badge {
+  background-color: #f0f0f0;
+  border-radius: 16px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.no-declarations {
+  display: flex;
+  align-items: center;
+  color: #999;
+  font-style: italic;
+}
+
+.no-data-icon {
+  font-size: 16px;
+  margin-right: 4px;
+  color: #999;
+}
+  mat-icon-button {
     margin-right: 5px;
-    cursor: pointer;
   }
-  .delete-btn {
-    background-color: #d32f2f;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  .add-btn {
-    background-color: #1976d2;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    margin-top: 10px;
-    cursor: pointer;
+  button[mat-raised-button] {
+    margin-bottom: 20px;
+    padding: 10px 20px;
   }

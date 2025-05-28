@@ -1,62 +1,130 @@
-<div *ngIf="isEditMode && !tva._id ? loading : true">
-    <h2>{{ isEditMode ? 'Edit TVA' : 'Add New TVA' }}</h2>
-  
-    <form (ngSubmit)="saveTva()">
-      <div class="form-group">
-        <label for="taux">Taux (%):</label>
-        <input
-          type="number"
-          id="taux"
-          name="taux"
-          [(ngModel)]="tva.taux"
-          required
-          min="0"
-          step="0.01"
-        />
-      </div>
-  
-      <div class="form-group">
-        <label for="montant">Montant:</label>
-        <input
-          type="number"
-          id="montant"
-          name="montant"
-          [(ngModel)]="tva.montant"
-          required
-          min="0"
-          step="0.01"
-        />
-      </div>
-  
-      <div class="form-group">
-        <label for="declaration">Declaration Fiscale:</label>
-        <select
-          id="declaration"
-          name="declaration"
-          [(ngModel)]="tva.declaration"
-          required
-        >
-          <option value="" disabled>Select a Declaration</option>
-          <option *ngFor="let declaration of declarations" [value]="declaration._id">
-            {{ declaration.periode }} (ID: {{ declaration._id }})
-          </option>
-        </select>
-      </div>
-  
-      <div class="actions">
-        <button mat-raised-button color="primary" type="submit">
-          {{ isEditMode ? 'Update TVA' : 'Add TVA' }}
-        </button>
-        <button mat-raised-button (click)="goBack()">Cancel</button>
-      </div>
-    </form>
-  
-    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+<div class="tva-form-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement des détails de la TVA...</p>
   </div>
-  
-  <ng-template #loading>
-    <p *ngIf="errorMessage; else spinner">{{ errorMessage }}</p>
-    <ng-template #spinner>
-      <p>Loading TVA details...</p>
-    </ng-template>
-  </ng-template>
+
+  <div *ngIf="!isLoading">
+    <div class="form-header">
+      <h2 class="form-title">{{ isEditMode ? 'Modifier TVA' : 'Ajouter une nouvelle TVA' }}</h2>
+      <div class="form-subtitle">
+        <mat-icon color="primary">info</mat-icon>
+        <span>Remplissez les informations ci-dessous pour {{ isEditMode ? 'mettre à jour la' : 'créer une nouvelle' }} TVA</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="card-content">
+        <form (ngSubmit)="saveTVA()">
+          <!-- Taux de TVA -->
+          <div class="form-field">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Taux de TVA (%)</mat-label>
+              <mat-select
+                [(ngModel)]="tva.taux"
+                name="taux"
+                required
+                (selectionChange)="onTauxChange($event.value)"
+              >
+                <mat-option [value]="7">7%</mat-option>
+                <mat-option [value]="13">13%</mat-option>
+                <mat-option [value]="19">19%</mat-option>
+              </mat-select>
+              <mat-error *ngIf="fieldErrors.taux">{{ fieldErrors.taux }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Montant de TVA -->
+          <div class="form-field">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Montant de TVA (DT)</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="tva.montant"
+                name="montant"
+                min="0"
+                step="0.01"
+                required
+                [readonly]="tva.declarations && tva.declarations.length > 0"
+              >
+              <mat-hint *ngIf="tva.declarations && tva.declarations.length > 0">
+                Le montant est calculé automatiquement à partir des déclarations sélectionnées
+              </mat-hint>
+              <mat-error *ngIf="fieldErrors.montant">{{ fieldErrors.montant }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Info box pour les déclarations -->
+          <div class="info-box" *ngIf="declarations && declarations.length > 0">
+            <mat-icon color="primary">info</mat-icon>
+            <div class="info-content">
+              <p class="info-title">Association avec des déclarations fiscales</p>
+              <p class="info-text">
+                Vous pouvez associer cette TVA à une ou plusieurs déclarations fiscales.
+                Le montant de TVA sera automatiquement calculé comme la somme des TVA dues des déclarations sélectionnées.
+              </p>
+            </div>
+          </div>
+
+          <!-- Déclarations Fiscales -->
+          <div class="form-field">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Déclarations Fiscales (optionnel)</mat-label>
+              <mat-select
+                [(ngModel)]="tva.declarations"
+                name="declarations"
+                multiple
+                (selectionChange)="onDeclarationsChange()"
+              >
+                <mat-option *ngFor="let decl of declarations" [value]="decl._id">
+                  {{ formatPeriode(decl.periode) }} ({{ decl.montantTotal | number:'1.2-2' }} DT)
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="fieldErrors.declarations">{{ fieldErrors.declarations }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Déclarations sélectionnées -->
+          <div class="selected-declarations" *ngIf="tva.declarations && tva.declarations.length > 0">
+            <h3 class="section-title">
+              <mat-icon color="primary">fact_check</mat-icon>
+              Déclarations sélectionnées ({{ tva.declarations.length }})
+            </h3>
+            <div class="declarations-list">
+              <div class="declaration-chip" *ngFor="let declId of tva.declarations">
+                {{ getDeclarationLabel(declId) }}
+                <button mat-icon-button color="warn" class="remove-button" (click)="removeDeclaration(declId)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Erreurs générales -->
+          <div *ngIf="errors.length > 0 && !fieldErrors.taux && !fieldErrors.montant && !fieldErrors.declarations" class="error-box">
+            <mat-icon color="warn">error</mat-icon>
+            <div class="error-content">
+              <p class="error-title">Erreur(s) :</p>
+              <ul class="error-list">
+                <li *ngFor="let error of errors">{{ error }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              {{ isEditMode ? 'Mettre à jour TVA' : 'Ajouter TVA' }}
+            </button>
+            <button mat-stroked-button (click)="goBack()" type="button">
+              <mat-icon>arrow_back</mat-icon>
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

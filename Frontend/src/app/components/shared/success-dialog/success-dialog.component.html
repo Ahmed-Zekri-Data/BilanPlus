@@ -1,0 +1,43 @@
+<div class="success-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="icon-container">
+      <span class="dialog-icon">{{ data.icon }}</span>
+    </div>
+    <h2 mat-dialog-title>{{ data.title }}</h2>
+  </div>
+
+  <!-- Content -->
+  <mat-dialog-content class="dialog-content">
+    <p class="main-message">{{ data.message }}</p>
+    
+    <div *ngIf="data.details" class="details-section">
+      <div class="details-content">
+        <mat-icon class="details-icon">info</mat-icon>
+        <span>{{ data.details }}</span>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <!-- Custom Actions -->
+    <div class="custom-actions" *ngIf="data.actions && data.actions.length > 0">
+      <button 
+        *ngFor="let action of data.actions"
+        mat-raised-button 
+        [color]="action.color || 'primary'"
+        (click)="onAction(action)"
+        class="action-button">
+        <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+        {{ action.label }}
+      </button>
+    </div>
+    
+    <!-- Default Close Button -->
+    <button mat-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+      Fermer
+    </button>
+  </mat-dialog-actions>
+</div>

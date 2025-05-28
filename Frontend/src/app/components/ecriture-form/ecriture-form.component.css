@@ -1,0 +1,107 @@
+.form-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: visible;
+  position: relative;
+}
+
+.form-card {
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+mat-card-header {
+  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px 12px 0 0;
+}
+
+mat-card-title {
+  color: white;
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0;
+}
+
+mat-card-content {
+  padding: 24px;
+  overflow: visible;
+  position: relative;
+}
+
+.general-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.lignes-section {
+  margin-bottom: 24px;
+}
+
+.lignes-section h3 {
+  color: #3f51b5;
+  margin-bottom: 16px;
+}
+
+.ligne-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+mat-form-field {
+  flex: 1;
+  position: relative;
+  overflow: visible;
+  margin-bottom: 15px;
+}
+
+mat-form-field .mat-mdc-select {
+  overflow: visible;
+}
+
+/* S'assurer que les form fields dans les lignes sont correctement positionnés */
+.ligne-card mat-form-field {
+  position: relative;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* Fix pour les selects dans les lignes d'écriture */
+.ligne-card .mat-mdc-select-panel {
+  z-index: 10001 !important;
+}
+
+.add-ligne-btn {
+  margin-top: 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+/* Styles pour le mat-select-panel */
+.custom-select-panel {
+  position: absolute !important;
+  top: auto !important;
+  transform: none !important;
+  max-height: 200px;
+}

@@ -1,0 +1,241 @@
+<div class="cash-flow-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Tableau de Flux de Trésorerie</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">account_balance</mat-icon>
+        Tableau de Flux de Trésorerie
+      </h1>
+      <p class="page-description">Analysez les flux de trésorerie de votre entreprise par activité.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="cashFlowForm" (ngSubmit)="generateCashFlow()" class="filters-form">
+        <div class="filters-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Date de début</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Générer
+          </button>
+          <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading">
+            <mat-icon>clear</mat-icon>
+            Réinitialiser
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="exportToPDF()"
+                  [disabled]="isLoading || !cashFlowData">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Exporter PDF
+          </button>
+        </div>
+      </form>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Génération du tableau de flux de trésorerie...</p>
+      </div>
+
+      <!-- Cash Flow Statement -->
+      <div *ngIf="!isLoading && cashFlowData" class="cash-flow-content">
+        <!-- Period Header -->
+        <div class="period-header">
+          <h2>{{ formatPeriod() }}</h2>
+        </div>
+
+        <!-- Operating Activities -->
+        <mat-card class="activity-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>business</mat-icon>
+              Flux de Trésorerie liés aux Activités Opérationnelles
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cash-flow-table">
+              <div class="cash-flow-row">
+                <span class="item-label">Résultat net</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.netIncome)">
+                  {{ formatCurrency(cashFlowData.operatingActivities.netIncome) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Amortissements et provisions</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.depreciation)">
+                  {{ formatCurrency(cashFlowData.operatingActivities.depreciation) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Variation des créances clients</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.accountsReceivableChange)">
+                  {{ formatCurrency(cashFlowData.operatingActivities.accountsReceivableChange) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Variation des dettes fournisseurs</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.accountsPayableChange)">
+                  {{ formatCurrency(cashFlowData.operatingActivities.accountsPayableChange) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Variation des stocks</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.inventoryChange)">
+                  {{ formatCurrency(cashFlowData.operatingActivities.inventoryChange) }}
+                </span>
+              </div>
+              <div class="cash-flow-row total-row">
+                <span class="item-label"><strong>Total Activités Opérationnelles</strong></span>
+                <span class="item-amount total-amount" [ngClass]="getActivityClass(cashFlowData.operatingActivities.total)">
+                  <strong>{{ formatCurrency(cashFlowData.operatingActivities.total) }}</strong>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Investing Activities -->
+        <mat-card class="activity-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>trending_up</mat-icon>
+              Flux de Trésorerie liés aux Activités d'Investissement
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cash-flow-table">
+              <div class="cash-flow-row">
+                <span class="item-label">Acquisitions d'équipements</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.investingActivities.equipmentPurchases)">
+                  {{ formatCurrency(cashFlowData.investingActivities.equipmentPurchases) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Cessions d'équipements</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.investingActivities.equipmentSales)">
+                  {{ formatCurrency(cashFlowData.investingActivities.equipmentSales) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Investissements financiers</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.investingActivities.investments)">
+                  {{ formatCurrency(cashFlowData.investingActivities.investments) }}
+                </span>
+              </div>
+              <div class="cash-flow-row total-row">
+                <span class="item-label"><strong>Total Activités d'Investissement</strong></span>
+                <span class="item-amount total-amount" [ngClass]="getActivityClass(cashFlowData.investingActivities.total)">
+                  <strong>{{ formatCurrency(cashFlowData.investingActivities.total) }}</strong>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Financing Activities -->
+        <mat-card class="activity-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>account_balance</mat-icon>
+              Flux de Trésorerie liés aux Activités de Financement
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cash-flow-table">
+              <div class="cash-flow-row">
+                <span class="item-label">Nouveaux emprunts</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.financingActivities.loanProceeds)">
+                  {{ formatCurrency(cashFlowData.financingActivities.loanProceeds) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Remboursements d'emprunts</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.financingActivities.loanRepayments)">
+                  {{ formatCurrency(cashFlowData.financingActivities.loanRepayments) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Dividendes versés</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.financingActivities.dividendsPaid)">
+                  {{ formatCurrency(cashFlowData.financingActivities.dividendsPaid) }}
+                </span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Apports en capital</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.financingActivities.capitalContributions)">
+                  {{ formatCurrency(cashFlowData.financingActivities.capitalContributions) }}
+                </span>
+              </div>
+              <div class="cash-flow-row total-row">
+                <span class="item-label"><strong>Total Activités de Financement</strong></span>
+                <span class="item-amount total-amount" [ngClass]="getActivityClass(cashFlowData.financingActivities.total)">
+                  <strong>{{ formatCurrency(cashFlowData.financingActivities.total) }}</strong>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Summary -->
+        <mat-card class="summary-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>summarize</mat-icon>
+              Résumé des Flux de Trésorerie
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cash-flow-table">
+              <div class="cash-flow-row">
+                <span class="item-label">Trésorerie en début de période</span>
+                <span class="item-amount">{{ formatCurrency(cashFlowData.beginningCash) }}</span>
+              </div>
+              <div class="cash-flow-row">
+                <span class="item-label">Variation nette de trésorerie</span>
+                <span class="item-amount" [ngClass]="getActivityClass(cashFlowData.netCashFlow)">
+                  {{ formatCurrency(cashFlowData.netCashFlow) }}
+                </span>
+              </div>
+              <div class="cash-flow-row total-row">
+                <span class="item-label"><strong>Trésorerie en fin de période</strong></span>
+                <span class="item-amount total-amount" [ngClass]="getActivityClass(cashFlowData.endingCash)">
+                  <strong>{{ formatCurrency(cashFlowData.endingCash) }}</strong>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- No Data Message -->
+      <div *ngIf="!isLoading && !cashFlowData" class="no-data">
+        <mat-icon>info</mat-icon>
+        <p>Aucune donnée disponible pour la période sélectionnée.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

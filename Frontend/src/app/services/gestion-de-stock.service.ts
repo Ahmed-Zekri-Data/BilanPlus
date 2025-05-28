@@ -3,41 +3,79 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Produit } from '../Models/Produit';
+import { MouvementStock } from '../Models/MouvementStock';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StockManagementService {
-  private apiUrl = 'http://localhost:3000/PRODUIT';
+  private produitApiUrl = 'http://localhost:3000/PRODUIT';
+  private msApiUrl = 'http://localhost:3000/MS';
 
   constructor(private http: HttpClient) {}
 
   getProduits(): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/getall`).pipe(
+    return this.http.get<Produit[]>(`${this.produitApiUrl}/`).pipe(
       catchError(this.handleError)
     );
   }
 
   getProduitById(id: string): Observable<Produit> {
-    return this.http.get<Produit>(`${this.apiUrl}/getbyid/${id}`).pipe(
+    return this.http.get<Produit>(`${this.produitApiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );
   }
 
   createProduit(produit: Produit): Observable<Produit> {
-    return this.http.post<Produit>(`${this.apiUrl}/addProduit`, produit).pipe(
+    return this.http.post<Produit>(`${this.produitApiUrl}/`, produit).pipe(
       catchError(this.handleError)
     );
   }
 
   updateProduit(produit: Produit): Observable<Produit> {
-    return this.http.put<Produit>(`${this.apiUrl}/updateproduit/${produit._id}`, produit).pipe(
+    return this.http.put<Produit>(`${this.produitApiUrl}/${produit._id}`, produit).pipe(
       catchError(this.handleError)
     );
   }
 
   deleteProduit(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/deleteproduit/${id}`).pipe(
+    return this.http.delete<void>(`${this.produitApiUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getAllStockMovements(): Observable<MouvementStock[]> {
+    return this.http.get<MouvementStock[]>(`${this.msApiUrl}/getallMS`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getStockMovementById(id: string): Observable<MouvementStock> {
+    return this.http.get<MouvementStock>(`${this.msApiUrl}/getbyid/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  createStockMovement(mouvement: MouvementStock): Observable<MouvementStock> {
+    return this.http.post<MouvementStock>(`${this.msApiUrl}/addMS`, mouvement).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateStockMovement(mouvement: MouvementStock): Observable<MouvementStock> {
+    return this.http.put<MouvementStock>(`${this.msApiUrl}/updateMS/${mouvement._id}`, mouvement).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  deleteStockMovement(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.msApiUrl}/deleteMS/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getStatistics(): Observable<{ totalStock: number, totalStockValue: number, outOfStock: number }> {
+    return this.http.get<{ totalStock: number, totalStockValue: number, outOfStock: number }>(`${this.produitApiUrl}/statistics`).pipe(
       catchError(this.handleError)
     );
   }
