@@ -8,6 +8,7 @@ html, body {
   height: 100vh; /* Utiliser 100vh pour couvrir toute la hauteur */
   background-color: #F5F5F5 !important; /* Fond gris clair */
   overflow-x: hidden; /* Éviter le défilement horizontal */
+  
 }
 
 h1, h2, h3 {
@@ -105,11 +106,6 @@ mat-card, mat-card-content, .form-container, .form-section {
 
 /* Fix pour les conteneurs de liste */
 .compte-list-container, .ecriture-list-container, .journal-container, .balance-container {
-  overflow: visible !important;
-}
-
-/* Fix pour les mat-sidenav-content */
-mat-sidenav-content {
   overflow: visible !important;
 }
 

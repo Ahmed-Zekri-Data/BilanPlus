@@ -7,7 +7,7 @@
       <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()" *appHasPermission="'gererFactures'">Fournisseurs</a>
       <a mat-list-item routerLink="/stocks" (click)="sidenav.close()" *appHasPermission="'gererTresorerie'">Stocks</a>
       <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()" *appHasPermission="'saisirEcritures'">Gestion Comptable</a>
-      <a mat-list-item routerLink="/declarations" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
+      <a mat-list-item routerLink="/DFTVA" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
       <mat-divider></mat-divider>
       <a mat-list-item routerLink="/utilisateur/profile" (click)="sidenav.close()">
         <mat-icon>account_circle</mat-icon>
@@ -30,7 +30,7 @@
         <button mat-raised-button color="accent" routerLink="/fournisseurs" *appHasPermission="'gererFactures'">Fournisseurs</button>
         <button mat-raised-button color="accent" routerLink="/stocks" *appHasPermission="'gererTresorerie'">Stocks</button>
         <button mat-raised-button color="accent" routerLink="/gestion-comptable" *appHasPermission="'saisirEcritures'">Gestion Comptable</button>
-        <button mat-raised-button color="accent" routerLink="/declarations" *appHasPermission="'genererEtatsFinanciers'">Déclarations</button>
+        <button mat-raised-button color="accent" routerLink="/DFTVA" *appHasPermission="'genererEtatsFinanciers'">Déclarations</button>
       </div>
 
       <!-- Bouton de profil utilisateur -->
