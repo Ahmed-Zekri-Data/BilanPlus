@@ -1,0 +1,28 @@
+/* Importer les styles de home.component.css si possible */
+@import '../home/home.component.css';
+
+/* Styles spécifiques pour le formulaire */
+mat-card {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Style pour la prévisualisation */
+.preview-data {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}

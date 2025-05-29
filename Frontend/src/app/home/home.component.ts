@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatSidenav } from '@angular/material/sidenav';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { AuthService } from '../services/auth.service';
 
@@ -29,6 +30,7 @@ import { AuthService } from '../services/auth.service';
   ]
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('sidenav') sidenav!: MatSidenav;
   buttonState = 'normal';
   currentUser: any = null; // Placeholder for user data
   userRole: string = 'Admin'; // Placeholder for user role
@@ -130,8 +132,6 @@ export class HomeComponent implements OnInit {
     this.userRole = 'Admin'; // Replace with actual role
   }
 
-  // La méthode toggleSidebar n'est plus nécessaire car la barre latérale est gérée par le composant SharedNavComponent
-
   onButtonClick(): void {
     this.buttonState = this.buttonState === 'normal' ? 'clicked' : 'normal';
     console.log('Button clicked, state:', this.buttonState);
@@ -156,5 +156,9 @@ export class HomeComponent implements OnInit {
 
   getTranslation(key: string): string {
     return this.translations[this.currentLanguage][key];
+  }
+
+  toggleSidenav() {
+    this.sidenav.toggle();
   }
 }

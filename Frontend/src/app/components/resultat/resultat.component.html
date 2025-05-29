@@ -1,0 +1,135 @@
+<div class="resultat-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/gestion-comptable" class="breadcrumb-link">
+          <mat-icon>arrow_back</mat-icon>
+          Gestion Comptable
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="current-page">Compte de Résultat</span>
+      </div>
+      <h1>
+        <mat-icon class="page-icon">trending_up</mat-icon>
+        Compte de Résultat
+      </h1>
+      <p class="page-description">Analysez les produits et charges pour déterminer le résultat de votre entreprise.</p>
+    </div>
+  </div>
+
+  <mat-card class="main-card">
+
+    <mat-card-content>
+      <!-- Filtres -->
+      <form [formGroup]="filtreForm" (ngSubmit)="appliquerFiltres()" class="filtres-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Date de début</mat-label>
+          <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut" required>
+          <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDebut></mat-datepicker>
+          <mat-error *ngIf="filtreForm.controls['dateDebut'].hasError('required')">
+            La date de début est requise
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Date de fin</mat-label>
+          <input matInput [matDatepicker]="pickerFin" formControlName="dateFin" required>
+          <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFin></mat-datepicker>
+          <mat-error *ngIf="filtreForm.controls['dateFin'].hasError('required')">
+            La date de fin est requise
+          </mat-error>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="filtreForm.invalid">Générer</button>
+          <button mat-raised-button color="accent" type="button" (click)="exporterPDF()">
+            <mat-icon>picture_as_pdf</mat-icon> Exporter PDF
+          </button>
+        </div>
+      </form>
+
+      <!-- Affichage du compte de résultat -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div *ngIf="!isLoading" class="resultat-content">
+        <div class="resultat-header">
+          <h2>Compte de Résultat</h2>
+          <p>Période du {{ resultat.periode.debut | date:'dd MMMM yyyy' }} au {{ resultat.periode.fin | date:'dd MMMM yyyy' }}</p>
+        </div>
+
+        <div class="resultat-columns">
+          <!-- Colonne des charges -->
+          <div class="charges-column">
+            <h3>Charges</h3>
+
+            <div class="categorie" *ngFor="let categorie of getCategoriesCharges()">
+              <div class="categorie-header">
+                <h4>{{ resultat.charges[categorie].title }}</h4>
+                <div class="categorie-total">
+                  {{ resultat.charges[categorie].total | currency:'EUR':'symbol':'1.2-2' }}
+                </div>
+              </div>
+
+              <div class="comptes">
+                <div class="compte" *ngFor="let compte of resultat.charges[categorie].comptes">
+                  <div class="compte-info">
+                    <div class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</div>
+                    <div class="compte-montant">{{ compte.solde | currency:'EUR':'symbol':'1.2-2' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="total-section">
+              <div class="total-label">Total des charges</div>
+              <div class="total-montant">{{ resultat.totalCharges | currency:'EUR':'symbol':'1.2-2' }}</div>
+            </div>
+          </div>
+
+          <!-- Colonne des produits -->
+          <div class="produits-column">
+            <h3>Produits</h3>
+
+            <div class="categorie" *ngFor="let categorie of getCategoriesProduits()">
+              <div class="categorie-header">
+                <h4>{{ resultat.produits[categorie].title }}</h4>
+                <div class="categorie-total">
+                  {{ resultat.produits[categorie].total | currency:'EUR':'symbol':'1.2-2' }}
+                </div>
+              </div>
+
+              <div class="comptes">
+                <div class="compte" *ngFor="let compte of resultat.produits[categorie].comptes">
+                  <div class="compte-info">
+                    <div class="compte-label">{{ compte.numeroCompte }} - {{ compte.nom }}</div>
+                    <div class="compte-montant">{{ compte.solde | currency:'EUR':'symbol':'1.2-2' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="total-section">
+              <div class="total-label">Total des produits</div>
+              <div class="total-montant">{{ resultat.totalProduits | currency:'EUR':'symbol':'1.2-2' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résultat net -->
+        <div class="resultat-net" [ngClass]="{'benefice': resultat.resultatNet > 0, 'perte': resultat.resultatNet < 0}">
+          <div class="resultat-net-label">
+            {{ resultat.resultatNet > 0 ? 'Bénéfice' : 'Perte' }}
+          </div>
+          <div class="resultat-net-montant">
+            {{ resultat.resultatNet | currency:'EUR':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

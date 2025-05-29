@@ -1,0 +1,84 @@
+<div class="reporting-container">
+    <!-- Section des filtres -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <label for="dateFrom">De :</label>
+        <input type="date" id="dateFrom" [(ngModel)]="filters.dateFrom" />
+      </div>
+  
+      <div class="filter-group">
+        <label for="dateTo">À :</label>
+        <input type="date" id="dateTo" [(ngModel)]="filters.dateTo" />
+      </div>
+  
+      <div class="filter-group">
+        <label for="status">Statut :</label>
+        <select id="status" [(ngModel)]="filters.status">
+          <option value="">Tous</option>
+          <option value="complété">Complété</option>
+          <option value="en attente">En attente</option>
+          <option value="en cours">En cours</option>
+        </select>
+      </div>
+  
+      <div class="filter-actions">
+        <button class="btn" (click)="applyFilters()">Filtrer</button>
+        <button class="btn" (click)="exportToCSV()">Exporter CSV</button>
+      </div>
+    </div>
+  
+    <!-- Onglets -->
+    <div class="tabs">
+      <button 
+        class="tab" 
+        [ngClass]="{ active: selectedTab === 'tab1' }" 
+        (click)="changeTab('tab1')"
+      >
+        Rapport A
+      </button>
+      <button 
+        class="tab" 
+        [ngClass]="{ active: selectedTab === 'tab2' }" 
+        (click)="changeTab('tab2')"
+      >
+        Rapport B
+      </button>
+      <button 
+        class="tab" 
+        [ngClass]="{ active: selectedTab === 'tab3' }" 
+        (click)="changeTab('tab3')"
+      >
+        Rapport C
+      </button>
+    </div>
+  
+    <!-- Liste des rapports -->
+    <div class="report-list">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Statut</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of reportData">
+            <td>{{ report.id }}</td>
+            <td>{{ report.name }}</td>
+            <td>
+              <span class="status-tag" [ngClass]="report.status.toLowerCase()">
+                {{ report.status }}
+              </span>
+            </td>
+            <td>{{ report.date | date: 'shortDate' }}</td>
+          </tr>
+          <tr *ngIf="reportData.length === 0">
+            <td colspan="4" class="no-data">Aucun rapport trouvé</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  

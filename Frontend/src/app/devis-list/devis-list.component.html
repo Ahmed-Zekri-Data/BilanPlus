@@ -1,0 +1,115 @@
+<div class="list-container">
+  <h2>Liste des Devis</h2>
+
+  <input
+    type="text"
+    [(ngModel)]="searchTerm"
+    name="search"
+    placeholder="🔍 Rechercher par référence ou client..."
+    class="search-input"
+  />
+
+  <div class="filter-section">
+    <label>Filtrer par statut:</label>
+    <select [(ngModel)]="statusFilter">
+      <option value="">Tous</option>
+      <option value="Brouillon">Brouillon</option>
+      <option value="Envoyé">Envoyé</option>
+      <option value="Accepté">Accepté</option>
+      <option value="Refusé">Refusé</option>
+    </select>
+  </div>
+
+  <table *ngIf="filteredDevis.length > 0; else noDevis" class="devis-table">
+    <thead>
+      <tr>
+        <th>Référence</th>
+        <th>Client</th>
+        <th>Date Émission</th>
+        <th>Échéance</th>
+        <th>Montant TTC</th>
+        <th>Statut</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let devis of filteredDevis; let i = index" [ngClass]="{'highlight': isHighlighted(devis)}">
+        <td>{{ devis.reference }}</td>
+        <td>{{ getClientName(devis.client) }}</td>
+        <td>{{ devis.dateEmission | date:'dd/MM/yyyy' }}</td>
+        <td>{{ devis.echeance | date:'dd/MM/yyyy' }}</td>
+        <td>{{ devis.montantTTC | currency:'DT' }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="'status-' + devis.statut.toLowerCase().replace(' ', '-')">
+            {{ devis.statut }}
+          </span>
+        </td>
+        <td class="actions-col">
+          <button class="btn view" (click)="viewDevis(i)">Détails</button>
+          <button class="btn convert" *ngIf="devis.statut === 'Accepté'" (click)="convertToFacture(i)">Convertir en Facture</button>
+          <button class="btn delete" (click)="deleteDevis(i)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noDevis>
+    <p>Aucun devis ne correspond à la recherche.</p>
+  </ng-template>
+
+  <div *ngIf="selectedDevis" class="modal">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h3>Détails du Devis - {{ selectedDevis.reference }}</h3>
+      
+      <div class="devis-details">
+        <div class="detail-section">
+          <h4>Informations Générales</h4>
+          <p><strong>Référence:</strong> {{ selectedDevis.reference }}</p>
+          <p><strong>Client:</strong> {{ getClientName(selectedDevis.client) }}</p>
+          <p><strong>Date d'émission:</strong> {{ selectedDevis.dateEmission | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Date d'échéance:</strong> {{ selectedDevis.echeance | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Statut:</strong> 
+            <span class="status-badge" [ngClass]="'status-' + selectedDevis.statut.toLowerCase().replace(' ', '-')">
+              {{ selectedDevis.statut }}
+            </span>
+          </p>
+        </div>
+        
+        <div class="detail-section">
+          <h4>Produits</h4>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Total HT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let produit of selectedDevisProduits">
+                <td>{{ produit.nom }}</td>
+                <td>{{ produit.quantite }}</td>
+                <td>{{ produit.prix | currency:'EUR' }}</td>
+                <td>{{ produit.prix * produit.quantite | currency:'EUR' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="detail-section totals">
+          <p><strong>Total HT:</strong> {{ selectedDevis.montantHT | currency:'EUR' }}</p>
+          <p><strong>TVA ({{ selectedDevis.tva }}%):</strong> {{ selectedDevis.montantTVA | currency:'EUR' }}</p>
+          <p class="grand-total"><strong>Total TTC:</strong> {{ selectedDevis.montantTTC | currency:'EUR' }}</p>
+        </div>
+
+        <div class="action-buttons">
+          <button *ngIf="selectedDevis.statut === 'Brouillon'" class="btn accept" (click)="changeDevisStatus('Accepté')">Accepter</button>
+          <button *ngIf="selectedDevis.statut === 'Brouillon'" class="btn refuse" (click)="changeDevisStatus('Refusé')">Refuser</button>
+          <button *ngIf="selectedDevis.statut === 'Accepté'" class="btn convert" (click)="convertSelectedDevisToFacture()">Convertir en Facture</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

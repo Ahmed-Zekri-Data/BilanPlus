@@ -1,0 +1,20 @@
+<div class="simple-search-container">
+  <!-- Basic Search -->
+  <div class="search-bar">
+    <input type="text"
+           [value]="currentSearchTerm"
+           (input)="onSearchInput($event)"
+           [placeholder]="placeholder"
+           class="search-input">
+
+    <button type="button" (click)="applyFilters()" class="search-button">
+      Rechercher
+    </button>
+
+    <button type="button" (click)="clearAllFilters()"
+            *ngIf="currentSearchTerm"
+            class="clear-button">
+      Effacer
+    </button>
+  </div>
+</div>

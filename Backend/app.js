@@ -14,6 +14,8 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 const Utilisateur = require('./Models/Utilisateur');
 const Role = require('./Models/Role');
+const config = require("./Config/db.json");
+// Importation des routes
 const TVArouter = require("./Routes/TVAroute");
 const Userrouter = require("./Routes/UtilisateurRoute");
 const Rolerouter = require("./Routes/RolesRoute");
@@ -24,23 +26,33 @@ const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-const AuditRouter = require("./Routes/AuditRoute");
 const { errorHandlers } = require("./MiddleWare/errorHandler");
 const nodemailer = require('nodemailer');
-
-
+const AuditRouter = require("./Routes/AuditRoute");
+const clientRoutes = require("./Routes/clientRoutes");
+const factureRoutes = require("./Routes/factureRoutes");
+const devisRoutes = require("./Routes/DevisRoute");
+const JournalRouter = require("./Routes/JournalRoute");
+const GrandLivreRouter = require("./Routes/GrandLivreRoute");
+const BalanceRouter = require("./Routes/BalanceRoute");
+const BilanRouter = require("./Routes/BilanRoute");
+const ResultatRouter = require("./Routes/ResultatRoute");
+const DashboardRouter = require("./Routes/DashboardRoute");
+const AdvancedReportsRouter = require("./Routes/AdvancedReportsRoute");
+const froutes = require("./Routes/fiscaliteRoutes");
 
 mongoose
-  .connect(process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/BilanPlus')
+.connect(process.env.MONGODB_URL || config.url || 'mongodb://127.0.0.1:27017/BilanPlus')
   .then(async () => {
-    console.log("Database connected");
+    console.log("✅ Database connected successfully");
     await initializeRolesAndAdmin();
   })
-  .catch((err) => console.error("Database not connected:", err));
+  .catch((err) => console.error("❌ Database connection failed:", err));
 
 async function initializeRolesAndAdmin() {
   try {
     console.log('Début de initializeRolesAndAdmin()');
+
     // Créer les rôles par défaut
     await Role.createDefaultRoles();
     console.log('Rôles par défaut créés ou vérifiés');
@@ -51,7 +63,7 @@ async function initializeRolesAndAdmin() {
       throw new Error('Rôle Administrateur Système non trouvé après création');
     }
 
-    // Forcer la recréation de admin@bilanplus.com
+    // Supprimer et recréer admin@bilanplus.com
     await Utilisateur.deleteOne({ email: 'admin@bilanplus.com' });
     console.log('Ancien utilisateur admin@bilanplus.com supprimé (s\'il existait)');
 
@@ -67,6 +79,7 @@ async function initializeRolesAndAdmin() {
       dateCreation: new Date(),
       preferences: { theme: 'light', langue: 'fr', notificationsEmail: true }
     });
+
     await admin.save();
     console.log('Utilisateur admin@bilanplus.com créé avec succès');
   } catch (err) {
@@ -75,16 +88,13 @@ async function initializeRolesAndAdmin() {
 }
 
 const app = express();
-
 app.use(cors({
   origin: 'http://localhost:4200',
 }));
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
-
 app.use(bodyParser.json());
-
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/roles", Rolerouter);
@@ -93,10 +103,24 @@ app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
 app.use("/MS", MSrouter);
+app.use("/DF", DFrouter);
 app.use("/produits", PRODrouter);
+app.use("/comptes", CompteRouter);
+app.use("/ecritures", EcritureRouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/audit", AuditRouter);
+app.use("/clients", clientRoutes);
+app.use("/factures", factureRoutes);
+app.use("/devis", devisRoutes);
+app.use("/journal", JournalRouter);
+app.use("/grand-livre", GrandLivreRouter);
+app.use("/balance", BalanceRouter);
+app.use("/bilan", BilanRouter);
+app.use("/resultat", ResultatRouter);
+app.use("/dashboard", DashboardRouter);
+app.use("/reports", AdvancedReportsRouter);
+app.use("/fiscalite", froutes);
 
 // Configuration du transporteur email
 const transporter = nodemailer.createTransport({
@@ -148,7 +172,7 @@ app.use(errorHandlers);
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
-// Gestion des erreurs du serveur
+
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
     console.error(`❌ Le port ${PORT} est déjà utilisé.`);
@@ -172,6 +196,7 @@ server.on('error', (error) => {
 server.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
+
 });
 
 module.exports = app;

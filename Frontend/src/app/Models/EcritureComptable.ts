@@ -1,7 +1,7 @@
 import { CompteComptable } from './CompteComptable';
 
 export interface LigneEcriture {
-  compte: string;
+  compte: any;
   montant: number;
   nature: 'débit' | 'crédit';
   _id?: string;
@@ -15,3 +15,4 @@ export interface EcritureComptable {
   createdAt?: string;
   updatedAt?: string;
 }
+ 

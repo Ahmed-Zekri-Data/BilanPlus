@@ -2,32 +2,32 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const DeclarationFiscaleSchema = new Schema({
-    periode: { 
-        type: String, 
-        required: [true, "La période est obligatoire"], 
-        match: [/^\d{4}-(0[1-9]|1[0-2])$/, "La période doit être au format YYYY-MM (ex. 2025-03)"]
-    },
-    montantTotal: { 
-        type: Number, 
-        required: [true, "Le montant total est obligatoire"], 
-        validate: {
-            validator: function(v) {
-                return v >= 0;
-            },
-            message: "Le montant total ne peut pas être négatif"
-        }
-    },
+    periode: { type: String, required: true },
+    montantTotal: { type: Number, required: true },
     statut: { 
         type: String, 
-        required: [true, "Le statut est obligatoire"], 
-        enum: ["brouillon", "soumis", "payé", "rejeté"]
+        required: true, 
+        enum: ["brouillon", "soumise", "validée", "payé", "rejeté"]
     },
-    compteComptable: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "CompteComptable", 
-        required: [false, "Le compte comptable est obligatoire"]
+    compteComptable: { type: mongoose.Schema.Types.ObjectId, ref: "CompteComptable", required: true },
+    type: { 
+        type: String, 
+        required: true, 
+        enum: ["mensuelle", "trimestrielle", "annuelle"] 
+    },
+    totalTVACollectee: { type: Number, required: true, default: 0 },
+    totalTVADeductible: { type: Number, required: true, default: 0 },
+    totalTVADue: { type: Number, required: true, default: 0 },
+    totalTCL: { type: Number, required: true, default: 0 },
+    totalDroitTimbre: { type: Number, required: true, default: 0 },
+    dateCreation: { type: Date, default: Date.now },
+    dateSoumission: { type: Date },
+    penalites: {
+        estEnRetard: { type: Boolean, default: false },
+        retardJours: { type: Number, default: 0 },
+        tauxPenalite: { type: Number, default: 0 },
+        montantPenalite: { type: Number, default: 0 }
     }
 });
 
-// Vérifie si le modèle existe déjà, sinon le crée
 module.exports = mongoose.models.DeclarationFiscale || mongoose.model("DeclarationFiscale", DeclarationFiscaleSchema);

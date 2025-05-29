@@ -1,8 +1,258 @@
-<div class="gestion-comptable-container">
-  <h1>Gestion Comptable</h1>
-  <div class="navigation-buttons">
-    <button mat-raised-button color="primary" routerLink="/gestion-comptable/comptes">Gérer les Comptes</button>
-    <button mat-raised-button color="primary" routerLink="/gestion-comptable/ecritures">Gérer les Écritures</button>
-  </div>
-  <router-outlet></router-outlet>
-</div>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="over" class="sidenav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/gestion-comptable/dashboard" (click)="sidenav.close()">
+        <mat-icon matListIcon>dashboard</mat-icon>
+        <span>Tableau de Bord</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/comptes" (click)="sidenav.close()">
+        <mat-icon matListIcon>account_balance_wallet</mat-icon>
+        <span>Plan Comptable</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/ecritures" (click)="sidenav.close()">
+        <mat-icon matListIcon>post_add</mat-icon>
+        <span>Écritures Comptables</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/journal" (click)="sidenav.close()">
+        <mat-icon matListIcon>assignment</mat-icon>
+        <span>Journal Comptable</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/grand-livre" (click)="sidenav.close()">
+        <mat-icon matListIcon>book</mat-icon>
+        <span>Grand Livre</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/balance" (click)="sidenav.close()">
+        <mat-icon matListIcon>balance</mat-icon>
+        <span>Balance Comptable</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/bilan" (click)="sidenav.close()">
+        <mat-icon matListIcon>insert_chart</mat-icon>
+        <span>Bilan Comptable</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/resultat" (click)="sidenav.close()">
+        <mat-icon matListIcon>trending_up</mat-icon>
+        <span>Compte de Résultat</span>
+      </a>
+      <mat-divider></mat-divider>
+      <div class="sidebar-section-header">
+        <h3>Rapports Avancés</h3>
+      </div>
+      <a mat-list-item routerLink="/gestion-comptable/cash-flow" (click)="sidenav.close()">
+        <mat-icon matListIcon>account_balance</mat-icon>
+        <span>Flux de Trésorerie</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/financial-ratios" (click)="sidenav.close()">
+        <mat-icon matListIcon>analytics</mat-icon>
+        <span>Ratios Financiers</span>
+      </a>
+      <a mat-list-item routerLink="/gestion-comptable/comparative-reports" (click)="sidenav.close()">
+        <mat-icon matListIcon>compare_arrows</mat-icon>
+        <span>Rapports Comparatifs</span>
+      </a>
+      <mat-divider></mat-divider>
+      <a mat-list-item routerLink="/" (click)="sidenav.close()">
+        <mat-icon matListIcon>home</mat-icon>
+        <span>Retour à l'accueil</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <!-- Navbar -->
+    <mat-toolbar class="bilan-gradient">
+      <button mat-icon-button class="menu-button" (click)="sidenav.toggle()" aria-label="Menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo">
+      <span class="page-title">Gestion Comptable</span>
+      <span class="spacer"></span>
+      <div class="desktop-nav">
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          Dashboard
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/comptes">
+          <mat-icon>account_balance_wallet</mat-icon>
+          Comptes
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/ecritures">
+          <mat-icon>post_add</mat-icon>
+          Écritures
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/journal">
+          <mat-icon>assignment</mat-icon>
+          Journal
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/grand-livre">
+          <mat-icon>book</mat-icon>
+          Grand Livre
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/balance">
+          <mat-icon>balance</mat-icon>
+          Balance
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/bilan">
+          <mat-icon>insert_chart</mat-icon>
+          Bilan
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/resultat">
+          <mat-icon>trending_up</mat-icon>
+          Résultat
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/cash-flow">
+          <mat-icon>account_balance</mat-icon>
+          Cash Flow
+        </button>
+        <button mat-raised-button color="accent" routerLink="/gestion-comptable/financial-ratios">
+          <mat-icon>analytics</mat-icon>
+          Ratios
+        </button>
+        <button mat-raised-button color="primary" routerLink="/">
+          <mat-icon>home</mat-icon>
+          Accueil
+        </button>
+      </div>
+    </mat-toolbar>
+
+    <!-- Main Content -->
+    <div class="gestion-comptable-container">
+      <div class="intro-section" *ngIf="!hasChildRoute">
+        <h1>Gestion Comptable avec Bilan+</h1>
+        <p>Bienvenue dans le module de gestion comptable de Bilan+. Ici, vous pouvez gérer vos comptes, écritures et consulter vos états financiers.</p>
+      </div>
+
+      <div class="navigation-section" *ngIf="!hasChildRoute">
+        <mat-card class="nav-card" routerLink="dashboard">
+          <mat-card-content>
+            <mat-icon class="nav-icon">dashboard</mat-icon>
+            <mat-card-title>Tableau de Bord</mat-card-title>
+            <p>Vue d'ensemble de la situation comptable.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+        <mat-card class="nav-card" routerLink="comptes">
+          <mat-card-content>
+            <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+            <mat-card-title>Plan Comptable</mat-card-title>
+            <p>Gérer les comptes comptables, créer, modifier et supprimer des comptes.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="ecritures">
+          <mat-card-content>
+            <mat-icon class="nav-icon">post_add</mat-icon>
+            <mat-card-title>Écritures Comptables</mat-card-title>
+            <p>Saisir et gérer les écritures comptables, débits et crédits.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="journal">
+          <mat-card-content>
+            <mat-icon class="nav-icon">assignment</mat-icon>
+            <mat-card-title>Journal Comptable</mat-card-title>
+            <p>Consulter le journal chronologique des écritures comptables.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="grand-livre">
+          <mat-card-content>
+            <mat-icon class="nav-icon">book</mat-icon>
+            <mat-card-title>Grand Livre</mat-card-title>
+            <p>Visualiser le grand livre détaillant les mouvements par compte.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="balance">
+          <mat-card-content>
+            <mat-icon class="nav-icon">balance</mat-icon>
+            <mat-card-title>Balance Comptable</mat-card-title>
+            <p>Consulter la synthèse des soldes de tous les comptes.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="bilan">
+          <mat-card-content>
+            <mat-icon class="nav-icon">insert_chart</mat-icon>
+            <mat-card-title>Bilan Comptable</mat-card-title>
+            <p>Générer l'état de situation financière de l'entreprise.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card" routerLink="resultat">
+          <mat-card-content>
+            <mat-icon class="nav-icon">trending_up</mat-icon>
+            <mat-card-title>Compte de Résultat</mat-card-title>
+            <p>Analyser les produits et charges pour déterminer le résultat.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary">Accéder</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Advanced Reports Section -->
+        <div class="section-divider">
+          <h2>Rapports Avancés</h2>
+          <p>Analyses financières approfondies et rapports comparatifs</p>
+        </div>
+
+        <mat-card class="nav-card advanced-card" routerLink="cash-flow">
+          <mat-card-content>
+            <mat-icon class="nav-icon">account_balance</mat-icon>
+            <mat-card-title>Tableau de Flux de Trésorerie</mat-card-title>
+            <p>Analysez les flux de trésorerie par activité (opérationnelle, investissement, financement).</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="accent">Générer</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card advanced-card" routerLink="financial-ratios">
+          <mat-card-content>
+            <mat-icon class="nav-icon">analytics</mat-icon>
+            <mat-card-title>Ratios Financiers</mat-card-title>
+            <p>Calculez et analysez les ratios de liquidité, rentabilité, solvabilité et efficacité.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="accent">Calculer</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="nav-card advanced-card" routerLink="comparative-reports">
+          <mat-card-content>
+            <mat-icon class="nav-icon">compare_arrows</mat-icon>
+            <mat-card-title>Rapports Comparatifs</mat-card-title>
+            <p>Comparez les performances sur différentes périodes (année, mois, trimestre).</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="accent">Comparer</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Router Outlet for Child Components -->
+      <div class="content-section">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

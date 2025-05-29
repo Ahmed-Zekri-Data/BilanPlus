@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CompteComptableService } from '../../compte-comptable.service';
 import { CompteComptable } from '../../Models/CompteComptable';
-import { MatSnackBar } from '@angular/material/snack-bar'; // Ajout
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-compte-form',
@@ -44,27 +44,63 @@ import { MatSnackBar } from '@angular/material/snack-bar'; // Ajout
   `,
   styles: [`
     .compte-form-card {
-      max-width: 400px;
+      max-width: 500px;
       margin: 20px auto;
-      background-color: var(--card-background, #fff);
-      color: var(--text-color, #000);
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: visible;
+      position: relative;
+      z-index: 1;
     }
 
     mat-form-field {
       width: 100%;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow: visible;
+    }
+
+    mat-form-field .mat-mdc-select {
+      overflow: visible;
     }
 
     .error-message {
-      color: red;
-      margin-bottom: 10px;
+      color: #d32f2f;
+      margin-bottom: 15px;
       text-align: center;
+      padding: 10px;
+      background-color: #ffebee;
+      border-radius: 4px;
+      border-left: 4px solid #d32f2f;
     }
 
     mat-card-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 12px;
+      padding: 20px;
+      background-color: #fafafa;
+      margin: 0 -24px -24px -24px;
+      border-radius: 0 0 12px 12px;
+    }
+
+    mat-card-content {
+      padding: 24px;
+      overflow: visible;
+    }
+
+    mat-card-title {
+      color: #1E3A8A;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding: 20px 24px 0 24px;
+    }
+
+    form {
+      overflow: visible;
+      position: relative;
     }
   `]
 })
@@ -77,7 +113,7 @@ export class CompteFormComponent {
 
   constructor(
     private compteService: CompteComptableService,
-    private snackBar: MatSnackBar // Ajout
+    private notificationService: NotificationService
   ) {}
 
   onSubmit() {
@@ -85,25 +121,35 @@ export class CompteFormComponent {
     if (this.compte._id) {
       this.compteService.updateCompte(this.compte._id, this.compte).subscribe({
         next: (data) => {
-          this.snackBar.open('Compte mis à jour avec succès !', 'OK', { duration: 3000 });
+          this.notificationService.showCompteUpdated(data);
           this.saved.emit(data);
         },
         error: (err) => {
           console.error('Erreur lors de la mise à jour:', err);
           this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour du compte.';
-          this.snackBar.open(this.errorMessage, 'Fermer', { duration: 5000 });
+          this.notificationService.showError({
+            title: 'Erreur de mise à jour',
+            message: 'Impossible de mettre à jour le compte',
+            details: this.errorMessage,
+            icon: '❌'
+          });
         }
       });
     } else {
       this.compteService.createCompte(this.compte).subscribe({
         next: (data) => {
-          this.snackBar.open('Compte créé avec succès !', 'OK', { duration: 3000 });
+          this.notificationService.showCompteCreated(data);
           this.saved.emit(data);
         },
         error: (err) => {
           console.error('Erreur lors de la création:', err);
           this.errorMessage = err.error?.message || 'Erreur lors de la création du compte.';
-          this.snackBar.open(this.errorMessage, 'Fermer', { duration: 5000 });
+          this.notificationService.showError({
+            title: 'Erreur de création',
+            message: 'Impossible de créer le compte',
+            details: this.errorMessage,
+            icon: '❌'
+          });
         }
       });
     }
