@@ -11,10 +11,14 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt');
-const Utilisateur = require('./Models/Utilisateur');
-const Role = require('./Models/Role');
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+
+const Utilisateur = require("./Models/Utilisateur");
+const Role = require("./Models/Role");
 const config = require("./Config/db.json");
+const { errorHandlers } = require("./MiddleWare/errorHandler");
+
 // Importation des routes
 const TVArouter = require("./Routes/TVAroute");
 const Userrouter = require("./Routes/UtilisateurRoute");
@@ -26,8 +30,6 @@ const CompteRouter = require("./Routes/CompteRoute");
 const EcritureRouter = require("./Routes/EcritureRoute");
 const fournisseurRoutes = require("./Routes/fournisseurRoutes");
 const commandeRoutes = require("./Routes/commandesRoutes");
-const { errorHandlers } = require("./MiddleWare/errorHandler");
-const nodemailer = require('nodemailer');
 const AuditRouter = require("./Routes/AuditRoute");
 const clientRoutes = require("./Routes/clientRoutes");
 const factureRoutes = require("./Routes/factureRoutes");
@@ -41,60 +43,59 @@ const DashboardRouter = require("./Routes/DashboardRoute");
 const AdvancedReportsRouter = require("./Routes/AdvancedReportsRoute");
 const froutes = require("./Routes/fiscaliteRoutes");
 
+const app = express();
+
+// Connexion à MongoDB
 mongoose
-.connect(process.env.MONGODB_URL || config.url || 'mongodb://127.0.0.1:27017/BilanPlus')
+  .connect(process.env.MONGODB_URL || config.url || "mongodb://127.0.0.1:27017/BilanPlus")
   .then(async () => {
     console.log("✅ Database connected successfully");
     await initializeRolesAndAdmin();
   })
   .catch((err) => console.error("❌ Database connection failed:", err));
 
+// Initialisation des rôles et de l'utilisateur admin
 async function initializeRolesAndAdmin() {
   try {
-    console.log('Début de initializeRolesAndAdmin()');
-
-    // Créer les rôles par défaut
+    console.log("Début de initializeRolesAndAdmin()");
     await Role.createDefaultRoles();
-    console.log('Rôles par défaut créés ou vérifiés');
+    console.log("Rôles par défaut créés ou vérifiés");
 
-    // Créer l'utilisateur admin
-    let adminRole = await Role.findOne({ nom: 'Administrateur Système' });
+    let adminRole = await Role.findOne({ nom: "Administrateur Système" });
     if (!adminRole) {
-      throw new Error('Rôle Administrateur Système non trouvé après création');
+      throw new Error("Rôle Administrateur Système non trouvé après création");
     }
 
-    // Supprimer et recréer admin@bilanplus.com
-    await Utilisateur.deleteOne({ email: 'admin@bilanplus.com' });
-    console.log('Ancien utilisateur admin@bilanplus.com supprimé (s\'il existait)');
+    await Utilisateur.deleteOne({ email: "admin@bilanplus.com" });
+    console.log("Ancien utilisateur admin@bilanplus.com supprimé (s'il existait)");
 
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash("admin123", 10);
     const admin = new Utilisateur({
-      nom: 'Admin',
-      prenom: 'Super',
-      email: 'admin@bilanplus.com',
+      nom: "Admin",
+      prenom: "Super",
+      email: "admin@bilanplus.com",
       password: hashedPassword,
       role: adminRole._id,
       actif: true,
       tentativesConnexion: 0,
       dateCreation: new Date(),
-      preferences: { theme: 'light', langue: 'fr', notificationsEmail: true }
+      preferences: { theme: "light", langue: "fr", notificationsEmail: true },
     });
 
     await admin.save();
-    console.log('Utilisateur admin@bilanplus.com créé avec succès');
+    console.log("Utilisateur admin@bilanplus.com créé avec succès");
   } catch (err) {
-    console.error('Erreur lors de l\'initialisation:', err);
+    console.error("Erreur lors de l'initialisation:", err);
   }
 }
 
-const app = express();
-app.use(cors({
-  origin: 'http://localhost:4200',
-}));
-
+// Configuration express
+app.use(cors({ origin: "http://localhost:4200" }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 app.use(bodyParser.json());
+
+// Routes API
 app.use("/TVA", TVArouter);
 app.use("/user", Userrouter);
 app.use("/roles", Rolerouter);
@@ -102,11 +103,8 @@ app.use("/DF", DFrouter);
 app.use("/comptes", CompteRouter);
 app.use("/ecritures", EcritureRouter);
 app.use("/PRODUIT", PRODrouter);
-app.use("/MS", MSrouter);
-app.use("/DF", DFrouter);
 app.use("/produits", PRODrouter);
-app.use("/comptes", CompteRouter);
-app.use("/ecritures", EcritureRouter);
+app.use("/MS", MSrouter);
 app.use("/fournisseurs", fournisseurRoutes);
 app.use("/commandes", commandeRoutes);
 app.use("/audit", AuditRouter);
@@ -122,73 +120,64 @@ app.use("/dashboard", DashboardRouter);
 app.use("/reports", AdvancedReportsRouter);
 app.use("/fiscalite", froutes);
 
-// Configuration du transporteur email
+// Route pour envoi d'e-mail
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER || 'votre.email@gmail.com',
-    pass: process.env.EMAIL_PASS || 'votre-mot-de-passe-app'
+    user: process.env.EMAIL_USER || "votre.email@gmail.com",
+    pass: process.env.EMAIL_PASS || "votre-mot-de-passe-app"
   }
 });
 
-// Route pour envoyer l'email de réinitialisation
-app.post('/api/send-email', async (req, res) => {
+app.post("/api/send-email", async (req, res) => {
   try {
     const { to, subject, text, html } = req.body;
-
-    console.log('Envoi d\'email vers:', to);
+    console.log("Envoi d'email vers:", to);
 
     const mailOptions = {
       from: '"Bilan+" <noreply@bilanplus.com>',
-      to: to,
-      subject: subject,
-      text: text,
-      html: html
+      to,
+      subject,
+      text,
+      html,
     };
 
     const result = await transporter.sendMail(mailOptions);
-
-    console.log('Email envoyé avec succès:', result.messageId);
+    console.log("Email envoyé avec succès:", result.messageId);
 
     res.json({
       success: true,
       message: `Email envoyé avec succès à ${to}`,
-      messageId: result.messageId
+      messageId: result.messageId,
     });
-
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
-
+    console.error("Erreur lors de l'envoi de l'email:", error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'envoi de l\'email: ' + error.message,
-      error: error.message
+      message: "Erreur lors de l'envoi de l'email: " + error.message,
+      error: error.message,
     });
   }
 });
 
+// Middleware d’erreurs global
 app.use(errorHandlers);
 
+// Création et lancement du serveur
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
-
-server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
     console.error(`❌ Le port ${PORT} est déjà utilisé.`);
-    console.log('🔍 Recherche d\'un port disponible...');
-
-    // Essayer le port suivant
-    const newPort = PORT + 1;
+    const newPort = parseInt(PORT) + 1;
     console.log(`🔄 Tentative sur le port ${newPort}...`);
-
     server.listen(newPort, () => {
       console.log(`✅ Serveur démarré sur le port ${newPort}`);
       console.log(`🌐 URL: http://localhost:${newPort}`);
-      console.log(`⚠️  IMPORTANT: Mettez à jour l'URL frontend vers http://localhost:${newPort}`);
     });
   } else {
-    console.error('❌ Erreur du serveur:', error.message);
+    console.error("❌ Erreur du serveur:", error.message);
     process.exit(1);
   }
 });
@@ -196,7 +185,6 @@ server.on('error', (error) => {
 server.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
-
 });
 
 module.exports = app;
