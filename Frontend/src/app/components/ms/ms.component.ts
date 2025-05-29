@@ -5,8 +5,9 @@ import { Produit } from '../../Models/Produit';
 import { ActivatedRoute } from '@angular/router';
 import * as ExcelJS from 'exceljs';
 import * as FileSaver from 'file-saver'; // Keep this import
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 
 @Component({
   selector: 'app-ms',
@@ -328,29 +329,29 @@ export class MSComponent implements OnInit {
     });
   }
 
-  exportToPDF(): void {
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
+ exportToPDF(): void {
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
-    (pdf as any).autoTable({
-      head: [['Produit', 'Type', 'Quantité', 'Date', 'Alerte']],
-      body: this.stockMovements.map(movement => [
-        this.getProduitNom(movement.produit),
-        movement.type?.toUpperCase(),
-        movement.quantite,
-        new Date(movement.date).toLocaleString(),
-        this.isLowStock(movement) ? 'Oui' : 'Non'
-      ]),
-      startY: 10,
-      margin: { top: 10, left: 10, right: 10, bottom: 10 },
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
-      alternateRowStyles: { fillColor: [240, 240, 240] }
-    });
+  autoTable(pdf, {
+    head: [['Produit', 'Type', 'Quantité', 'Date', 'Alerte']],
+    body: this.stockMovements.map(movement => [
+      this.getProduitNom(movement.produit),
+      movement.type?.toUpperCase(),
+      movement.quantite,
+      new Date(movement.date).toLocaleString(),
+      this.isLowStock(movement) ? 'Oui' : 'Non'
+    ]),
+    startY: 10,
+    margin: { top: 10, left: 10, right: 10, bottom: 10 },
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
+    alternateRowStyles: { fillColor: [240, 240, 240] }
+  });
 
-    pdf.save(`Mouvements_Stock_${new Date().toISOString().split('T')[0]}.pdf`);
-  }
+  pdf.save(`Mouvements_Stock_${new Date().toISOString().split('T')[0]}.pdf`);
+}
 }

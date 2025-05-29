@@ -5,9 +5,10 @@
       <a mat-list-item routerLink="/roles" (click)="sidenav.close()" *appHasPermission="'gererUtilisateursEtRoles'">Rôles</a>
       <a mat-list-item routerLink="/facturation" (click)="sidenav.close()" *appHasPermission="'gererFactures'">Facturation</a>
       <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()" *appHasPermission="'gererFactures'">Fournisseurs</a>
-      <a mat-list-item routerLink="/stocks" (click)="sidenav.close()" *appHasPermission="'gererTresorerie'">Stocks</a>
+      <a mat-list-item routerLink="/produit" (click)="sidenav.close()" *appHasPermission="'gererTresorerie'">Produit</a>
       <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()" *appHasPermission="'saisirEcritures'">Gestion Comptable</a>
       <a mat-list-item routerLink="/DFTVA" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
+      <a mat-list-item routerLink="/" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
       <mat-divider></mat-divider>
       <a mat-list-item routerLink="/utilisateur/profile" (click)="sidenav.close()">
         <mat-icon>account_circle</mat-icon>
@@ -28,7 +29,7 @@
         <button mat-raised-button color="accent" routerLink="/roles" *appHasPermission="'gererUtilisateursEtRoles'">Rôles</button>
         <button mat-raised-button color="accent" routerLink="/facturation" *appHasPermission="'gererFactures'">Facturation</button>
         <button mat-raised-button color="accent" routerLink="/fournisseurs" *appHasPermission="'gererFactures'">Fournisseurs</button>
-        <button mat-raised-button color="accent" routerLink="/stocks" *appHasPermission="'gererTresorerie'">Stocks</button>
+        <button mat-raised-button color="accent" routerLink="/produit" *appHasPermission="'gererTresorerie'">Produit</button>
         <button mat-raised-button color="accent" routerLink="/gestion-comptable" *appHasPermission="'saisirEcritures'">Gestion Comptable</button>
         <button mat-raised-button color="accent" routerLink="/DFTVA" *appHasPermission="'genererEtatsFinanciers'">Déclarations</button>
       </div>

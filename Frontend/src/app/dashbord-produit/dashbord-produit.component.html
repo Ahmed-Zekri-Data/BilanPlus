@@ -1,0 +1,74 @@
+<mat-sidenav-container>
+    <mat-sidenav-content>
+     
+  
+      <div class="dashboard-section" @fadeIn>
+        <div class="dashboard-content">
+          <h1 style="color: #1E3A8A;">Tableau de Bord des Stocks</h1>
+          <p style="color: #D4AF37;">Visualisez vos statistiques de stock en temps réel</p>
+        </div>
+      </div>
+  
+      <div class="stats-section">
+        <div class="stats-grid">
+          <mat-card class="stat-card" @slideIn *ngIf="statistics">
+            <mat-card-title>Stock Total 🛒</mat-card-title>
+            <mat-card-content>
+              <p>{{ statistics.totalStock }} unités</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button color="primary" routerLink="/produit" [@buttonClick]="buttonState" (click)="onButtonClick()">Voir les Produits</button>
+            </mat-card-actions>
+          </mat-card>
+          <mat-card class="stat-card" @slideIn *ngIf="statistics">
+            <mat-card-title>Valeur Totale 💰</mat-card-title>
+            <mat-card-content>
+              <p>{{ statistics.totalStockValue | currency:'EUR' }}</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button color="primary" routerLink="/produit" [@buttonClick]="buttonState" (click)="onButtonClick()">Voir les Produits</button>
+            </mat-card-actions>
+          </mat-card>
+          <mat-card class="stat-card" @slideIn *ngIf="statistics">
+            <mat-card-title>Ruptures de Stock ⚠️</mat-card-title>
+            <mat-card-content>
+              <p>{{ statistics.outOfStock }} produits</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button color="primary" routerLink="/produit" [@buttonClick]="buttonState" (click)="onButtonClick()">Gérer les Stocks</button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+  
+      <div class="chart-section" @slideIn>
+        <mat-card class="chart-card">
+          <mat-card-title>Visualisation des Statistiques</mat-card-title>
+          <mat-card-content>
+            <canvas baseChart
+                    [data]="barChartData"
+                    [options]="barChartOptions"
+                    [type]="barChartType">
+            </canvas>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <footer class="footer">
+        <p>© 2025 Bilan+ - Tous droits réservés</p>
+      </footer>
+    </mat-sidenav-content>
+  
+    <mat-sidenav #sidenav mode="over" class="sidenav">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/dashboard" (click)="sidenav.close()">Tableau de Bord produit</a>
+        <a mat-list-item routerLink="/utilisateurs" (click)="sidenav.close()">Utilisateurs</a>
+        <a mat-list-item routerLink="/facturation" (click)="sidenav.close()">Facturation</a>
+        <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()">Fournisseurs</a>
+        <a mat-list-item routerLink="/produit" (click)="sidenav.close()">Gérer Produit</a>
+        <a mat-list-item routerLink="/stock-movements" (click)="sidenav.close()">Mouvement de Stock</a>
+        <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()">Gestion Comptable</a>
+        <a mat-list-item routerLink="/declarations" (click)="sidenav.close()">Déclarations</a>
+      </mat-nav-list>
+    </mat-sidenav>
+  </mat-sidenav-container>

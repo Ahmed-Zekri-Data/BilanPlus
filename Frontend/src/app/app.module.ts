@@ -113,6 +113,7 @@ import { DevisListComponent } from './devis-list/devis-list.component';
 import { FactureListComponent } from './facture-list/facture-list.component';
 import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
 import { ReportingComponent } from './reporting/reporting.component';
+import { StockDashboardComponent} from './dashbord-produit/dashbord-produit.component';
 
 
 @NgModule({
@@ -183,7 +184,8 @@ import { ReportingComponent } from './reporting/reporting.component';
     DevisListComponent,
     FactureListComponent,
     RelanceAutomationComponent,
-    ReportingComponent
+    ReportingComponent,
+    StockDashboardComponent
   ],
   imports: [
     BrowserModule,

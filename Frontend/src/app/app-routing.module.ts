@@ -23,6 +23,8 @@ import { TestDebugComponent } from './components/test-debug/test-debug.component
 // Stock
 import { MSComponent } from './components/ms/ms.component';
 import { ProduitComponent } from './components/produit.component';
+import { StockDashboardComponent } from './dashbord-produit/dashbord-produit.component';
+
 
 // Utilisateurs / Rôles
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
@@ -70,12 +72,13 @@ import { UtilisateurDashboardComponent } from './components/utilisateur-dashboar
 import { UtilisateurActivityComponent } from './components/utilisateur-activity/utilisateur-activity.component'; // Assuming UtilisateurActivityComponent is needed
 
 
+
 const routes: Routes = [
   { path: '', component: HomeComponent }, // Default route from Main
   { path: 'login', component: LoginComponent }, // From HEAD
   { path: 'forgot-password', component: ForgotPasswordComponent }, // From HEAD
   { path: 'reset-password', component: ResetPasswordComponent }, // From HEAD
-
+   { path: 'dashboard', component: StockDashboardComponent },
   // Gestion comptable
   {
     path: 'gestion-comptable',

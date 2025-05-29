@@ -11,8 +11,14 @@
         class="search-input"
       />
     </div>
+
     <div class="action-buttons">
       <button (click)="openAddProduitForm()" class="btn btn-success">Ajouter un produit</button>
+
+      <a routerLink="/dashboard" class="btn btn-warning">
+        <i class="fas fa-chart-line"></i> Dashboard
+      </a>
+
       <a routerLink="/home" class="btn btn-primary">
         <i class="fas fa-home"></i>
       </a>
