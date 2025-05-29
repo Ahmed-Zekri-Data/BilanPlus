@@ -21,7 +21,7 @@ export interface EmailResponse {
   providedIn: 'root'
 })
 export class EmailService {
-  // Configuration pour EmailJS (API gratuite et fiable) Oussema
+  // Configuration pour EmailJS (API gratuite et fiable) Oussema *2
   private emailJSConfig = {
     // Clés EmailJS réelles et fonctionnelles
     serviceId: 'service_bilan_plus',      // Service Gmail configuré
