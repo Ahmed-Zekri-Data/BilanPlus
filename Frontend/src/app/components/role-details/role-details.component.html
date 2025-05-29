@@ -1,30 +1,192 @@
-<div class="container mt-4">
-    <h1>Détails du rôle</h1>
-  
-    <!-- Message d'erreur -->
-    <div class="alert alert-danger" *ngIf="errorMessage">
-      {{ errorMessage }}
+<div class="role-details-container">
+  <div class="role-details-header">
+    <h1>Détails du Rôle</h1>
+    <div class="header-actions">
+      <button mat-raised-button color="basic" (click)="goBack()">
+        <mat-icon>home</mat-icon> Retour à l'accueil
+      </button>
+      <button mat-raised-button color="primary" [routerLink]="['/roles']">
+        <mat-icon>arrow_back</mat-icon> Retour aux rôles
+      </button>
+      <button mat-raised-button color="accent" [routerLink]="['/roles/edit', role?._id]">
+        <mat-icon>edit</mat-icon> Modifier
+      </button>
+      <button mat-raised-button color="warn" (click)="deleteRole()">
+        <mat-icon>delete</mat-icon> Supprimer
+      </button>
     </div>
-  
-    <!-- Détails du rôle -->
-    <div class="card" *ngIf="role">
-      <div class="card-body">
-        <h5 class="card-title">{{ role.nom }}</h5> <!-- Remplacé role?.nom par role.nom -->
-        <div class="card-text">
-          <p><strong>Permissions :</strong> {{ role.permissions ? role.permissions.join(', ') : 'Aucune permission' }}</p> <!-- Ajout d'une vérification -->
-          <p><strong>ID :</strong> {{ role._id }}</p> <!-- Remplacé role?._id par role._id -->
-        </div>
-        
-        <!-- Boutons d'action -->
-        <div class="mt-3">
-          <button class="btn btn-primary me-2" (click)="editRole()">Modifier</button>
-          <button class="btn btn-secondary" (click)="goBack()">Retour</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Chargement des informations...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <mat-card class="role-details-card" *ngIf="!loading && role">
+    <mat-card-header>
+      <div mat-card-avatar class="role-avatar" [ngClass]="{'inactive': !role.actif}">
+        {{ role.nom ? role.nom.charAt(0) : 'R' }}
+      </div>
+      <mat-card-title>{{ role.nom }}</mat-card-title>
+      <mat-card-subtitle>{{ role.description || 'Aucune description' }}</mat-card-subtitle>
+      <div class="status-badge" [ngClass]="{'active': role.actif, 'inactive': !role.actif}">
+        {{ role.actif ? 'Actif' : 'Inactif' }}
+      </div>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <div class="details-section">
+        <h3>Informations générales</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">{{ role._id }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date de création</span>
+            <span class="detail-value">{{ role.dateCreation | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
         </div>
       </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-section">
+        <h3>Permissions</h3>
+
+        <!-- Gestion des utilisateurs et système -->
+        <div class="permissions-category">
+          <h4>Gestion des utilisateurs et système</h4>
+          <div class="permissions-grid">
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererUtilisateursEtRoles}">
+              <mat-icon>{{ role.permissions.gererUtilisateursEtRoles ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Gérer les utilisateurs et rôles</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.configurerSysteme}">
+              <mat-icon>{{ role.permissions.configurerSysteme ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Configurer le système</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.accesComplet}">
+              <mat-icon>{{ role.permissions.accesComplet ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Accès complet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comptabilité -->
+        <div class="permissions-category">
+          <h4>Comptabilité</h4>
+          <div class="permissions-grid">
+            <div class="permission-item" [ngClass]="{'active': role.permissions.validerEcritures}">
+              <mat-icon>{{ role.permissions.validerEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Valider les écritures</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.cloturerPeriodes}">
+              <mat-icon>{{ role.permissions.cloturerPeriodes ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Clôturer les périodes</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.genererEtatsFinanciers}">
+              <mat-icon>{{ role.permissions.genererEtatsFinanciers ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Générer les états financiers</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.superviserComptes}">
+              <mat-icon>{{ role.permissions.superviserComptes ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Superviser les comptes</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.saisirEcritures}">
+              <mat-icon>{{ role.permissions.saisirEcritures ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Saisir les écritures</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facturation et paiements -->
+        <div class="permissions-category">
+          <h4>Facturation et paiements</h4>
+          <div class="permissions-grid">
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererFactures}">
+              <mat-icon>{{ role.permissions.gererFactures ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Gérer les factures</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.suivrePaiements}">
+              <mat-icon>{{ role.permissions.suivrePaiements ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Suivre les paiements</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.gererTresorerie}">
+              <mat-icon>{{ role.permissions.gererTresorerie ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Gérer la trésorerie</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.accesFacturesPaiements}">
+              <mat-icon>{{ role.permissions.accesFacturesPaiements ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Accès aux factures et paiements</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rapports et analyses -->
+        <div class="permissions-category">
+          <h4>Rapports et analyses</h4>
+          <div class="permissions-grid">
+            <div class="permission-item" [ngClass]="{'active': role.permissions.analyserDepensesRecettes}">
+              <mat-icon>{{ role.permissions.analyserDepensesRecettes ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Analyser les dépenses et recettes</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.genererRapportsPerformance}">
+              <mat-icon>{{ role.permissions.genererRapportsPerformance ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Générer les rapports de performance</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.comparerBudgetRealise}">
+              <mat-icon>{{ role.permissions.comparerBudgetRealise ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Comparer budget et réalisé</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autres permissions -->
+        <div class="permissions-category">
+          <h4>Autres permissions</h4>
+          <div class="permissions-grid">
+            <div class="permission-item" [ngClass]="{'active': role.permissions.saisirNotesFrais}">
+              <mat-icon>{{ role.permissions.saisirNotesFrais ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Saisir les notes de frais</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.consulterBulletinsPaie}">
+              <mat-icon>{{ role.permissions.consulterBulletinsPaie ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Consulter les bulletins de paie</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.soumettreRemboursements}">
+              <mat-icon>{{ role.permissions.soumettreRemboursements ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Soumettre des remboursements</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.telechargerDocuments}">
+              <mat-icon>{{ role.permissions.telechargerDocuments ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Télécharger des documents</span>
+            </div>
+            <div class="permission-item" [ngClass]="{'active': role.permissions.communiquerComptabilite}">
+              <mat-icon>{{ role.permissions.communiquerComptabilite ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>Communiquer avec la comptabilité</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Confirmation Dialog -->
+  <div *ngIf="showConfirmDialog" class="confirm-dialog-overlay">
+    <div class="confirm-dialog">
+      <h2>Confirmation de suppression</h2>
+      <p>Êtes-vous sûr de vouloir supprimer ce rôle ? Cette action est irréversible.</p>
+      <div class="confirm-dialog-actions">
+        <button mat-raised-button (click)="cancelDelete()">Annuler</button>
+        <button mat-raised-button color="warn" (click)="confirmDelete()">Supprimer</button>
+      </div>
     </div>
-  
-    <!-- Message si aucun rôle -->
-    <div class="alert alert-info mt-3" *ngIf="!role && !errorMessage">
-      Chargement des détails en cours...
-    </div>
+  </div>
 </div>

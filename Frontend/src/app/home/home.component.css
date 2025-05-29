@@ -1,37 +1,4 @@
-/* Toolbar */
-.logo {
-  height: 50px;
-  margin-right: 15px;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.menu-button {
-  display: none; /* Caché par défaut sur desktop */
-}
-
-.desktop-nav {
-  display: flex;
-  gap: 10px;
-}
-
-/* Sidenav */
-.sidenav {
-  width: 250px;
-  background-color: #1E3A8A;
-}
-
-.sidenav a {
-  color: white;
-  font-size: 1.2rem;
-  padding: 10px;
-}
-
-.sidenav a:hover {
-  background-color: #3B82F6;
-}
+/* Les styles de la barre de navigation sont maintenant dans le composant SharedNavComponent */
 
 /* Hero Section */
 .hero-section {
@@ -140,14 +107,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .desktop-nav {
-    display: none; /* Cacher les boutons sur mobile */
-  }
-
-  .menu-button {
-    display: block; /* Afficher le bouton hamburger sur mobile */
-  }
-
   .hero-content h1 {
     font-size: 2rem;
   }

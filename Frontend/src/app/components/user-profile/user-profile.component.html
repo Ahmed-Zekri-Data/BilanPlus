@@ -1,0 +1,109 @@
+<div class="user-profile-container">
+  <!-- État de chargement -->
+  <div class="loading-button" *ngIf="isLoading">
+    <mat-spinner diameter="24"></mat-spinner>
+    <span>{{ getTranslation('loading') }}</span>
+  </div>
+
+  <!-- Bouton de profil avec avatar et nom (affiché quand l'utilisateur est connecté et chargé) -->
+  <div class="profile-button" (click)="toggleProfilePanel()" *ngIf="!isLoading && currentUser; else loginButton">
+    <div class="avatar">
+      <mat-icon>account_circle</mat-icon>
+    </div>
+    <div class="user-info">
+      <span class="user-name">{{ currentUser?.prenom }}</span>
+    </div>
+    <mat-icon class="dropdown-icon">{{ isProfileOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+  </div>
+
+  <!-- Bouton de connexion si l'utilisateur n'est pas connecté -->
+  <ng-template #loginButton>
+    <div class="login-button" routerLink="/login" *ngIf="!isLoading">
+      <mat-icon>login</mat-icon>
+      <span>{{ getTranslation('login') }}</span>
+    </div>
+  </ng-template>
+
+  <!-- Panneau de profil déroulant -->
+  <div class="profile-panel" [@expandPanel]="isProfileOpen ? 'expanded' : 'collapsed'" *ngIf="currentUser">
+    <div class="panel-header">
+      <h3>{{ getTranslation('profile') }}</h3>
+      <button mat-icon-button (click)="closeProfilePanel()" class="close-button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="panel-content">
+      <div class="user-header">
+        <div class="large-avatar">
+          <mat-icon>account_circle</mat-icon>
+        </div>
+        <div class="user-details">
+          <h4>{{ getTranslation('welcome') }}, {{ currentUser?.prenom }}</h4>
+          <p class="user-role" *ngIf="currentUser?.role?.nom">{{ currentUser.role.nom }}</p>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="user-info-list">
+        <div class="info-item">
+          <mat-icon>email</mat-icon>
+          <div class="info-content">
+            <span class="info-label">{{ getTranslation('email') }}</span>
+            <span class="info-value">{{ currentUser?.email || getTranslation('notAvailable') }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>phone</mat-icon>
+          <div class="info-content">
+            <span class="info-label">{{ getTranslation('phone') }}</span>
+            <span class="info-value">{{ currentUser?.telephone || getTranslation('notAvailable') }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>location_on</mat-icon>
+          <div class="info-content">
+            <span class="info-label">{{ getTranslation('address') }}</span>
+            <span class="info-value">{{ currentUser?.adresse || getTranslation('notAvailable') }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>access_time</mat-icon>
+          <div class="info-content">
+            <span class="info-label">{{ getTranslation('lastLogin') }}</span>
+            <span class="info-value">{{ formatDate(currentUser?.dernierConnexion) }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>event</mat-icon>
+          <div class="info-content">
+            <span class="info-label">{{ getTranslation('accountCreated') }}</span>
+            <span class="info-value">{{ formatDate(currentUser?.dateCreation) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="panel-actions">
+        <button mat-button color="primary" [routerLink]="['/utilisateur/details', currentUser?._id]">
+          <mat-icon>person</mat-icon>
+          {{ getTranslation('viewProfile') }}
+        </button>
+      </div>
+
+      <!-- Bouton de déconnexion plus visible -->
+      <div class="logout-container">
+        <button mat-raised-button color="warn" class="logout-panel-button" (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          {{ getTranslation('logout') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

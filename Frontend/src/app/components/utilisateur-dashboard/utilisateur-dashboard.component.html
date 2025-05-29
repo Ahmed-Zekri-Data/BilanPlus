@@ -1,0 +1,147 @@
+<div class="dashboard-container">
+  <!-- En-tête avec statistiques -->
+  <div class="dashboard-header">
+    <div class="dashboard-title">
+      <h1>Gestion des Utilisateurs</h1>
+      <p>Gérez les utilisateurs, les rôles et les permissions</p>
+    </div>
+
+    <div class="stats-cards">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ totalUtilisateurs }}</div>
+          <div class="stat-label">Total Utilisateurs</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card active">
+        <mat-card-content>
+          <div class="stat-value">{{ utilisateursActifs }}</div>
+          <div class="stat-label">Utilisateurs Actifs</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card inactive">
+        <mat-card-content>
+          <div class="stat-value">{{ utilisateursInactifs }}</div>
+          <div class="stat-label">Utilisateurs Inactifs</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card connections">
+        <mat-card-content>
+          <div class="stat-value">{{ connexionsAujourdhui }}</div>
+          <div class="stat-label">Connexions Aujourd'hui</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Barre d'outils -->
+  <div class="dashboard-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Rechercher</mat-label>
+      <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="toolbar-actions">
+      <button mat-raised-button color="primary" (click)="addUtilisateur()">
+        <mat-icon>person_add</mat-icon> Ajouter un utilisateur
+      </button>
+
+      <button mat-raised-button color="accent" (click)="exportToCSV()">
+        <mat-icon>download</mat-icon> Exporter en CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-container mat-elevation-z8">
+    <div *ngIf="loading" class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="user-table">
+      <!-- Colonne Nom -->
+      <ng-container matColumnDef="nom">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+        <td mat-cell *matCellDef="let user">
+          <div class="user-name">
+            <div class="user-avatar">{{ user.nom ? user.nom.charAt(0) : 'U' }}{{ user.prenom ? user.prenom.charAt(0) : '' }}</div>
+            <div>{{ user.nom }} {{ user.prenom }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Email -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+        <td mat-cell *matCellDef="let user"> {{ user.email }} </td>
+      </ng-container>
+
+      <!-- Colonne Rôle -->
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Rôle </th>
+        <td mat-cell *matCellDef="let user">
+          <span class="role-badge">{{ getRoleName(user) }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Dernière Connexion -->
+      <ng-container matColumnDef="dernierConnexion">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Dernière Connexion </th>
+        <td mat-cell *matCellDef="let user">
+          {{ user.dernierConnexion ? (user.dernierConnexion | date:'dd/MM/yyyy HH:mm') : 'Jamais' }}
+        </td>
+      </ng-container>
+
+      <!-- Colonne Statut -->
+      <ng-container matColumnDef="actif">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Statut </th>
+        <td mat-cell *matCellDef="let user">
+          <mat-slide-toggle
+            [checked]="user.actif"
+            (change)="toggleUserStatus(user)"
+            color="primary"
+            [attr.data-user-id]="user._id">
+          </mat-slide-toggle>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let user">
+          <button mat-icon-button color="primary" (click)="showDetails(user)" matTooltip="Voir les détails">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editUtilisateur(user)" matTooltip="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUtilisateur(user._id)" matTooltip="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button mat-icon-button (click)="resetLoginAttempts(user)" matTooltip="Réinitialiser les tentatives de connexion"
+                  *ngIf="user.tentativesConnexion !== undefined && user.tentativesConnexion > 0">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Ligne pour afficher quand aucun résultat n'est trouvé -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="6">Aucun utilisateur trouvé</td>
+      </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>

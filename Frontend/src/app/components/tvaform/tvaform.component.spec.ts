@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TvaformComponent } from './tvaform.component';
+import { TvaFormComponent } from './tvaform.component';
 
-describe('TvaformComponent', () => {
-  let component: TvaformComponent;
-  let fixture: ComponentFixture<TvaformComponent>;
+describe('TvaFormComponent', () => {
+  let component: TvaFormComponent;
+  let fixture: ComponentFixture<TvaFormComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TvaformComponent]
+      declarations: [TvaFormComponent]
     });
-    fixture = TestBed.createComponent(TvaformComponent);
+    fixture = TestBed.createComponent(TvaFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,23 +1,181 @@
-<div class="container">
-    <h2>Liste des Utilisateurs</h2>
+<div class="utilisateur-container">
+  <div class="utilisateur-header">
+    <h1>Gestion des Utilisateurs</h1>
+    <p>Gérez les comptes utilisateurs et leurs accès</p>
+  </div>
 
-    <div class="mb-3">
-        <button class="btn btn-success" (click)="goToAddUser()">Ajouter Utilisateur</button>
+  <div class="utilisateur-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Rechercher</mat-label>
+      <input matInput placeholder="Rechercher un utilisateur..." (input)="search($event)">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="toolbar-actions">
+      <button mat-raised-button color="primary" (click)="addUtilisateur()">
+        <mat-icon>person_add</mat-icon> Ajouter un utilisateur
+      </button>
+
+      <button mat-raised-button color="accent" (click)="exportToCSV()">
+        <mat-icon>download</mat-icon> Exporter en CSV
+      </button>
     </div>
+  </div>
 
-    <div class="row">
-        <div class="col-md-4" *ngFor="let user of User">
-            <div class="card text-blue mb-3" style="max-width: 18rem;">
-                <div class="card-header">Utilisateur</div>
-                <div class="card-body">
-                    <h5 class="card-title">Nom: {{ user.nom }}</h5>
-                    <p class="card-text">Email: {{ user.email }}</p>
-                    <p class="card-text">Rôle: {{ getRoleDisplayName(user.role) }}</p>
-                    
-                    <button *ngIf="user._id" (click)="deleteUser(user._id)" class="btn btn-danger me-2">Supprimer</button>
-                    <button *ngIf="user._id" (click)="goToDetails(user._id)" class="btn btn-info">Détails</button>
-                </div>
-            </div>
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Dashboard des statistiques -->
+  <div class="dashboard-container">
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <mat-icon>people</mat-icon>
         </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getTotalUsers() }}</div>
+          <div class="stat-label">Total Utilisateurs</div>
+        </div>
+      </div>
+
+      <div class="stat-card active">
+        <div class="stat-icon">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getActiveUsersCount() }}</div>
+          <div class="stat-label">Utilisateurs Actifs</div>
+        </div>
+      </div>
+
+      <div class="stat-card inactive">
+        <div class="stat-icon">
+          <mat-icon>person_off</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getInactiveUsersCount() }}</div>
+          <div class="stat-label">Utilisateurs Inactifs</div>
+        </div>
+      </div>
+
+      <div class="stat-card recent">
+        <div class="stat-icon">
+          <mat-icon>person_add</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getRecentUsersCount() }}</div>
+          <div class="stat-label">Nouveaux (30j)</div>
+        </div>
+      </div>
     </div>
+
+    <!-- Graphique de répartition des rôles -->
+    <div class="roles-distribution">
+      <h3>Répartition par Rôles</h3>
+      <div class="roles-list">
+        <div *ngFor="let roleStats of getRolesDistribution()" class="role-item">
+          <div class="role-info">
+            <span class="role-name">{{ roleStats.role }}</span>
+            <span class="role-count">{{ roleStats.count }}</span>
+          </div>
+          <div class="role-bar">
+            <div class="role-progress" [style.width.%]="roleStats.percentage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-container">
+    <table mat-table [dataSource]="filteredUtilisateurs" matSort class="users-table">
+
+      <!-- Colonne Avatar + Nom -->
+      <ng-container matColumnDef="utilisateur">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="nom"> Utilisateur </th>
+        <td mat-cell *matCellDef="let user">
+          <div class="user-info">
+            <div class="user-avatar" [ngClass]="{'inactive': !user.actif}">
+              {{ user.nom ? user.nom.charAt(0) : 'U' }}{{ user.prenom ? user.prenom.charAt(0) : '' }}
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.nom }} {{ user.prenom }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Rôle -->
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef> Rôle </th>
+        <td mat-cell *matCellDef="let user">
+          <span class="role-badge">{{ getRoleName(user) }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Téléphone -->
+      <ng-container matColumnDef="telephone">
+        <th mat-header-cell *matHeaderCellDef> Téléphone </th>
+        <td mat-cell *matCellDef="let user">
+          {{ user.telephone || '-' }}
+        </td>
+      </ng-container>
+
+      <!-- Colonne Date de création -->
+      <ng-container matColumnDef="dateCreation">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="dateCreation"> Date de création </th>
+        <td mat-cell *matCellDef="let user">
+          {{ formatDate(user.dateCreation) }}
+        </td>
+      </ng-container>
+
+      <!-- Colonne Statut avec Toggle -->
+      <ng-container matColumnDef="statut">
+        <th mat-header-cell *matHeaderCellDef> Statut </th>
+        <td mat-cell *matCellDef="let user">
+          <div class="status-toggle">
+            <mat-slide-toggle
+              [checked]="user.actif"
+              (change)="toggleUserStatus(user)"
+              [disabled]="isToggling"
+              color="primary">
+            </mat-slide-toggle>
+            <span class="status-label" [ngClass]="{'active': user.actif, 'inactive': !user.actif}">
+              {{ user.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Colonne Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let user">
+          <div class="action-buttons">
+            <button mat-icon-button color="primary" matTooltip="Voir les détails" (click)="showDetails(user)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" matTooltip="Modifier" (click)="editUtilisateur(user)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteUtilisateur(user._id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <!-- Message si aucun utilisateur -->
+    <div *ngIf="filteredUtilisateurs.length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>Aucun utilisateur trouvé</p>
+    </div>
+  </div>
+
 </div>

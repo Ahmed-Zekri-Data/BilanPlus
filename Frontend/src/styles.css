@@ -1,3 +1,5 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 /* S'assurer que le fond s'applique à toute la page */
 html, body {
   font-family: 'Roboto', 'Helvetica Neue', sans-serif;
@@ -24,9 +26,17 @@ router-outlet + * {
   background-color: #F5F5F5 !important;
 }
 
+/* Conteneur pour les pages de connexion */
+.login-container {
+  display: block;
+  min-height: 100vh;
+  background-color: #F5F5F5 !important;
+  padding: 20px;
+}
+
 /* Fix pour les overlays Material - z-index élevé */
 .cdk-overlay-container {
-  z-index: 9999 !important;
+  z-index: 1000 !important; /* Adjusted based on later Main branch style */
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -38,6 +48,7 @@ router-outlet + * {
 .cdk-overlay-pane {
   pointer-events: auto !important;
   position: absolute !important;
+  z-index: 10000 !important; /* Ensured pane is above container backdrop */
 }
 
 /* Fix spécifique pour les select panels */
@@ -100,11 +111,6 @@ mat-card, mat-card-content, .form-container, .form-section {
 /* Fix pour les mat-sidenav-content */
 mat-sidenav-content {
   overflow: visible !important;
-}
-
-/* Assurer que les overlays sont au-dessus de tout */
-.cdk-overlay-container .cdk-overlay-pane {
-  z-index: 10000 !important;
 }
 
 /* Enhanced Snackbar Styles */
@@ -178,6 +184,7 @@ mat-sidenav-content {
 .cdk-overlay-backdrop {
   background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(2px) !important;
+  z-index: 999 !important; /* Ensure backdrop is behind the pane */
 }
 
 /* Force center dialogs using transform approach */
@@ -222,15 +229,6 @@ mat-sidenav-content {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* Ensure dialogs are always on top */
-.cdk-overlay-container {
-  z-index: 1000 !important;
-}
-
-.cdk-overlay-backdrop {
-  z-index: 999 !important;
 }
 
 /* Enhanced backdrop for centered dialogs */

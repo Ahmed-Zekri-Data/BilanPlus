@@ -1,0 +1,136 @@
+.form-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-header {
+  margin-bottom: 30px;
+}
+
+.form-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1E3A8A;
+}
+
+.form-header p {
+  margin: 5px 0 0;
+  color: #6B7280;
+}
+
+.form-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-section h3 {
+  color: #1E3A8A;
+  font-size: 18px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.section-description {
+  color: #6B7280;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  margin-bottom: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-field-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 10px;
+}
+
+.checkbox-hint {
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.permissions-accordion {
+  margin-bottom: 20px;
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #E8F5E9;
+  color: #4CAF50;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #FFEBEE;
+  color: #F44336;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+/* Styles pour les panneaux d'expansion */
+::ng-deep .mat-expansion-panel {
+  margin-bottom: 8px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+::ng-deep .mat-expansion-panel-header {
+  padding: 16px !important;
+}
+
+::ng-deep .mat-expansion-panel-header-title {
+  display: flex !important;
+  align-items: center !important;
+  color: #1E3A8A !important;
+}
+
+::ng-deep .mat-expansion-panel-header-title mat-icon {
+  margin-right: 8px !important;
+}
+
+::ng-deep .mat-checkbox-label {
+  white-space: normal !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .permissions-grid {
+    grid-template-columns: 1fr;
+  }
+}

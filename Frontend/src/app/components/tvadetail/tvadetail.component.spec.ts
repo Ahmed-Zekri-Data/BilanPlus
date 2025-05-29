@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TVAdetailComponent } from './tvadetail.component';
+import { TvaDetailComponent } from './tvadetail.component';
 
-describe('TVAdetailComponent', () => {
-  let component: TVAdetailComponent;
-  let fixture: ComponentFixture<TVAdetailComponent>;
+describe('TvaDetailComponent', () => {
+  let component: TvaDetailComponent;
+  let fixture: ComponentFixture<TvaDetailComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TVAdetailComponent]
+      declarations: [TvaDetailComponent]
     });
-    fixture = TestBed.createComponent(TVAdetailComponent);
+    fixture = TestBed.createComponent(TvaDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

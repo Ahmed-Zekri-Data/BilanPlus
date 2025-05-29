@@ -1,51 +1,264 @@
-<br>
-<h1>{{ isEditMode ? 'Modification de rôle' : 'Ajout de rôle' }}</h1>
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Modifier un Rôle' : 'Créer un Rôle' }}</h1>
+    <p>{{ isEditMode ? 'Modifiez les informations et les permissions du rôle' : 'Créez un nouveau rôle et définissez ses permissions' }}</p>
+  </div>
 
-<form [formGroup]="roleForm" (ngSubmit)="submitRole()" class="mt-4">
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+        <!-- Informations de base -->
+        <div class="form-section">
+          <h3>Informations de base</h3>
 
-    <div class="form-group mb-3">
-        <label for="nom">Nom</label>
-        <input 
-            type="text" 
-            id="nom"
-            class="form-control" 
-            formControlName="nom" 
-            placeholder="Entrer le nom du rôle"
-            [class.is-invalid]="roleForm.controls['nom'].invalid && roleForm.controls['nom'].touched">
-        <div class="alert alert-danger mt-2" 
-             *ngIf="roleForm.controls['nom'].invalid && roleForm.controls['nom'].touched">
-            <p *ngIf="roleForm.controls['nom'].hasError('required')">Le nom est obligatoire</p>
-            <p *ngIf="roleForm.controls['nom'].hasError('minlength')">Le nom doit comporter au moins 3 caractères</p>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Nom du rôle</mat-label>
+            <input matInput id="nom" formControlName="nom" placeholder="Entrez le nom du rôle">
+            <mat-icon matSuffix>badge</mat-icon>
+            <mat-error *ngIf="roleForm.get('nom')?.errors?.['required']">
+              Le nom du rôle est requis
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput id="description" formControlName="description" placeholder="Entrez une description du rôle" rows="3"></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+          </mat-form-field>
+
+          <div class="form-field-checkbox">
+            <mat-checkbox formControlName="actif" color="primary">
+              Rôle actif
+            </mat-checkbox>
+            <span class="checkbox-hint">Les rôles inactifs ne peuvent pas être assignés aux utilisateurs</span>
+          </div>
         </div>
-    </div>
 
-    <div class="form-group mb-3">
-        <label for="permissions">Permissions (séparées par des virgules)</label>
-        <input 
-            type="text" 
-            id="permissions"
-            class="form-control" 
-            formControlName="permissions" 
-            placeholder="Ex: lire, écrire, supprimer"
-            [class.is-invalid]="roleForm.controls['permissions'].invalid && roleForm.controls['permissions'].touched">
-        <div class="alert alert-danger mt-2" 
-             *ngIf="roleForm.controls['permissions'].invalid && roleForm.controls['permissions'].touched">
-            <p *ngIf="roleForm.controls['permissions'].hasError('required')">Les permissions sont obligatoires</p>
+        <!-- Permissions -->
+        <div class="form-section">
+          <h3>Permissions</h3>
+          <p class="section-description">Sélectionnez les permissions à accorder à ce rôle</p>
+
+          <mat-accordion class="permissions-accordion">
+            <!-- Gestion des utilisateurs et système -->
+            <mat-expansion-panel expanded="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>admin_panel_settings</mat-icon>
+                  Gestion des utilisateurs et système
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-grid">
+                <mat-checkbox
+                  [checked]="permissions.gererUtilisateursEtRoles"
+                  (change)="togglePermission('gererUtilisateursEtRoles')"
+                  color="primary">
+                  Gérer les utilisateurs et rôles
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.configurerSysteme"
+                  (change)="togglePermission('configurerSysteme')"
+                  color="primary">
+                  Configurer le système
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.accesComplet"
+                  (change)="togglePermission('accesComplet')"
+                  color="primary">
+                  Accès complet
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Comptabilité -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>account_balance</mat-icon>
+                  Comptabilité
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-grid">
+                <mat-checkbox
+                  [checked]="permissions.validerEcritures"
+                  (change)="togglePermission('validerEcritures')"
+                  color="primary">
+                  Valider les écritures
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.cloturerPeriodes"
+                  (change)="togglePermission('cloturerPeriodes')"
+                  color="primary">
+                  Clôturer les périodes
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.genererEtatsFinanciers"
+                  (change)="togglePermission('genererEtatsFinanciers')"
+                  color="primary">
+                  Générer les états financiers
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.superviserComptes"
+                  (change)="togglePermission('superviserComptes')"
+                  color="primary">
+                  Superviser les comptes
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.saisirEcritures"
+                  (change)="togglePermission('saisirEcritures')"
+                  color="primary">
+                  Saisir les écritures
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Facturation et paiements -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>receipt</mat-icon>
+                  Facturation et paiements
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-grid">
+                <mat-checkbox
+                  [checked]="permissions.gererFactures"
+                  (change)="togglePermission('gererFactures')"
+                  color="primary">
+                  Gérer les factures
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.suivrePaiements"
+                  (change)="togglePermission('suivrePaiements')"
+                  color="primary">
+                  Suivre les paiements
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.gererTresorerie"
+                  (change)="togglePermission('gererTresorerie')"
+                  color="primary">
+                  Gérer la trésorerie
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.accesFacturesPaiements"
+                  (change)="togglePermission('accesFacturesPaiements')"
+                  color="primary">
+                  Accès aux factures et paiements
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Rapports et analyses -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>bar_chart</mat-icon>
+                  Rapports et analyses
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-grid">
+                <mat-checkbox
+                  [checked]="permissions.analyserDepensesRecettes"
+                  (change)="togglePermission('analyserDepensesRecettes')"
+                  color="primary">
+                  Analyser les dépenses et recettes
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.genererRapportsPerformance"
+                  (change)="togglePermission('genererRapportsPerformance')"
+                  color="primary">
+                  Générer les rapports de performance
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.comparerBudgetRealise"
+                  (change)="togglePermission('comparerBudgetRealise')"
+                  color="primary">
+                  Comparer budget et réalisé
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Autres permissions -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>more_horiz</mat-icon>
+                  Autres permissions
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-grid">
+                <mat-checkbox
+                  [checked]="permissions.saisirNotesFrais"
+                  (change)="togglePermission('saisirNotesFrais')"
+                  color="primary">
+                  Saisir les notes de frais
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.consulterBulletinsPaie"
+                  (change)="togglePermission('consulterBulletinsPaie')"
+                  color="primary">
+                  Consulter les bulletins de paie
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.soumettreRemboursements"
+                  (change)="togglePermission('soumettreRemboursements')"
+                  color="primary">
+                  Soumettre des remboursements
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.telechargerDocuments"
+                  (change)="togglePermission('telechargerDocuments')"
+                  color="primary">
+                  Télécharger des documents
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [checked]="permissions.communiquerComptabilite"
+                  (change)="togglePermission('communiquerComptabilite')"
+                  color="primary">
+                  Communiquer avec la comptabilité
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
         </div>
-    </div>
 
-    <div class="mt-4">
-        <button 
-            type="submit" 
-            class="btn btn-primary me-2" 
-            [disabled]="roleForm.invalid">
-            {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
-        </button>
-        <a routerLink="/roles" class="btn btn-secondary">Annuler</a>
-    </div>
-</form>
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">Annuler</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading || roleForm.invalid">
+            <mat-icon>save</mat-icon>
+            <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
+            <span *ngIf="loading">{{ isEditMode ? 'Mise à jour...' : 'Création...' }}</span>
+          </button>
+        </div>
 
-<!-- Message de feedback -->
-<div class="alert alert-info mt-3" *ngIf="message">
-    {{ message }}
+        <div *ngIf="success" class="success-message">
+          <mat-icon>check_circle</mat-icon> {{ success }}
+        </div>
+
+        <div *ngIf="error" class="error-message">
+          <mat-icon>error</mat-icon> {{ error }}
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>
