@@ -26,7 +26,7 @@ const createCommande = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé" });
     }
     const utilisateur1 = await Utilisateur.findOne({ email: user });
-    const utilisateur = await Utilisateur.findById(utilisateur);
+    const utilisateur = await Utilisateur.findById(utilisateur1);
 
     // Find suppliers matching product category
     const fournisseurs = await Fournisseur.find({ categorie: produitDoc.categorie });
