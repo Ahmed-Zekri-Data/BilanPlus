@@ -5,7 +5,7 @@ const TvaService = require("../Services/TVAService");
 async function addTVA(req, res) {
     try {
         // Vérifier si les données requises sont présentes
-        if (!req.body.taux || !req.body.montant) {
+        if (!req.body.taux || typeof req.body.montant !== 'number') {
             return res.status(400).json({
                 success: false,
                 message: "Données incomplètes",

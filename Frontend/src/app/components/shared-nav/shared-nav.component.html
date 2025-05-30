@@ -1,14 +1,13 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav mode="over" class="sidenav">
     <mat-nav-list>
-      <a mat-list-item routerLink="/utilisateur" (click)="sidenav.close()" *appHasPermission="'gererUtilisateursEtRoles'">Utilisateurs</a>
+      <a mat-list-item routerLink="/utilisateurs" (click)="sidenav.close()" *appHasPermission="'gererUtilisateursEtRoles'">Utilisateurs</a>
       <a mat-list-item routerLink="/roles" (click)="sidenav.close()" *appHasPermission="'gererUtilisateursEtRoles'">Rôles</a>
       <a mat-list-item routerLink="/facturation" (click)="sidenav.close()" *appHasPermission="'gererFactures'">Facturation</a>
       <a mat-list-item routerLink="/fournisseurs" (click)="sidenav.close()" *appHasPermission="'gererFactures'">Fournisseurs</a>
       <a mat-list-item routerLink="/produit" (click)="sidenav.close()" *appHasPermission="'gererTresorerie'">Produit</a>
       <a mat-list-item routerLink="/gestion-comptable" (click)="sidenav.close()" *appHasPermission="'saisirEcritures'">Gestion Comptable</a>
       <a mat-list-item routerLink="/DFTVA" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
-      <a mat-list-item routerLink="/" (click)="sidenav.close()" *appHasPermission="'genererEtatsFinanciers'">Déclarations</a>
       <mat-divider></mat-divider>
       <a mat-list-item routerLink="/utilisateur/profile" (click)="sidenav.close()">
         <mat-icon>account_circle</mat-icon>
@@ -25,7 +24,7 @@
       <img src="assets/images/bilan-logo.png" alt="Bilan+ Logo" class="logo" routerLink="/home">
       <span class="spacer"></span>
       <div class="desktop-nav">
-        <button mat-raised-button color="accent" routerLink="/utilisateur" *appHasPermission="'gererUtilisateursEtRoles'">Utilisateurs</button>
+        <button mat-raised-button color="accent" routerLink="/utilisateurs" *appHasPermission="'gererUtilisateursEtRoles'">Utilisateurs</button>
         <button mat-raised-button color="accent" routerLink="/roles" *appHasPermission="'gererUtilisateursEtRoles'">Rôles</button>
         <button mat-raised-button color="accent" routerLink="/facturation" *appHasPermission="'gererFactures'">Facturation</button>
         <button mat-raised-button color="accent" routerLink="/fournisseurs" *appHasPermission="'gererFactures'">Fournisseurs</button>

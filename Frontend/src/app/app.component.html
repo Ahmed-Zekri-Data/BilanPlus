@@ -1,12 +1,7 @@
 
-<ng-container *ngIf="shouldShowNav()">
-  <app-shared-nav>
-    <!-- This router-outlet's content will be placed where <ng-content> is in shared-nav.component.html -->
-    <router-outlet></router-outlet>
-  </app-shared-nav>
-</ng-container>
-
-<!-- This div is for pages where the shared nav (and its layout) is not shown, e.g., login page -->
-<div *ngIf="!shouldShowNav()" class="login-container">
+<app-shared-nav *ngIf="shouldShowNav()">
   <router-outlet></router-outlet>
-</div>
+</app-shared-nav>
+
+
+<!-- <app-login></app-login> -->

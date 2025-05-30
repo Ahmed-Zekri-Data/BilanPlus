@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 // Layout
@@ -74,7 +74,9 @@ import { UtilisateurActivityComponent } from './components/utilisateur-activity/
 
 
 const routes: Routes = [
-  { path: '', component: HomeComponent }, // Default route from Main
+
+  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Default route changed to login
+  {path: 'home',component:HomeComponent},
   { path: 'login', component: LoginComponent }, // From HEAD
   { path: 'forgot-password', component: ForgotPasswordComponent }, // From HEAD
   { path: 'reset-password', component: ResetPasswordComponent }, // From HEAD
