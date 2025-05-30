@@ -1,5 +1,6 @@
 const Commande = require('../Models/CommandeAchat');
 const Produit = require('../Models/Produit');
+const Utilisateur = require('../Models/Utilisateur');
 const Fournisseur = require('../Models/Fournisseur');
 const sendEmail = require('../Utils/sendEmail');
 
@@ -15,7 +16,8 @@ const createCommande = async (req, res) => {
       quantite,
       type_livraison,
       createdAt,
-      date_fin 
+      date_fin ,
+      user
     } = req.body;
     
     // Get product details to find matching suppliers
@@ -23,6 +25,8 @@ const createCommande = async (req, res) => {
     if (!produitDoc) {
       return res.status(404).json({ message: "Produit non trouvé" });
     }
+    const utilisateur1 = await Utilisateur.findOne({ email: user });
+    const utilisateur = await Utilisateur.findById(utilisateur);
 
     // Find suppliers matching product category
     const fournisseurs = await Fournisseur.find({ categorie: produitDoc.categorie });
@@ -41,6 +45,7 @@ const createCommande = async (req, res) => {
       type_livraison,
       createdAt,
       date_fin,
+      utilisateur,
       fournisseurs: fournisseurs.map(f => ({
         fournisseurID: f._id
       }))
@@ -174,7 +179,7 @@ const notifySuppliers = async (req, res) => {
 
               <p>Merci de consulter et valider si vous êtes concerné par cette commande.</p>
               
-              <a href="${process.env.API_URL}/devis/${commandeId}/${fournisseur._id}" class="button">Voir la commande</a>
+              <a href="${process.env.FRONTEND_URL}/devis/${commandeId}/${fournisseur._id}" class="button">Voir la commande</a>
             </div>
             <div class="footer">
               <p>Cordialement,<br>Bilan Plus</p>
@@ -220,6 +225,7 @@ const getAllCommandes = async (req, res) => {
   try {
     const commandes = await Commande.find()
       .populate('produit', 'nom categorie')
+      .populate('utilisateur', 'nom prenom')
       .populate('fournisseurs.fournisseurID', 'nom email categorie')
       .sort({ createdAt: -1 });
 

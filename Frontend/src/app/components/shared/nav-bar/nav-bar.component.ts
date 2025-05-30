@@ -8,16 +8,10 @@ import { Router } from '@angular/router';
 })
 export class NavBarComponent {
   navItems = [
-    { label: 'Tableau de Bord produits', route: '/dashboard' },
-    { label: 'Utilisateurs', route: '/users' },
-    { label: 'Facturation', route: '/facturation' },
+   
     { label: 'Fournisseurs', route: '/fournisseurs' },
     { label: 'Commandes', route: '/commandes' },
-    { label: 'Devis', route: '/devis' },
-    { label: 'Gérer produit', route: '/produits' },
-    { label: 'Mouvement de Stock', route: '/mouvements' },
-    { label: 'Gestion Comptable', route: '/comptabilite' },
-    { label: 'Déclarations', route: '/declarations' }
+    { label: 'Devis', route: '/devis' }
   ];
 
   constructor(private router: Router) {}

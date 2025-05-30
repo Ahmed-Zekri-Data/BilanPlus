@@ -1,5 +1,6 @@
 // models/CommandeAchat.js
 const mongoose = require('mongoose');
+const Utilisateur = require('./Utilisateur');
 const CommandeAchatSchema = new mongoose.Schema({
   produit: { 
       type: mongoose.Schema.Types.ObjectId, 
@@ -20,6 +21,11 @@ const CommandeAchatSchema = new mongoose.Schema({
   }, 
   createdAt: { type: Date, default: Date.now },
   date_fin: { type: Date, required: true },
+  utilisateur: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Utilisateur',  
+      required: true 
+  },
   fournisseurs: [{
     fournisseurID: {
       type: mongoose.Schema.Types.ObjectId,

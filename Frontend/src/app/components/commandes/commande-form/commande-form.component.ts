@@ -12,6 +12,7 @@ import { Produit } from '../../../Models/Produit';
   styleUrls: ['./commande-form.component.css']
 })
 export class CommandeFormComponent implements OnInit {
+  userEmail: string | null = null;
   commandeForm: FormGroup;
   commandeId: string | null = null;
   isEditMode = false;
@@ -63,6 +64,20 @@ export class CommandeFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  const userString = localStorage.getItem('currentUser');
+  console.log('Raw session data:', userString);
+
+  if (userString) {
+    try {
+      const parsed = JSON.parse(userString);
+
+      this.userEmail = parsed.user?.email || null;
+    } catch (err) {
+      console.error('JSON parsing failed:', err);
+    }
+  } else {
+    console.warn('No currentUser found in sessionStorage');
+  }
     this.commandeId = this.route.snapshot.paramMap.get('id');
     if (this.commandeId) {
       this.isEditMode = true;
@@ -110,12 +125,14 @@ export class CommandeFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    let user=this.userEmail;
     if (this.commandeForm.valid) {
       this.isLoading = true;
       const commandeData = {
         ...this.commandeForm.value,
         createdAt: new Date(),
-        statut: 'En attente'
+        statut: 'En attente',
+        user
       };
       
       if (this.isEditMode && this.commandeId) {

@@ -56,14 +56,13 @@ const geocodeAddress = async (address) => {
         }
 
         const data = response.data;
-        console.log('Geocoding result:', data); // Debug log
 
         if (data && data.length > 0) {
             const coordinates = {
                 lat: parseFloat(data[0].lat) || 0,
                 lng: parseFloat(data[0].lon) || 0
             };
-            console.log('Coordinates:', coordinates); // Debug log
+            console.log('Coordinates:', coordinates); 
             return coordinates;
         }
         

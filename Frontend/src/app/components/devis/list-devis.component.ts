@@ -147,34 +147,55 @@ export class ListDevisComponent implements OnInit {
   }
 
   autoAcceptAllLowestPrices(): void {
-    const pendingDevis = this.devis.filter(d => 
-      d.statut === 'En attente' && 
-      !this.isCommandeExpired(d.commandeID?.date_fin)
+  // Filter for devis that are in 'En attente' status and not expired
+  const pendingDevis = this.devis.filter(d => 
+    d.statut === 'En attente' && 
+    !this.isCommandeExpired(d.commandeID?.date_fin)
+  );
+
+  if (pendingDevis.length === 0) {
+    this.snackBar.open('Aucun devis en attente', 'Fermer', { duration: 3000 });
+    return;
+  }
+
+  // Group by category and end date
+  const groupMap = new Map<string, any[]>();
+
+  pendingDevis.forEach(devis => {
+    // Check if 'produit' and 'produit.categorie' are not undefined or null
+    const category = devis.commandeID?.produit?.categorie;
+    const endDate = devis.commandeID?.date_fin;
+
+    if (category && endDate) {
+      const key = `${category}_${endDate}`;
+      if (!groupMap.has(key)) {
+        groupMap.set(key, []);
+      }
+      groupMap.get(key)!.push(devis);
+    }
+  });
+
+  // For each group, find the lowest price and accept it
+  groupMap.forEach(devisList => {
+    if (devisList.length === 0) return;
+
+    // Find the lowest price in the group
+    const lowest = devisList.reduce((prev, curr) => 
+      curr.prix < prev.prix ? curr : prev
     );
 
-    if (pendingDevis.length === 0) {
-      this.snackBar.open('Aucun devis en attente', 'Fermer', { duration: 3000 });
-      return;
-    }
+    // Update the status of the lowest-priced devis
+    lowest.statut = 'Accepté'; // Set status to 'Accepté'
 
-    // Group devis by commande
-    const devisByCommande = pendingDevis.reduce((acc: { [key: string]: any[] }, devis) => {
-      const commandeId = devis.commandeID?._id;
-      if (!acc[commandeId]) {
-        acc[commandeId] = [];
-      }
-      acc[commandeId].push(devis);
-      return acc;
-    }, {});
+    // Optional: Trigger any backend update or other logic
+    this.acceptDevis(lowest); // Assuming this function processes the accepted devis
+  });
 
-    // Accept lowest price for each commande
-    Object.values(devisByCommande).forEach((commandeDevis: any[]) => {
-      const lowestPriceDevis = commandeDevis.reduce((lowest, current) => 
-        parseFloat(current.prix) < parseFloat(lowest.prix) ? current : lowest
-      );
-      this.acceptDevis(lowestPriceDevis._id);
-    });
-  }
+  // Show success message
+  this.snackBar.open('Devis les moins chers acceptés par catégorie et date', 'Fermer', { duration: 3000 });
+}
+
+
 
   hasPendingDevis(): boolean {
     return this.devis.some(d => 
