@@ -119,7 +119,7 @@ export interface EnhancedJournalFilter {
   providedIn: 'root'
 })
 export class AdvancedReportsService {
-  private apiUrl = 'http://localhost:4000/reports';
+  private apiUrl = 'http://localhost:3000/reports';
 
   constructor(private http: HttpClient) {}
 

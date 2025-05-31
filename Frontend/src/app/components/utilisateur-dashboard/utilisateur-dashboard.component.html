@@ -37,6 +37,24 @@
     </div>
   </div>
 
+  <!-- Statistiques des Rôles -->
+  <div class="role-stats-container" *ngIf="roleStatistics.length > 0">
+    <h2>Statistiques des Rôles</h2>
+    <div class="stats-cards role-cards">
+      <mat-card class="stat-card role-stat-card" *ngFor="let roleStat of roleStatistics">
+        <mat-card-content>
+          <div class="stat-label">{{ roleStat.nom }}</div>
+          <div class="stat-value">{{ roleStat.count }}</div>
+          <div class="stat-sublabel">Utilisateurs</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  <div *ngIf="loadingRoles" class="loading-roles-message">
+    Chargement des statistiques des rôles...
+  </div>
+
+
   <!-- Barre d'outils -->
   <div class="dashboard-toolbar">
     <mat-form-field appearance="outline" class="search-field">

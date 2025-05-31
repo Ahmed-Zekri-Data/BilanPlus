@@ -70,6 +70,8 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component'; // Assuming ResetPasswordComponent is needed
 import { UtilisateurDashboardComponent } from './components/utilisateur-dashboard/utilisateur-dashboard.component'; // Assuming UtilisateurDashboardComponent is needed
 import { UtilisateurActivityComponent } from './components/utilisateur-activity/utilisateur-activity.component'; // Assuming UtilisateurActivityComponent is needed
+import { ChaimaComponent } from './chaima/chaima.component';
+import { DashboardchaimaComponent } from './dashboardchaima/dashboardchaima.component';
 
 
 
@@ -186,6 +188,9 @@ const routes: Routes = [
   { path: 'facturelist', component: FactureListComponent, canActivate: [AuthGuard] },
   { path: 'relance', component: RelanceAutomationComponent, canActivate: [AuthGuard] },
   { path: 'reporting', component: ReportingComponent, canActivate: [AuthGuard] },
+  { path: 'dashboardinge', component: DashboardchaimaComponent, canActivate: [AuthGuard] },
+
+  {path : 'chaima', component:ChaimaComponent},
 
   // Wildcard route for unmatched paths
   { path: '**', redirectTo: 'clientlist' } // Main uses 'clientlist', HEAD uses '/home'

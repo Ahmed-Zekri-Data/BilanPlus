@@ -11,81 +11,37 @@ import { RoleService } from './role.service';
 export class UtilisateurService {
   private apiUrl = 'http://localhost:3000/user';
 
-  // Stocker les utilisateurs en mémoire pour le développement
-  private utilisateurs: Utilisateur[] = [
-    {
-      _id: '1',
-      email: 'admin@example.com',
-      nom: 'Admin',
-      prenom: 'Super',
-      role: {
-        _id: '1',
-        nom: 'Administrateur Système',
-        permissions: {
-          accesComplet: true,
-          gererUtilisateursEtRoles: true,
-          configurerSysteme: true
-        }
-      },
-      actif: true,
-      dateCreation: new Date().toISOString(),
-      dernierConnexion: new Date().toISOString()
-    },
-    {
-      _id: '2',
-      email: 'user@example.com',
-      nom: 'Utilisateur',
-      prenom: 'Simple',
-      role: {
-        _id: '6',
-        nom: 'Employé',
-        permissions: {
-          accesComplet: false,
-          gererUtilisateursEtRoles: false,
-          configurerSysteme: false
-        }
-      },
-      actif: true,
-      dateCreation: new Date().toISOString(),
-      dernierConnexion: new Date().toISOString()
-    }
-  ];
+  // utilisateurs array will be populated by backend calls
+  private utilisateurs: Utilisateur[] = [];
 
   constructor(private http: HttpClient, private roleService: RoleService) {}
 
   getUtilisateurs(): Observable<UtilisateurResponse> {
     console.log('UtilisateurService: Récupération de tous les utilisateurs depuis le backend');
 
-    // Obtenir le token d'authentification
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Authorization': `Bearer ${token}`
-    };
-
     // Appeler l'API backend pour récupérer les utilisateurs
-    return this.http.get<any>(`${this.apiUrl}/getall`, { headers }).pipe(
+    // L'intercepteur se chargera d'ajouter le token
+    return this.http.get<any>(`${this.apiUrl}/getall`).pipe(
       map((response: any) => {
         console.log('UtilisateurService: Utilisateurs récupérés du backend:', response);
 
-        // Mettre à jour le cache local
+        // Mettre à jour la liste locale avec les données du backend
         if (response.utilisateurs) {
           this.utilisateurs = response.utilisateurs;
+        } else {
+          // S'il n'y a pas d'utilisateurs dans la réponse, vider la liste locale
+          this.utilisateurs = [];
         }
 
         return {
-          utilisateurs: response.utilisateurs || [],
-          message: 'Utilisateurs récupérés avec succès'
+          utilisateurs: this.utilisateurs, // Toujours retourner la liste mise à jour (ou vide)
+          message: response.message || 'Utilisateurs récupérés avec succès'
         };
       }),
       catchError((error: any) => {
-        console.error('UtilisateurService: Erreur lors de la récupération:', error);
-
-        // En cas d'erreur, retourner les données du cache local
-        console.log('UtilisateurService: Utilisation du cache local en fallback');
-        return of({
-          utilisateurs: this.utilisateurs,
-          message: 'Utilisateurs récupérés depuis le cache local'
-        });
+        console.error('UtilisateurService: Erreur lors de la récupération des utilisateurs:', error);
+        // Propager l'erreur pour que le composant puisse la gérer
+        return throwError(() => new Error(error.error?.message || error.message || 'Erreur serveur lors de la récupération des utilisateurs'));
       })
     );
   }
@@ -185,19 +141,9 @@ export class UtilisateurService {
 
     console.log('UtilisateurService: Données envoyées au backend:', userData);
 
-    // Obtenir le token d'authentification
-    const token = localStorage.getItem('token');
-    console.log('UtilisateurService: Token récupéré:', token ? 'Présent' : 'Absent');
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    console.log('UtilisateurService: Headers:', headers);
-
     // Appeler l'API backend pour créer l'utilisateur
-    return this.http.post<any>(`${this.apiUrl}/add`, userData, { headers }).pipe(
+    // L'intercepteur se chargera d'ajouter le token et Content-Type si nécessaire (HttpClient le fait souvent par défaut pour JSON)
+    return this.http.post<any>(`${this.apiUrl}/add`, userData).pipe(
       map((response: any) => {
         console.log('UtilisateurService: Réponse du backend:', response);
 

@@ -4,7 +4,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgChartsModule } from 'ng2-charts';
 
@@ -114,6 +114,9 @@ import { FactureListComponent } from './facture-list/facture-list.component';
 import { RelanceAutomationComponent } from './relance-automation/relance-automation.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { StockDashboardComponent} from './dashbord-produit/dashbord-produit.component';
+import { TokenInterceptor } from './services/token.interceptor';
+import { ChaimaComponent } from './chaima/chaima.component';
+import { DashboardchaimaComponent } from './dashboardchaima/dashboardchaima.component'; // Import the TokenInterceptor
 
 
 @NgModule({
@@ -185,7 +188,9 @@ import { StockDashboardComponent} from './dashbord-produit/dashbord-produit.comp
     FactureListComponent,
     RelanceAutomationComponent,
     ReportingComponent,
-    StockDashboardComponent
+    StockDashboardComponent,
+    ChaimaComponent,
+    DashboardchaimaComponent
   ],
   imports: [
     BrowserModule,
@@ -234,7 +239,10 @@ import { StockDashboardComponent} from './dashbord-produit/dashbord-produit.comp
     MatStepperModule,
     MatTreeModule
   ],
-  providers: [DecimalPipe],
+  providers: [
+    DecimalPipe,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

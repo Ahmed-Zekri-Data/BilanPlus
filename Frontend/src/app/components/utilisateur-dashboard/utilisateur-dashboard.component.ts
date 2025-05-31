@@ -4,11 +4,23 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UtilisateurService } from '../../services/utilisateur.service';
+import { RoleService } from '../../services/role.service'; // Added RoleService
 import { AuthService } from '../../services/auth.service';
 import { Utilisateur, UtilisateurResponse } from '../../Models/Utilisateur';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+
+// Define interfaces for RoleOption and RoleStatistic
+interface RoleOption {
+  _id: string;
+  nom: string;
+}
+
+interface RoleStatistic {
+  nom: string;
+  count: number;
+}
 
 @Component({
   selector: 'app-utilisateur-dashboard',
@@ -44,12 +56,16 @@ export class UtilisateurDashboardComponent implements OnInit {
   utilisateursActifs = 0;
   utilisateursInactifs = 0;
   connexionsAujourdhui = 0;
+  roleStatistics: RoleStatistic[] = [];
+  allRoles: RoleOption[] = [];
+  loadingRoles = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private utilisateurService: UtilisateurService,
+    private roleService: RoleService, // Injected RoleService
     private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,
@@ -60,6 +76,26 @@ export class UtilisateurDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUtilisateurs();
+    this.loadAllRoles(); // Load all roles
+  }
+
+  loadAllRoles(): void {
+    this.loadingRoles = true;
+    this.roleService.getRoles().subscribe({
+      next: (roles: any[]) => { // Assuming getRoles returns RoleOption compatible array
+        this.allRoles = roles.map(role => ({
+          _id: role._id,
+          nom: role.nom
+        }));
+        this.calculateStatistics(); // Recalculate stats now that roles are available
+        this.loadingRoles = false;
+      },
+      error: (err) => {
+        console.error('UtilisateurDashboardComponent: Error loading roles:', err);
+        this.snackBar.open('Erreur lors du chargement des rôles pour les statistiques.', 'Fermer', { duration: 3000, panelClass: ['error-snackbar'] });
+        this.loadingRoles = false;
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -140,18 +176,34 @@ export class UtilisateurDashboardComponent implements OnInit {
   }
 
   calculateStatistics(): void {
-    this.totalUtilisateurs = this.utilisateurs.length;
-    this.utilisateursActifs = this.utilisateurs.filter(u => u.actif).length;
+    // Calculate general stats
+    this.totalUtilisateurs = this.utilisateurs ? this.utilisateurs.length : 0;
+    this.utilisateursActifs = this.utilisateurs ? this.utilisateurs.filter(u => u.actif).length : 0;
     this.utilisateursInactifs = this.totalUtilisateurs - this.utilisateursActifs;
 
-    // Calculer les connexions d'aujourd'hui
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    this.connexionsAujourdhui = this.utilisateurs.filter(u => {
+    this.connexionsAujourdhui = this.utilisateurs ? this.utilisateurs.filter(u => {
       if (!u.dernierConnexion) return false;
       const connexionDate = new Date(u.dernierConnexion);
       return connexionDate >= today;
-    }).length;
+    }).length : 0;
+
+    // Calculate role statistics if both users and allRoles are loaded
+    if (this.utilisateurs && this.allRoles && this.allRoles.length > 0) {
+      this.roleStatistics = this.allRoles.map(role => {
+        const count = this.utilisateurs.filter(user => {
+          const userRoleName = this.getRoleName(user);
+          return userRoleName === role.nom;
+        }).length;
+        return { nom: role.nom, count: count };
+      });
+    } else if (this.allRoles && this.allRoles.length > 0) {
+      // If users aren't loaded yet, but roles are, show roles with 0 count
+      this.roleStatistics = this.allRoles.map(role => ({ nom: role.nom, count: 0 }));
+    } else {
+      this.roleStatistics = [];
+    }
   }
 
   search(event: Event): void {

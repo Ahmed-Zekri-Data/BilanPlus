@@ -241,7 +241,7 @@ export class AddUtilisateurComponent implements OnInit {
             role: '',
             actif: true
           });
-          setTimeout(() => this.router.navigate(['/utilisateur']), 1500);
+          setTimeout(() => this.router.navigate(['/utilisateurs']), 1500);
         },
         error: (err) => {
           console.error('Erreur de création:', err);

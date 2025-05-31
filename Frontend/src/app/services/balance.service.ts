@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class BalanceService {
-  private apiUrl = 'http://localhost:4000/balance';
+  private apiUrl = 'http://localhost:3000/balance';
 
   constructor(private http: HttpClient) {}
 

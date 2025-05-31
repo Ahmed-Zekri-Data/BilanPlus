@@ -60,29 +60,26 @@ export class AuthService {
 
       // Si aucun utilisateur n'existe ou si nous voulons forcer la réinitialisation
       if (!existingUser) {
-        console.log('AuthService: Aucun utilisateur trouvé dans le localStorage, initialisation avec l\'utilisateur par défaut');
+        console.log('AuthService: Aucun utilisateur trouvé dans le localStorage. Initialisation à null.');
 
-        // Supprimer les données existantes
-        localStorage.removeItem('currentUser');
+        // Initialiser le BehaviorSubject avec null car aucun utilisateur n'est connecté
+        this.currentUserSubject = new BehaviorSubject<any>(null);
+        // S'assurer qu'aucun token n'est présent si aucun utilisateur n'est stocké
         localStorage.removeItem('token');
-
-        // Créer un nouvel utilisateur fictif
-        const userData = {
-          user: this.mockUser,
-          token: 'mock-jwt-token'
-        };
-
-        // Stocker les données dans le localStorage
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        localStorage.setItem('token', 'mock-jwt-token');
-
-        // Initialiser le BehaviorSubject
-        this.currentUserSubject = new BehaviorSubject<any>(userData.user);
+        localStorage.removeItem('currentUser'); // Assurer la propreté
       } else {
         // Utiliser l'utilisateur existant
         console.log('AuthService: Utilisateur trouvé dans le localStorage');
         const userData = JSON.parse(existingUser);
-        this.currentUserSubject = new BehaviorSubject<any>(userData.user);
+        // S'assurer que userData et userData.user existent avant d'accéder à userData.user
+        if (userData && userData.user) {
+          this.currentUserSubject = new BehaviorSubject<any>(userData.user);
+        } else {
+          console.warn('AuthService: Données utilisateur invalides dans localStorage, initialisation à null.');
+          this.currentUserSubject = new BehaviorSubject<any>(null);
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('token');
+        }
       }
 
       // Initialiser l'Observable

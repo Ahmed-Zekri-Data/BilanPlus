@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  selector: 'app-dashboardchaima',
+  templateUrl: './dashboardchaima.component.html',
+  styleUrls: ['./dashboardchaima.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardchaimaComponent implements OnInit {
   facturesCount: number = 0;
   overdueCount: number = 0;
   totalAmount: number = 0;
@@ -30,10 +30,10 @@ export class DashboardComponent implements OnInit {
 
     this.facturesCount = factures.filter((f: any) => f.statut !== 'Payée').length;
     this.overdueCount = factures.filter((f: any) => f.statut === 'En retard').length;
-    
-    // Calculer le montant total impayé
+
+    // Calculate total unpaid amount
     this.totalAmount = factures.reduce((sum: number, f: any) => {
-      if (f.statut === 'Payée') return sum; // Ignorer les factures payées
+      if (f.statut === 'Payée') return sum;
       const facturePayments = paiements.filter((p: any) => p.factureId === f._id);
       const totalPaidForFacture = facturePayments.reduce((paymentSum: number, p: any) => paymentSum + Number(p.montant || 0), 0);
       const remaining = Number(f.montantTTC || 0) - totalPaidForFacture;
@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
       statusCounts[f.statut] = (statusCounts[f.statut] || 0) + 1;
     });
     const devisEnCoursCount = devis.filter((d: any) => 
-  ! ['En retard', 'Paiement Partiel', 'Payée'].includes(d.statut || 'En cours')
+      !['En retard', 'Paiement Partiel', 'Payée'].includes(d.statut || 'En cours')
     ).length;
     this.factureStatusData = [
       { label: 'validée', count: devisEnCoursCount, color: '#3498db' },
@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit {
     if (alert.factureId) {
       this.router.navigate(['/factures', alert.factureId]);
     } else {
-      alert('Détail alerte : ' + alert.title);
+      alert(`Détail alerte : ${alert.title}`);
     }
   }
 }

@@ -8,7 +8,7 @@ import { EcritureComptable } from './Models/EcritureComptable';
   providedIn: 'root'
 })
 export class EcritureComptableService {
-  private apiUrl = 'http://localhost:4000/ecritures';
+  private apiUrl = 'http://localhost:3000/ecritures';
 
   constructor(private http: HttpClient) {}
 

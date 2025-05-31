@@ -7,7 +7,7 @@ import { EcritureComptable } from '../Models/EcritureComptable';
   providedIn: 'root'
 })
 export class JournalService {
-  private apiUrl = 'http://localhost:4000/journal';
+  private apiUrl = 'http://localhost:3000/journal';
 
   constructor(private http: HttpClient) {}
 
